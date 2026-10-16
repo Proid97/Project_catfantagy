@@ -11,8 +11,8 @@ body { margin: 0; }
 button { font: inherit; cursor: pointer; -webkit-tap-highlight-color: transparent; }
 button:focus-visible { outline: 3px solid #ffda63; outline-offset: 6px; }
 [hidden] { display: none !important; }
-#app { width: 100%; height: 100svh; display: grid; place-items: center; overflow: hidden; background: radial-gradient(ellipse, #23666a, #0b282d); }
-.stage { position: relative; width: min(100vw, 177.6833svh); aspect-ratio: 1672 / 941; overflow: hidden; isolation: isolate; container-type: inline-size; background: #58bdf3; }
+#app { --safe-width: calc(100vw - env(safe-area-inset-left) - env(safe-area-inset-right)); --safe-height: calc(100svh - env(safe-area-inset-top) - env(safe-area-inset-bottom)); padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left); width: 100%; height: 100svh; display: grid; place-items: center; overflow: hidden; background: radial-gradient(ellipse, #23666a, #0b282d); }
+.stage { position: relative; width: min(var(--safe-width), calc(var(--safe-height) * 1.776833)); aspect-ratio: 1672 / 941; overflow: hidden; isolation: isolate; container-type: inline-size; background: #58bdf3; }
 .art, .layer { position: absolute; pointer-events: none; }
 .art { inset: 0; overflow: hidden; }
 .layer { opacity: 0; transform-origin: center; }

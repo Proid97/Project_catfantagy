@@ -55,3 +55,15 @@ const generated = new URL('../src/generated/', import.meta.url);
 await mkdir(generated, { recursive: true });
 await writeFile(new URL('catfantagy-ui-bold.woff2', generated), subset);
 console.log(`Pretendard ${(font.length / 1000).toFixed(1)} KB → ${(subset.length / 1000).toFixed(1)} KB`);
+
+const icons = new URL('../public/icons/', import.meta.url);
+await mkdir(icons, { recursive: true });
+const logo = layout.layers.find(layer => layer.file === 'logo.png');
+const [left, top, right, bottom] = logo.sourceBounds;
+for (const [name, size] of [['app-192.png', 192], ['app-512.png', 512], ['apple-touch-icon.png', 180]]) {
+  const content = await sharp(await readFile(new URL(logo.file, source)))
+    .extract({ left, top, width: right - left, height: bottom - top })
+    .resize(Math.round(size * .7), Math.round(size * .7), { fit: 'inside' }).png().toBuffer();
+  await sharp({ create: { width: size, height: size, channels: 4, background: '#103d42' } })
+    .composite([{ input: content, gravity: 'centre' }]).removeAlpha().png().toFile(new URL(name, icons).pathname);
+}

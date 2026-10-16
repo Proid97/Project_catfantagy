@@ -16,6 +16,20 @@
 
 ![실제 구현한 타이틀 화면](docs/images/title-screen.webp)
 
+## Safari에서 검증
+
+[웹앱 열기](https://catfantagy-preview.proid6638.chatgpt.site)
+
+Sites로 호스팅합니다. 검증용 주소는 본인 ChatGPT 계정으로 접속합니다. Safari에서 로그인한 뒤 타이틀 화면이 보이는지 확인합니다.
+
+1. Safari의 **공유 → 홈 화면에 추가**를 누릅니다.
+2. **웹 앱으로 열기**가 보이면 켜고 추가합니다.
+3. 홈 화면의 **냥국배틀** 아이콘으로 실행합니다.
+
+확인할 것: 인트로 순서, 시작 버튼 터치, 가로·세로 회전, 다른 앱에 갔다 돌아오기. 가로 구도를 유지하므로 세로 화면에는 위아래 여백이 생깁니다. 인터넷 연결이 필요합니다.
+
+홈 화면 이름·아이콘·독립 실행 설정을 포함했습니다. 오프라인 캐시는 넣지 않았습니다. 업데이트 뒤에는 앱을 완전히 닫고 다시 엽니다. GitHub 저장과 Sites 배포는 별도 작업입니다.
+
 ## 실행
 
 Node.js 22.12 이상에서 실행합니다.
@@ -30,6 +44,7 @@ npm run dev
 ```sh
 npm run build
 npm run preview
+npm run check:web-app
 npx playwright install chromium
 npm test
 ```
@@ -49,7 +64,7 @@ npm test
 
 [Ponytail](.agents/skills/ponytail/SKILL.md)은 공식 저장소의 `6f1c2bf` 판을 포함했습니다. 기존 기능·브라우저 기본 기능을 먼저 쓰고, 필요한 라이브러리를 선택합니다. 출처: [DietrichGebert/ponytail](https://github.com/DietrichGebert/ponytail/tree/6f1c2bfff0c837d268929a7c4e490918eb4fab29), MIT 라이선스 포함.
 
-이미지 원본은 `assets/title/`, 실행용 생성물은 `public/title/`, 글꼴 생성물은 `src/generated/`, 화면 코드는 `src/`, 자동 검증은 `tests/`에서 관리합니다. 배치 기준은 `assets/title/layout.json` 한 곳에서 수정합니다. UI 문구를 추가하면 `npm run assets`를 다시 실행해 필요한 글자를 포함합니다. 지형은 코드의 고정 영역으로 나눠 순서대로 등장합니다.
+이미지 원본은 `assets/title/`, 실행용 생성물은 `public/title/`과 `public/icons/`, 글꼴 생성물은 `src/generated/`, 화면 코드는 `src/`, 자동 검증은 `tests/`에서 관리합니다. 배치 기준은 `assets/title/layout.json` 한 곳에서 수정합니다. UI 문구를 추가하면 `npm run assets`를 다시 실행해 필요한 글자를 포함합니다. 지형은 코드의 고정 영역으로 나눠 순서대로 등장합니다.
 
 아트는 ChatGPT 이미지젠으로 제작합니다. 메인 캐릭터와 타이틀 원본은 [게임 설계](docs/game-design.md#메인-콘셉트)에 있습니다. Pretendard의 글자 모양을 유지한 부분 글꼴을 생성합니다. OFL 라이선스에 맞춰 생성물 이름은 `Catfantagy UI`로 바꾸고, 원 저작권과 라이선스는 `public/licenses/pretendard.txt`에 포함했습니다.
 
