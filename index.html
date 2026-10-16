@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#103d42" />
+    <meta name="description" content="주사위와 카드로 펼치는 판타지 고양이들의 대결, 운빨냥국배틀." />
+    <title>운빨냥국배틀</title>
+  </head>
+  <body>
+    <main id="app" aria-label="운빨냥국배틀 타이틀">
+      <div class="stage" data-state="loading" aria-busy="true">
+        <div class="art" aria-hidden="true"></div>
+        <h1 class="sr-only">운빨냥국배틀</h1>
+        <button class="start" hidden aria-label="게임 시작">TOUCH TO START</button>
+        <p class="status" role="status">냥국을 불러오는 중…</p>
+        <button class="skip" hidden>연출 건너뛰기</button>
+        <button class="retry" hidden>다시 불러오기</button>
+        <button class="replay" hidden aria-label="타이틀 연출 다시 보기">다시 보기 <span aria-hidden="true">↻</span></button>
+        <dialog class="next-screen" aria-labelledby="next-title">
+          <h2 id="next-title">다음 여정을 준비 중이에요</h2>
+          <p>냥국을 고르는 화면은 다음 개발 단계에서 이어집니다.</p>
+          <button autofocus>타이틀로 돌아가기</button>
+        </dialog>
+      </div>
+    </main>
+    <noscript>게임을 시작하려면 자바스크립트를 켜주세요.</noscript>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
