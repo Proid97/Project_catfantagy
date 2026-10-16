@@ -18,9 +18,9 @@ test('등장 순서, 자연 종료, 시작 입력과 되돌아오기', async ({ 
   expect(await page.evaluate(() => document.fonts.check('700 24px "Catfantagy UI"'))).toBe(true);
   await page.evaluate(() => { window.starts = 0; window.addEventListener('title:start', () => window.starts++); });
   await page.keyboard.press('Enter');
-  await expect(page.getByRole('dialog')).toBeVisible();
+  await expect(page.getByRole('heading', { name: '플레이어 1의 냥국을 골라요' })).toBeVisible();
   expect(await page.evaluate(() => window.starts)).toBe(1);
-  await page.getByRole('button', { name: '타이틀로 돌아가기' }).click();
+  await page.getByRole('button', { name: '← 타이틀로' }).click();
   await ready(page);
   await page.getByRole('button', { name: '타이틀 연출 다시 보기' }).click();
   await expect(page.locator('.stage')).toHaveAttribute('data-state', 'intro');
@@ -46,7 +46,7 @@ for (const [width, height] of [[1672, 941], [844, 390], [390, 844], [2560, 1080]
     await expect(page.getByRole('button', { name: '게임 시작' })).toBeInViewport();
     await page.screenshot({ path: `test-results/title-${width}x${height}.png` });
     await page.getByRole('button', { name: '게임 시작' }).click();
-    await expect(page.getByRole('dialog')).toBeVisible();
+    await expect(page.getByRole('heading', { name: '플레이어 1의 냥국을 골라요' })).toBeVisible();
   });
 }
 
@@ -56,7 +56,7 @@ test('터치로 시작', async ({ browser }) => {
   await page.goto('http://127.0.0.1:4173/');
   await ready(page);
   await page.getByRole('button', { name: '게임 시작' }).tap();
-  await expect(page.getByRole('dialog')).toBeVisible();
+  await expect(page.getByRole('heading', { name: '플레이어 1의 냥국을 골라요' })).toBeVisible();
   await context.close();
 });
 

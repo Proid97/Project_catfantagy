@@ -1,4 +1,5 @@
 import './style.css';
+import { setupScreen } from './setup-screen.js';
 
 const stage = document.querySelector('.stage');
 const art = document.querySelector('.art');
@@ -7,7 +8,8 @@ const skip = document.querySelector('.skip');
 const replay = document.querySelector('.replay');
 const status = document.querySelector('.status');
 const retry = document.querySelector('.retry');
-const nextScreen = document.querySelector('.next-screen');
+const setup = document.querySelector('#setup');
+const openSetup = setupScreen(setup, () => { stage.hidden = false; ready(); start.focus(); });
 const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
 const assetRoot = `${import.meta.env.BASE_URL}title/`;
 let animations = [];
@@ -116,18 +118,16 @@ async function load() {
 start.addEventListener('click', () => {
   if (stage.dataset.state !== 'ready') return;
   state('started');
-  // shortcut: 다음 화면은 안내창, 냥국 선택 화면 구현 시 교체한다.
-  nextScreen.showModal();
+  stage.hidden = true;
+  openSetup();
   window.dispatchEvent(new CustomEvent('title:start'));
 });
 skip.addEventListener('click', ready);
 replay.addEventListener('click', intro);
 retry.addEventListener('click', load);
-nextScreen.querySelector('button').addEventListener('click', () => nextScreen.close());
-nextScreen.addEventListener('close', () => { ready(); start.focus(); });
 document.addEventListener('keydown', event => {
   if (event.repeat || !['Enter', ' '].includes(event.key)) return;
-  if (event.target instanceof HTMLButtonElement || nextScreen.open) return;
+  if (stage.hidden || event.target instanceof HTMLButtonElement) return;
   event.preventDefault();
   if (stage.dataset.state === 'intro') ready();
   else if (stage.dataset.state === 'ready') start.click();

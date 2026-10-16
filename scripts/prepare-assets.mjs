@@ -1,5 +1,5 @@
 import sharp from 'sharp';
-import { readFile, mkdir, writeFile, stat, rename } from 'node:fs/promises';
+import { readFile, mkdir, writeFile, stat, rename, readdir } from 'node:fs/promises';
 
 const source = new URL('../assets/title/', import.meta.url);
 const output = new URL('../public/title/', import.meta.url);
@@ -33,11 +33,12 @@ for (const layer of layout.layers) {
 await writeFile(new URL('layout.json', output), JSON.stringify(layout));
 console.log(`타이틀 이미지 ${(originalBytes / 1e6).toFixed(2)} MB → ${(outputBytes / 1e6).toFixed(2)} MB (${Math.round((1 - outputBytes / originalBytes) * 100)}% 감소)`);
 
-// UI에서 쓰는 글자만 포함한다. 새 화면을 추가할 때 이 입력 목록에도 연결한다.
+// 모든 화면의 소스에서 필요한 글자를 모아 부분 글꼴을 만든다.
 const { createFont, woff2 } = await import('fonteditor-core');
 await woff2.init();
 const font = await readFile(new URL('../node_modules/@fontsource/pretendard/files/pretendard-latin-700-normal.woff2', import.meta.url));
-const texts = await Promise.all(['../index.html', '../src/main.js'].map(path => readFile(new URL(path, import.meta.url), 'utf8')));
+const scripts = (await readdir(new URL('../src/', import.meta.url), { recursive: true })).filter(path => path.endsWith('.js')).map(path => `../src/${path}`);
+const texts = await Promise.all(['../index.html', ...scripts].map(path => readFile(new URL(path, import.meta.url), 'utf8')));
 const text = [...new Set(texts.join('') + 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789 ↻…')].join('');
 const uiFont = createFont(font, { type: 'woff2', subset: [...text].map(char => char.codePointAt(0)), compound2simple: true, kerning: true });
 // OFL의 예약 이름을 보존하기 위해 배포용 부분 글꼴에 새 이름을 붙인다.

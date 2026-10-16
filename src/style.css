@@ -27,15 +27,10 @@ button:focus-visible { outline: 3px solid #ffda63; outline-offset: 6px; }
 .replay { top: auto; bottom: 4.5%; }
 .status { position: absolute; z-index: 70; inset: 45% 8% auto; text-align: center; font-size: clamp(16px, 2cqw, 24px); text-shadow: 0 2px 12px #123c3e; }
 .retry { position: absolute; z-index: 70; left: 50%; top: 60%; transform: translateX(-50%); padding: 12px 24px; border: 0; border-radius: 24px; color: #173d42; background: #ffda63; }
-.next-screen { max-width: min(90vw, 430px); border: 1px solid #548889; border-radius: 24px; padding: 30px; background: #143d43; color: #fff9e7; text-align: center; }
-.next-screen::backdrop { background: #092e35b8; backdrop-filter: blur(5px); }
-.next-screen h2 { margin: 0 0 14px; font-size: 23px; }
-.next-screen p { font-size: 15px; line-height: 1.7; color: #d4e3d8; }
-.next-screen button { border: 0; border-radius: 24px; padding: 12px 24px; margin-top: 8px; color: #173d42; background: #ffda63; }
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 @media (max-aspect-ratio: 1/1) {
   .start { bottom: 3%; padding: .55em 1em; }
   .skip, .replay { padding: 7px 10px; right: 8px; }
   .replay { bottom: auto; top: 10px; }
 }
-.start, .skip, .replay, .retry, .next-screen button { min-height: 44px; min-width: 44px; }
+.start, .skip, .replay, .retry { min-height: 44px; min-width: 44px; }

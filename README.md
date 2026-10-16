@@ -12,7 +12,7 @@
 | [게임 설계](docs/game-design.md) | 현재 규칙, 클래스, 남은 설계 |
 | [대화 맥락](docs/project-context.md) | 결정한 이유, 바뀐 규칙, 다음 작업 |
 
-현재는 **타이틀 화면 구현 단계**입니다. 하늘 → 동산 → 자원 지형 → 왕성 → 세 고양이 → 로고 → 시작 문구가 차례로 등장합니다. 터치·클릭·Enter로 시작하고, 건너뛰기와 다시 보기를 지원합니다. 시작 후에는 다음 화면 준비 안내가 나옵니다. 게임 플레이는 아직 없습니다.
+현재는 **냥국 선택·시작 순서 준비 구현 단계**입니다. 하늘 → 동산 → 자원 지형 → 왕성 → 세 고양이 → 로고 → 시작 문구가 차례로 등장합니다. 터치·클릭·Enter로 시작하고, 건너뛰기와 다시 보기를 지원합니다. 시작하면 두 플레이어가 냥국을 고르고 시작 순서 주사위를 굴립니다. 첫 배치 지도와 실제 전투는 아직 없습니다.
 
 ![실제 구현한 타이틀 화면](docs/images/title-screen.webp)
 
@@ -26,7 +26,7 @@ Sites로 호스팅합니다. 검증용 주소는 본인 ChatGPT 계정으로 접
 2. **웹 앱으로 열기**가 보이면 켜고 추가합니다.
 3. 홈 화면의 **냥국배틀** 아이콘으로 실행합니다.
 
-확인할 것: 인트로 순서, 시작 버튼 터치, 가로·세로 회전, 다른 앱에 갔다 돌아오기. 가로 구도를 유지하므로 세로 화면에는 위아래 여백이 생깁니다. 인터넷 연결이 필요합니다.
+확인할 것: 인트로, 두 플레이어의 냥국 선택과 변경, 주사위 순서, 타이틀 복귀, 가로·세로 회전. 가로 구도를 유지하므로 세로 화면에는 위아래 여백이 생깁니다. 인터넷 연결이 필요합니다.
 
 홈 화면 이름·아이콘·독립 실행 설정을 포함했습니다. 오프라인 캐시는 넣지 않았습니다. 업데이트 뒤에는 앱을 완전히 닫고 다시 엽니다. GitHub 저장과 Sites 배포는 별도 작업입니다.
 
@@ -45,6 +45,7 @@ npm run dev
 npm run build
 npm run preview
 npm run check:web-app
+npm run test:rules
 npx playwright install chromium
 npm test
 ```
@@ -64,7 +65,7 @@ npm test
 
 [Ponytail](.agents/skills/ponytail/SKILL.md)은 공식 저장소의 `6f1c2bf` 판을 포함했습니다. 기존 기능·브라우저 기본 기능을 먼저 쓰고, 필요한 라이브러리를 선택합니다. 출처: [DietrichGebert/ponytail](https://github.com/DietrichGebert/ponytail/tree/6f1c2bfff0c837d268929a7c4e490918eb4fab29), MIT 라이선스 포함.
 
-이미지 원본은 `assets/title/`, 실행용 생성물은 `public/title/`과 `public/icons/`, 글꼴 생성물은 `src/generated/`, 화면 코드는 `src/`, 자동 검증은 `tests/`에서 관리합니다. 배치 기준은 `assets/title/layout.json` 한 곳에서 수정합니다. UI 문구를 추가하면 `npm run assets`를 다시 실행해 필요한 글자를 포함합니다. 지형은 코드의 고정 영역으로 나눠 순서대로 등장합니다.
+이미지 원본은 `assets/title/`, 실행용 생성물은 `public/title/`과 `public/icons/`, 글꼴 생성물은 `src/generated/`, 화면 코드는 `src/`, 선택·시작 순서 규칙은 `src/setup.js`, 자동 검증은 `tests/`에서 관리합니다. 배치 기준은 `assets/title/layout.json` 한 곳에서 수정합니다. UI 문구를 추가하면 `npm run assets`를 다시 실행해 필요한 글자를 포함합니다. 지형은 코드의 고정 영역으로 나눠 순서대로 등장합니다.
 
 아트는 ChatGPT 이미지젠으로 제작합니다. 메인 캐릭터와 타이틀 원본은 [게임 설계](docs/game-design.md#메인-콘셉트)에 있습니다. Pretendard의 글자 모양을 유지한 부분 글꼴을 생성합니다. OFL 라이선스에 맞춰 생성물 이름은 `Catfantagy UI`로 바꾸고, 원 저작권과 라이선스는 `public/licenses/pretendard.txt`에 포함했습니다.
 
