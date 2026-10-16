@@ -181,6 +181,26 @@
 
 가로형 모크업 선택만으로 게임 전체의 플랫폼이나 화면 방향을 확정하지 않습니다.
 
+### 타이틀 분리 이미지
+
+연출용 PNG는 `assets/title/`에서 관리합니다. 하늘을 제외한 6장은 투명 배경입니다. 원본 화면을 이미지젠으로 분리·보완했으므로 가려진 부분과 일부 형태는 원본과 다릅니다. 기존 타이틀 원본은 그대로 보관합니다.
+
+| 파일 | 내용 |
+|---|---|
+| [sky.png](../assets/title/sky.png) | 하늘과 구름 |
+| [landscape.png](../assets/title/landscape.png) | 동산·광산·수정·호수. 나무와 산봉우리를 줄인 지형 |
+| [castle.png](../assets/title/castle.png) | 중앙 왕성 |
+| [warrior.png](../assets/title/warrior.png) | 돌진하는 전사냥 |
+| [mage.png](../assets/title/mage.png) | 공중에서 견제하는 법사냥 |
+| [assassin.png](../assets/title/assassin.png) | 도약하는 냥살자 |
+| [logo.png](../assets/title/logo.png) | ‘틀’을 정리하고 정면 정사각형 주사위 두 개를 넣은 로고 |
+
+- 등장 순서: 하늘 → 지형 → 왕성 → 캐릭터 → 로고 → 코드로 만든 시작 문구.
+- **TOUCH TO START는 어느 PNG에도 포함하지 않습니다.** 실제 Pretendard 폰트를 사용해 코드로 표시합니다.
+- 파일별 크기와 투명 여백이 달라 단순히 같은 위치에 겹치면 원본 구도가 나오지 않습니다. [layout.json](../assets/title/layout.json)에 투명 여백과 첫 조립용 배치 예시를 넣었습니다. 실제 화면에서 조정합니다.
+- 로고 수정본은 눈으로 확인했습니다. 주사위는 떨어진 두 정사각형이며, 눈은 각각 3개·4개입니다. 지형도 원본과 비교해 나무·봉우리·잔디테일을 줄였습니다.
+- [prompts.json](../assets/title/prompts.json)은 이미지젠 제작·수정 프롬프트 기록입니다. 모션은 아직 구현하지 않았습니다.
+
 ## 10. 다음에 정할 것
 
 1. 육각판의 이동·공격·도약·방향 그림과 타일당 유닛 수.

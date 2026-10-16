@@ -1,0 +1,152 @@
+{
+  "canvas": {
+    "width": 1672,
+    "height": 941
+  },
+  "note": "원본 타이틀을 바탕으로 이미지젠에서 분리·보완한 이미지입니다. 원본과 픽셀 단위로 같지는 않습니다. 아래 배치는 첫 조립용 예시이며 실제 화면에서 조정합니다.",
+  "layers": [
+    {
+      "file": "sky.png",
+      "sourceSize": [
+        1671,
+        941
+      ],
+      "sourceBounds": [
+        0,
+        0,
+        1671,
+        941
+      ],
+      "x": 0,
+      "y": 0,
+      "w": 1672,
+      "h": 941,
+      "z": 0,
+      "fit": "stretch",
+      "useFullImage": true
+    },
+    {
+      "file": "landscape.png",
+      "sourceSize": [
+        1672,
+        941
+      ],
+      "sourceBounds": [
+        0,
+        86,
+        1672,
+        941
+      ],
+      "x": 0,
+      "y": 0,
+      "w": 1672,
+      "h": 941,
+      "z": 10,
+      "fit": "stretch",
+      "useFullImage": true
+    },
+    {
+      "file": "castle.png",
+      "sourceSize": [
+        1774,
+        887
+      ],
+      "sourceBounds": [
+        115,
+        20,
+        1675,
+        843
+      ],
+      "x": 605,
+      "y": 430,
+      "w": 490,
+      "h": 300,
+      "z": 20,
+      "fit": "contain"
+    },
+    {
+      "file": "mage.png",
+      "sourceSize": [
+        1536,
+        1024
+      ],
+      "sourceBounds": [
+        72,
+        38,
+        1498,
+        995
+      ],
+      "x": 565,
+      "y": 290,
+      "w": 570,
+      "h": 325,
+      "z": 30,
+      "fit": "contain"
+    },
+    {
+      "file": "warrior.png",
+      "sourceSize": [
+        1672,
+        941
+      ],
+      "sourceBounds": [
+        30,
+        19,
+        1616,
+        930
+      ],
+      "x": 0,
+      "y": 250,
+      "w": 820,
+      "h": 605,
+      "z": 40,
+      "fit": "contain",
+      "align": "bottom-left"
+    },
+    {
+      "file": "assassin.png",
+      "sourceSize": [
+        1672,
+        941
+      ],
+      "sourceBounds": [
+        22,
+        22,
+        1652,
+        918
+      ],
+      "x": 940,
+      "y": 175,
+      "w": 732,
+      "h": 580,
+      "z": 40,
+      "fit": "contain",
+      "align": "bottom-right"
+    },
+    {
+      "file": "logo.png",
+      "sourceSize": [
+        1672,
+        941
+      ],
+      "sourceBounds": [
+        26,
+        12,
+        1661,
+        935
+      ],
+      "x": 550,
+      "y": 18,
+      "w": 575,
+      "h": 282,
+      "z": 50,
+      "fit": "contain"
+    }
+  ],
+  "startPrompt": {
+    "text": "TOUCH TO START",
+    "font": "Pretendard",
+    "render": "code",
+    "includedInImages": false
+  }
+}
