@@ -1,11 +1,13 @@
 import './style.css';
 import { setupScreen } from './setup-screen.js';
+import { animateTitle, syncIntroVisibility } from './title-intro.js';
 
 const stage = document.querySelector('.stage');
 const art = document.querySelector('.art');
 const start = document.querySelector('.start');
 const skip = document.querySelector('.skip');
 const replay = document.querySelector('.replay');
+const motionNote = document.querySelector('.motion-note');
 const status = document.querySelector('.status');
 const retry = document.querySelector('.retry');
 const setup = document.querySelector('#setup');
@@ -21,6 +23,7 @@ function state(value) {
   start.hidden = value !== 'ready';
   skip.hidden = value !== 'intro';
   replay.hidden = value !== 'ready';
+  motionNote.hidden = value !== 'ready' || stage.dataset.motion !== 'reduced';
 }
 
 function cancelAnimations() {
@@ -37,29 +40,12 @@ function ready() {
   state('ready');
 }
 
-function intro() {
+function intro({ fullMotion = false } = {}) {
   cancelAnimations();
-  if (reducedMotion.matches) return ready();
+  stage.dataset.motion = reducedMotion.matches && !fullMotion ? 'reduced' : 'full';
   state('intro');
-  const entrances = {
-    sky: [0, 600, 'scale(1.035)'],
-    ground: [350, 900, 'translateY(55%)'],
-    regions: [900, 1000, 'translateY(35%)'],
-    castle: [1650, 900, 'translateY(70%) scale(.9)'],
-    warrior: [2400, 650, 'translate(-110%, 18%) rotate(-14deg)'],
-    assassin: [2530, 650, 'translate(110%, -22%) rotate(16deg)'],
-    mage: [2660, 750, 'translateY(-110%) scale(.8)'],
-    logo: [3450, 650, 'scale(1.25) translateY(-12%)'],
-  };
-  for (const layer of art.children) {
-    const [delay, duration, from] = entrances[layer.dataset.layer];
-    layer.style.opacity = '0';
-    const animation = layer.animate([
-      { opacity: 0, transform: from },
-      { opacity: 1, transform: 'none' },
-    ], { delay, duration, easing: 'cubic-bezier(.16,1,.3,1)', fill: 'both' });
-    animations.push(animation);
-  }
+  animations = animateTitle(art.children, { reducedMotion: reducedMotion.matches, fullMotion });
+  syncIntroVisibility(animations, document.hidden);
   Promise.all(animations.map(animation => animation.finished)).then(() => {
     if (stage.dataset.state === 'intro') ready();
   }).catch(error => { if (error.name !== 'AbortError') throw error; });
@@ -123,7 +109,11 @@ start.addEventListener('click', () => {
   window.dispatchEvent(new CustomEvent('title:start'));
 });
 skip.addEventListener('click', ready);
-replay.addEventListener('click', intro);
+// 직접 누른 재생은 전체 연출을 요청한 것으로 처리한다.
+replay.addEventListener('click', () => intro({ fullMotion: true }));
+document.addEventListener('visibilitychange', () => {
+  if (stage.dataset.state === 'intro') syncIntroVisibility(animations, document.hidden);
+});
 retry.addEventListener('click', load);
 document.addEventListener('keydown', event => {
   if (event.repeat || !['Enter', ' '].includes(event.key)) return;
@@ -133,6 +123,9 @@ document.addEventListener('keydown', event => {
   else if (stage.dataset.state === 'ready') start.click();
 });
 reducedMotion.addEventListener('change', () => {
-  if (reducedMotion.matches && stage.dataset.state === 'intro') ready();
+  if (reducedMotion.matches && stage.dataset.state === 'intro') {
+    stage.dataset.motion = 'reduced';
+    ready();
+  }
 });
 load();

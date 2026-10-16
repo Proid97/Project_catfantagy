@@ -93,3 +93,35 @@ test('첫 로딩 용량과 시작 버튼 터치 크기', async ({ page }) => {
   expect(button.height).toBeGreaterThanOrEqual(44);
   console.log(`첫 로딩 리소스: ${bytes} bytes`);
 });
+
+test('동작 줄이기에서도 순차 등장하고 직접 다시 보기는 전체 동작', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.goto('/');
+  await expect(page.locator('.stage')).toHaveAttribute('data-state', 'intro');
+  await expect(page.locator('.stage')).toHaveAttribute('data-motion', 'reduced');
+  const transforms = await page.locator('.art').evaluate(art => [...art.children].map(layer => layer.getAnimations()[0].effect.getKeyframes()[0].transform));
+  expect(transforms.every(value => value === 'none')).toBe(true);
+  await ready(page);
+  await expect(page.locator('.motion-note')).toBeVisible();
+  await page.getByRole('button', { name: '타이틀 연출 다시 보기' }).click();
+  await expect(page.locator('.stage')).toHaveAttribute('data-state', 'intro');
+  await expect(page.locator('.stage')).toHaveAttribute('data-motion', 'full');
+  const from = await page.locator('[data-layer="warrior"]').evaluate(layer => layer.getAnimations()[0].effect.getKeyframes()[0].transform);
+  expect(from).toContain('translate');
+  await page.getByRole('button', { name: '연출 건너뛰기' }).click();
+  await ready(page);
+  await expect(page.locator('.motion-note')).toBeHidden();
+});
+
+test('화면이 가려진 동안 연출을 멈추고 돌아오면 이어서 재생', async ({ page }) => {
+  await page.addInitScript(() => {
+    window.testHidden = true;
+    Object.defineProperty(document, 'hidden', { get: () => window.testHidden });
+  });
+  await page.goto('/');
+  await expect(page.locator('.stage')).toHaveAttribute('data-state', 'intro');
+  const paused = await page.locator('.art').evaluate(art => [...art.children].every(layer => layer.getAnimations()[0].playState === 'paused'));
+  expect(paused).toBe(true);
+  await page.evaluate(() => { window.testHidden = false; document.dispatchEvent(new Event('visibilitychange')); });
+  await ready(page);
+});
