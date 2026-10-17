@@ -192,18 +192,18 @@
 | 작은 디테일 | 하이라이트·코·발바닥은 긴 변 1672px 기준 지름 10px 이상. 정리 과정에서 사라지지 않게 함 |
 | 접지 | 서 있는 발은 바닥면이 평평하게 보임. 공중 자세는 몸 아래를 비워 떠 있음을 보여 줌 |
 
-**부위별 현황** (2026-10-17 재제작 뒤, 점검 시트: [character-art-check.png](images/character-art-check.png))
+**부위별 현황** (2026-10-17 재제작과 잔여 정리 뒤, 점검 시트: [character-art-check.png](images/character-art-check.png))
 
 | 부위 | 냥전사 | 냥법사 | 냥살자 |
 |---|---|---|---|
-| 눈 | 두 눈이 보이고 하이라이트 있음 | 기준과 같음 | 하이라이트 추가. 눈 아래 옅은 밝은 흔적이 남음 |
-| 몸·옷 | 금 갑옷을 큰 판으로, 방패 테두리를 큰 금색 면 3개로 단순화 | 로브 목 부분에 잔면이 남음 | 검은 몸에 푸른 회색 밝은 면이 생겨 형태가 읽힘 |
-| 천 | 망토를 줄여 머리·귀가 드러남 | 모자와 귀가 겹치는 곳이 남음 | 머플러 면적을 줄이고 3단으로 |
-| 다리·소품 | 뒷발에 바닥면이 생김. 다리가 짙은 갈색에서 짙은 남색 가죽으로 바뀜 | 다리 길이가 자연스럽고 지팡이는 나무색 | 줄무늬 소매·단검·말린 꼬리 유지 |
-| 정리 전 색 → 정리 뒤 색 덩어리 | 49,363 → 166 | 49,449 → 173 | 43,331 → 134 |
+| 눈 | 두 눈이 보이고 하이라이트 있음 | 기준과 같음 | 하이라이트 추가, 세로 동공 경계의 흔적 제거 |
+| 몸·옷 | 금 갑옷을 큰 판으로, 방패 테두리를 큰 금색 면 3개로 단순화 | 목의 잔면을 넓은 천 면으로 정리 | 검은 몸에 푸른 회색 밝은 면이 생겨 형태가 읽힘 |
+| 천 | 망토를 줄여 머리·귀가 드러남 | 모자 챙에 귀가 지나가는 홈을 내 접점 정리 | 머플러 면적을 줄이고 3단으로 |
+| 다리·소품 | 뒷발에 바닥면이 생김. 가죽은 짙은 갈색(회색 기운은 밝은 면에만) | 다리 길이가 자연스럽고 지팡이는 나무색 | 줄무늬 소매·단검·말린 꼬리 유지 |
+| 정리 전 색 → 정리 뒤 색 덩어리 | 53,083 → 205 | 45,866 → 155 | 41,452 → 135 |
 
 - 원본 PNG는 몸 안쪽까지 알파 128~254로 살짝 투명하고, 배경에 옅은 잡티가 있습니다(이전 그림도 같음). 정리 단계에서 완전 불투명·완전 투명으로 바뀝니다.
-- 남은 일: 법사의 모자·귀 겹침과 로브 목 잔면, 냥살자 눈 아래 흔적.
+- 지금 기준으로 남은 아트 문제는 없습니다.
 
 **생성과 정리 공정**
 
@@ -211,7 +211,7 @@
    ```text
    Flat vector game illustration in the same style as the reference. Hard-edged cel shading with exactly three tones per material (highlight, base, shadow), single light source from the upper left. No gradients, no texture, no grain, no noise, no glow, no blur. Crisp clean edges, no black outlines, fully transparent background with no semi-transparent fringe. Eyes: thick upper lid line, two-tone iris, one large clear white highlight at the upper left, no small secondary reflection. Smallest details at least 10 px wide. Head-to-body ratio about 1:1.4.
    ```
-2. 생성 원본 PNG는 그대로 커밋합니다. 정리는 `npm run assets`가 실행용 WebP를 만들 때 자동으로 합니다. 반투명 가장자리를 알파 128 기준으로 또렷하게 하고, [vtracer](https://github.com/visioncortex/vtracer)(`@neplex/vectorizer`)로 색면 도형을 다시 딴 뒤 원래 크기로 되돌립니다. 설정은 `colorPrecision 6`, `layerDifference 16`, `filterSpeckle 6`, `cornerThreshold 60`입니다.
+2. 생성 원본 PNG는 그대로 커밋합니다. 정리는 `npm run assets`가 실행용 WebP를 만들 때 자동으로 합니다. 반투명 가장자리를 알파 128 기준으로 또렷하게 하고, [vtracer](https://github.com/visioncortex/vtracer)(`@neplex/vectorizer`)로 색면 도형을 다시 딴 뒤 원래 크기로 되돌립니다. 설정은 `colorPrecision 6`, `layerDifference 16`, `filterSpeckle 6`, `cornerThreshold 60`입니다. 잘라 쓸 영역도 정리된 그림에서 자동으로 재므로, 그림을 바꿔도 `layout.json`을 고칠 필요가 없습니다. 그림의 일부만 쓰는 층(하늘, 나무 왼쪽·오른쪽)만 `sourceBounds`를 적습니다.
 3. 새 그림을 넣으면 같은 부위를 3배 확대해 원본과 비교합니다. 눈 하이라이트와 작은 디테일이 남았는지 확인합니다.
 
 적용 결과(타이틀 13층): 얼룩과 번짐이 사라지고 모서리와 3단 명암은 유지됐습니다. 실행 이미지는 0.67MB에서 0.48MB로, 첫 로딩은 약 0.73MB에서 0.54MB로 줄었습니다. `filterSpeckle 10`에서는 성문 아치의 가는 선과 작은 반사광이 사라져 6으로 낮췄습니다. 그림을 새로 처음부터 만들 때는 약 20초가 걸립니다.
