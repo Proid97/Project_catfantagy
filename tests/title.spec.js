@@ -129,7 +129,7 @@ test('첫 로딩 용량', async ({ page }) => {
   const bytes = entries.reduce((sum, item) => sum + item.bytes, 0);
   expect(entries.some(item => item.name.endsWith('.woff2'))).toBe(true);
   expect(entries.some(item => item.name.includes('layout.json'))).toBe(false);
-  expect(bytes).toBeGreaterThan(500000);
+  expect(bytes).toBeGreaterThan(300000);
   expect(bytes).toBeLessThan(1100000);
   console.log(`첫 로딩 리소스: ${bytes} bytes`);
 });

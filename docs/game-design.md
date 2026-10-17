@@ -205,10 +205,10 @@
    ```text
    Flat vector game illustration in the same style as the reference. Hard-edged cel shading with exactly three tones per material (highlight, base, shadow), single light source from the upper left. No gradients, no texture, no grain, no noise, no glow, no blur. Crisp clean edges, no black outlines, fully transparent background with no semi-transparent fringe. Eyes: thick upper lid line, two-tone iris, one clear white highlight at the upper left and a small reflection at the lower right. Smallest details at least 10 px wide. Head-to-body ratio about 1:1.4.
    ```
-2. 생성 원본은 그대로 보관하고 정리본을 따로 만듭니다. 반투명 가장자리를 알파 128 기준으로 또렷하게 한 뒤 [vtracer](https://github.com/visioncortex/vtracer)로 벡터 변환(`color_precision 6`, `layer_difference 16`, `filter_speckle 10`, `corner_threshold 60`)하고 PNG로 되돌립니다.
-3. 같은 부위를 3배 확대해 원본과 비교하고, 눈 하이라이트와 작은 디테일이 남았는지 확인한 뒤 채택합니다.
+2. 생성 원본 PNG는 그대로 커밋합니다. 정리는 `npm run assets`가 실행용 WebP를 만들 때 자동으로 합니다. 반투명 가장자리를 알파 128 기준으로 또렷하게 하고, [vtracer](https://github.com/visioncortex/vtracer)(`@neplex/vectorizer`)로 색면 도형을 다시 딴 뒤 원래 크기로 되돌립니다. 설정은 `colorPrecision 6`, `layerDifference 16`, `filterSpeckle 6`, `cornerThreshold 60`입니다.
+3. 새 그림을 넣으면 같은 부위를 3배 확대해 원본과 비교합니다. 눈 하이라이트와 작은 디테일이 남았는지 확인합니다.
 
-시험 결과(전사·법사): 얼룩과 번짐이 사라지고 모서리와 3단 명암은 유지됐습니다. 같은 조건의 WebP는 약 20% 작아졌습니다. 지름 10px 미만의 반사광은 사라졌습니다.
+적용 결과(타이틀 13층): 얼룩과 번짐이 사라지고 모서리와 3단 명암은 유지됐습니다. 실행 이미지는 0.67MB에서 0.48MB로, 첫 로딩은 약 0.73MB에서 0.54MB로 줄었습니다. `filterSpeckle 10`에서는 성문 아치의 가는 선과 작은 반사광이 사라져 6으로 낮췄습니다. 그림을 새로 처음부터 만들 때는 약 20초가 걸립니다.
 
 ### 타이틀 화면
 

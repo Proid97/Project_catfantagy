@@ -2,6 +2,7 @@ import sharp from 'sharp';
 import { createHash } from 'node:crypto';
 import { readFile, mkdir, writeFile, stat, rename, readdir } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
+import { vectorizeRaw, ColorMode, Hierarchical, PathSimplifyMode } from '@neplex/vectorizer';
 
 const source = new URL('../assets/title/', import.meta.url);
 const output = new URL('../public/title/', import.meta.url);
@@ -12,6 +13,22 @@ await mkdir(generated, { recursive: true });
 const changedAt = Math.max((await stat(new URL('layout.json', source))).mtimeMs, (await stat(new URL(import.meta.url))).mtimeMs);
 let originalBytes = 0;
 let outputBytes = 0;
+// AI 생성 그림의 얼룩·번짐을 없앤다. 가장자리를 또렷하게 한 뒤 색면 도형으로 다시 따서 원래 크기로 되돌린다.
+// 설정값과 시험 결과는 docs/game-design.md의 '캐릭터 아트 기준'. 원본 PNG는 바꾸지 않는다.
+const cleaned = new Map();
+function clean(file) {
+  if (!cleaned.has(file)) cleaned.set(file, (async () => {
+    const { data, info } = await sharp(await readFile(new URL(file, source))).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
+    for (let i = 3; i < data.length; i += 4) data[i] = data[i] >= 128 ? 255 : 0;
+    const svg = await vectorizeRaw(data, { width: info.width, height: info.height }, {
+      colorMode: ColorMode.Color, hierarchical: Hierarchical.Stacked, mode: PathSimplifyMode.Spline,
+      colorPrecision: 6, layerDifference: 16, filterSpeckle: 6, cornerThreshold: 60,
+      lengthThreshold: 4, maxIterations: 10, spliceThreshold: 45, pathPrecision: 2,
+    });
+    return sharp(Buffer.from(svg)).resize(info.width, info.height).png().toBuffer();
+  })());
+  return cleaned.get(file);
+}
 for (const file of new Set(layout.layers.map(layer => layer.file))) originalBytes += (await stat(new URL(file, source))).size;
 for (const layer of layout.layers) {
   const input = new URL(layer.file, source);
@@ -25,7 +42,7 @@ for (const layer of layout.layers) {
     // 비율을 지키는 그림은 큰 화면에서도 선명하게, 늘려 채우는 지형은 원본 크기로 둔다.
     const scale = layer.fit === 'stretch' ? 1 : 1.75;
     const temporary = new URL(`${layer.name}.tmp.webp`, output);
-    await sharp(await readFile(input)).extract({ left, top, width: right - left, height: bottom - top })
+    await sharp(await clean(layer.file)).extract({ left, top, width: right - left, height: bottom - top })
       .resize({ width: Math.ceil(layer.w * scale), height: Math.ceil(layer.h * scale), fit: 'inside', withoutEnlargement: true })
       .webp({ quality: 88, alphaQuality: 100, effort: 6 }).toFile(fileURLToPath(temporary));
     await rename(temporary, destination);
@@ -61,12 +78,10 @@ console.log(`Pretendard ${(font.length / 1000).toFixed(1)} KB → ${(subset.leng
 
 const icons = new URL('../public/icons/', import.meta.url);
 await mkdir(icons, { recursive: true });
-const logo = layout.layers.find(layer => layer.file === 'logo.png');
-const [left, top, right, bottom] = logo.sourceBounds;
+// 아이콘은 이미 정리하고 잘라 둔 로고에서 만든다.
+const logo = await readFile(new URL('logo.webp', output));
 for (const [name, size] of [['app-192.png', 192], ['app-512.png', 512], ['apple-touch-icon.png', 180]]) {
-  const content = await sharp(await readFile(new URL(logo.file, source)))
-    .extract({ left, top, width: right - left, height: bottom - top })
-    .resize(Math.round(size * .7), Math.round(size * .7), { fit: 'inside' }).png().toBuffer();
+  const content = await sharp(logo).resize(Math.round(size * .7), Math.round(size * .7), { fit: 'inside' }).png().toBuffer();
   await sharp({ create: { width: size, height: size, channels: 4, background: '#103d42' } })
     .composite([{ input: content, gravity: 'centre' }]).removeAlpha().png().toFile(fileURLToPath(new URL(name, icons)));
 }
