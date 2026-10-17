@@ -206,6 +206,248 @@
         1175,
         965
       ]
+    },
+    {
+      "name": "character-art-refresh",
+      "referenceCommit": "79722b1ccc1ced5685ef3505f242fe798c4e3d5e",
+      "branch": "art/character-refresh",
+      "latestDecisions": [
+        "각 눈의 왼쪽 위 큰 흰 하이라이트 1개만 유지. 작은 반사광 제거.",
+        "방패는 테두리 잔면을 없애고 밝은 면·기본 면·그림자의 큰 금색 3단으로 단순화.",
+        "코드·layout.json·문서는 변경하지 않음."
+      ],
+      "tool": "ChatGPT 이미지젠 · 기본 내장 도구",
+      "order": [
+        "기준 시트",
+        "냥전사",
+        "냥법사",
+        "냥살자",
+        "실제 원본 점검 시트",
+        "전체 보정 2회와 최신 요청 부위 수정"
+      ],
+      "records": [
+        {
+          "name": "character-art-reference",
+          "stage": "기준 시트 생성",
+          "prompt": "Use case: stylized-concept. Asset type: MASTER CHARACTER ART REFERENCE SHEET for an existing cute indie fantasy CAT game, to guide subsequent sprite redraws. Three supplied images in order are existing TITLE WARRIOR, TITLE MAGE, TITLE ASSASSIN design references. Make ONE clean graphic sheet on a plain pale ivory background, wide landscape composition, clear three equal columns.\nTOP ROW: three large FACE AND EARS CLOSE-UPS from these exact characters, retaining their three-quarter head angles / gaze: orange warrior looking right, ivory purple mage looking down-right, black teal assassin looking left. Keep recognizable design, large sharp almond eyes, exaggerated triangular ears, no cartoon round replacement.\nEYES MUST HAVE IDENTICAL CONSTRUCTION in all three: thick upper eyelid, exactly two iris tones (upper iris shadow + lighter base), distinct pupil, ONE large white circular highlight upper-left of EACH iris, ONE smaller round reflection lower-right of EACH iris. Warrior brown irises and white sclera; mage lavender irises and white sclera; assassin golden irises with BLACK VERTICAL SLIT pupils and NO white sclera. Main highlight diameter about one-quarter iris width, small reflection at least 10px if the whole character is1672px. No extra white dots.\nA simple arrow from upper left toward lower right marks ONE LIGHT SOURCE. One short caption \"LIGHT\" near arrow is okay, no paragraphs.\nBOTTOM ROW: under each character, broad RECTANGULAR COLOR CHIPS arranged in horizontal triplets HIGHLIGHT / BASE / SHADOW, 3 flat solid opaque colors per material. Sample materials as follows, same palette to use in the faces:\nWARRIOR orange fur #FFB34D #EF852A #B64E25; ivory #FFF2D5 #E8D7B5 #BF9B80; gold armor #FFE17D #DDA43B #966022; crimson cape #F65A58 #BA3042 #73243C; leather #62748B #303C50 #181D2D; brown eyes #D59C69 #7E4D36 with pupil #181D2D; nose #F4938E #D8676A #9B4050; white eye light #FFFFFF.\nMAGE ivory fur #FFFAE9 #F0DFC4 #C6A78E; purple fabric #B79BE9 #7950B3 #47276F; cyan #A5F1F7 #40CEE5 #218CA9; light wood #E3BD83 #B88C59 #77563F; pink details #F6B1BC #DE7C96 #A95272; eyes #AD91D5 #72549E; lid/pupil #24213E; white #FFFFFF.\nASSASSIN black fur #72849A #293646 #111923; teal hood #3D9CB0 #196777 #113E53; coral scarf #FF9C8B #E97071 #AE465C; ivory sleeves/blades #FFF3D9 #E5D5B5 #AF9C83; gold eyes #FFD66C #BD802E; nose reuse coral; pupil reuse #111923; white #FFFFFF.\nKeep per-character colors at most24, no extra near-identical tints.\nUse only flat solid vector-like shapes with exactly THREE CEL-SHADE TONES per material, one upper-left light. No gradients, gloss strips, grain, texture, mottling, glow, blur, pencil marks or black outlines around bodies. Eye upper lid lines are allowed. Black fur needs a distinct BLUE-GRAY light plane, not one black fill. Head and ear outlines must remain open and legible against the plain sheet; no cloak overlapping around ears. Short labels WARRIOR / MAGE / ASSASSIN and HIGHLIGHT / BASE / SHADOW allowed only on this sheet. Do NOT generate full-body sprites on this sheet, ONLY the three matching face studies plus material swatches and light direction. No drop shadows."
+        },
+        {
+          "name": "character-art-reference",
+          "stage": "눈 구조 보정 1",
+          "prompt": "Use case: precise-object-edit. Edit this exact three-column character reference sheet. Keep layout, three faces, color identity, table and upper-left light arrow. Correct ONLY EYE CONSTRUCTION and color-face clarity: in EACH of the SIX visible eyes, put exactly ONE crisp WHITE CIRCULAR MAIN HIGHLIGHT at the UPPER LEFT of the iris (20px minimum on this sheet) and ONE SMALLER WHITE CIRCULAR REFLECTION at the LOWER RIGHT of the iris (10px minimum). The assassin especially MUST gain the small lower-right circular reflection in BOTH eyes, not just one white main spot. Warrior bottom highlights must be round dots, not curved slashes. All three use thick upper lid + two-tone iris + pupil, warrior brown with sclera, mage lavender with sclera, assassin golden with vertical slit pupil and no sclera. No glossy streaks or more than two white dots per eye. Simplify iris to ONLY TWO solid color planes, not facets or gradients. Also ensure every material swatch is exactly a solid uniform rectangular flat fill, not mottled or gradient. This is a clean authoritative cel-shading sheet. No new text, no new composition or face poses."
+        },
+        {
+          "name": "character-art-reference",
+          "stage": "눈 구조 보정 2",
+          "prompt": "Use case: precise-object-edit. Keep this exact reference sheet completely unchanged EXCEPT add the missing LOWER-RIGHT WHITE REFLECTION DOT to the assassin's SMALLER eye on the LEFT side of its face. This is the narrow golden eye near image coordinate x1314,y392 on the 1774x887 sheet. It already has the large white dot at its upper left. Add ONE clearly visible circular white dot diameter 11px at its lower right, approximately x1328,y419, inside the gold iris. Do not replace either pupil or either large highlight. Both gold eyes need two white circles each. Do not add text, change colors, move faces or touch any other area."
+        },
+        {
+          "name": "character-art-reference",
+          "stage": "최신 결정: 작은 반사광 제거",
+          "prompt": "Use case: precise-object-edit. Update this EXACT three-character reference sheet to the user's NEW EYE RULE. Remove EVERY SMALL LOWER-RIGHT white reflection from all SIX eyes, restoring the underlying flat iris color. In EACH eye leave ONLY ONE white circular highlight at UPPER LEFT. No second white dot anywhere, no lower-right glint, no crescent/streak sparkle. Keep the existing main highlights, two-tone iris, thick upper eyelid and pupils, warrior/mage white sclera, assassin golden iris and vertical pupil. Preserve all faces, colors, swatches, layout, labels and light arrow. Do not change any other part of the sheet."
+        },
+        {
+          "name": "warrior",
+          "stage": "최초 생성",
+          "prompt": "Use case: precise-object-edit. Asset: existing title character sprite redraw. Image1 is the EXACT POSE / FRAMING / IDENTITY target. Image2 is the master EYE / LIGHT / MATERIAL sheet; written eye rules below override any missing reflection in the sheet. Image3 is concept identity ONLY, not pose.\nRedraw the same ORANGE TABBY WARRIOR in his exact LOW RIGHTWARD LUNGE, sword held UP-LEFT behind him, gold crown-emblem shield thrust right, rear leg extended left, orange striped tail and crimson cape flowing left. Same gaze toward RIGHT. Whole sprite on an EXACT 1672x941 transparent PNG canvas. Retain roughly original pixel extents x28..1617,y19..929; no crop, no large repositioning, no standing pose.\nCHANGES: make gold armor only THREE OR FOUR LARGE READABLE PLATES (one broad chest plate, two shoulder plates, one broad bracer) rather than many fragments; each gold area uses exactly3 colors. Shrink crimson cape to LESS THAN ONE THIRD of silhouette and keep it below/left of neck so there is CLEAR transparent breathing space around the head and both triangular ears; do not overlap cape or sword against ears. Sword hand must have TWO OR THREE CLEAR BIG FINGER LUMPS clasping handle, not a black scribble. Extended rear foot has a broad FLAT HORIZONTAL SOLE visibly planted at canvas bottom level, no ground/shadow. LOWER/shift the shield a little RIGHT so BOTH FULL EYES remain visible, never cover cheek/iris; keep the same ivory THREE-POINT CROWN emblem with connected lower base on round gold shield, NOT a W/zigzag. Do not change character's identity.\nBOTH EYES: thick dark upper eyelid; ivory sclera; BROWN iris exactly2 solid tones, dark pupil; exactly one WHITE upper-left highlight at least22px diameter and one WHITE lower-right reflection at least12px diameter in EACH eye, including far eye. No shine streaks or extra tiny dots. Nose/paw detail >10px. Face stays big enough to see at72px sprite height.\nTOTAL 24 COLORS MAXIMUM, broad uniform solid fills, no extra shades / gradients. Reuse this limited palette: fur #FFB34D #EF852A #B64E25, ivory #FFF2D5 #E8D7B5 #BF9B80, gold #FFE17D #DDA43B #966022, red #F65A58 #BA3042 #73243C, dark leather #62748B #303C50 #181D2D, iris #D59C69 #7E4D36, nose #F4938E #D8676A #9B4050, white #FFFFFF. Keep original angular cute indie design. No text, no background, no cast/floor shadow, no particles or effects. Flat vector game illustration in the same style as the reference. Hard-edged cel shading with exactly three tones per material (highlight, base, shadow), single light source from the upper left. No gradients, no texture, no grain, no noise, no glow, no blur. Crisp clean edges, no black outlines, fully transparent background with no semi-transparent fringe. Eyes: thick upper lid line, two-tone iris, one clear white highlight at the upper left and a small reflection at the lower right. Smallest details at least 10 px wide. Head-to-body ratio about 1:1.4."
+        },
+        {
+          "name": "mage",
+          "stage": "최초 생성",
+          "prompt": "Use case: precise-object-edit. Asset: existing title character sprite redraw. Image1 is the EXACT POSE / FRAMING / IDENTITY target. Image2 is the master eye/light/material sheet. Image3 is concept identity ONLY, not pose.\nRedraw same IVORY WHITE MAGE with purple crooked wide-brim hat, cyan hatband, purple robe; keep the EXACT AIRBORNE TWIST, staff held diagonally UP-LEFT in left hand, right paw extended RIGHT, one knee tucked, other leg pointing down, white curled tail upper-right. Same down-right gaze and expression. Do NOT replace with standing concept pose. EXACT1536x1024 transparent PNG canvas, approximate extents x72..1498,y39..994 and overall original placement/scale. Keep open negative space between limbs and below floating body.\nKeep current mage almond EYES as reference: thick dark upper lid, ivory sclera, lavender iris exactly2 flat tones, dark pupil; main round WHITE highlight upper-left (diameter at least20px) and small ROUND WHITE reflection lower-right (diameter at least12px) IN BOTH eyes. Main light visibly larger than reflection. No extra tiny eye sparkles. Pink paw pads and nose at least12px.\nCHANGES: crisp clean hard robe boundaries without colored haze/blur; white arms and legs clearly show THREE IVORY/CREAM TONES, cream shadows on lower/right faces. Shorten unnaturally extended LOWER LEG to a natural length comparable to tucked thigh, retain downward pointing gesture, foot fully visible, no stretching. Staff shaft LIGHT TAN WOOD, visibly distinct from ivory fur; tip stays the same LIGHT CYAN OPEN CIRCULAR RING with EMPTY TRANSPARENT center and small cyan diamond connector. No orb, no filled blue disc, no glowing tip. Light upper-left. Avoid hat/cape/staff touching ear outlines; keep exposed fur ears clearly recognizable, identity and hat silhouette preserved.\nUse at most24 colors, broad solid fills only: ivory #FFFAE9 #F0DFC4 #C6A78E, purple #B79BE9 #7950B3 #47276F, cyan #A5F1F7 #40CEE5 #218CA9, tan wood #E3BD83 #B88C59 #77563F, pink #F6B1BC #DE7C96 #A95272, iris #AD91D5 #72549E, eyelid/pupil #24213E, highlight #FFFFFF. Reuse colors; no extra near-tints. No text, no ground shadow, no glows, no magic effects, no background, no black body outline. Flat vector game illustration in the same style as the reference. Hard-edged cel shading with exactly three tones per material (highlight, base, shadow), single light source from the upper left. No gradients, no texture, no grain, no noise, no glow, no blur. Crisp clean edges, no black outlines, fully transparent background with no semi-transparent fringe. Eyes: thick upper lid line, two-tone iris, one clear white highlight at the upper left and a small reflection at the lower right. Smallest details at least 10 px wide. Head-to-body ratio about 1:1.4."
+        },
+        {
+          "name": "assassin",
+          "stage": "최초 생성",
+          "prompt": "Use case: precise-object-edit. Asset: existing title character sprite redraw. Image1 is the EXACT POSE / FRAMING / IDENTITY target. Image2 is the master eye/light/material sheet; written eye rules override any missing small reflection in sheet. Image3 is concept identity ONLY, not pose.\nRedraw same BLACK ASSASSIN CAT in the exact LEFTWARD AIRBORNE POUNCE: front arm dagger reaching far DOWN-LEFT, rear arm dagger pointing RIGHT, legs trailing diagonally down-right, black hooked/CURLING TAIL upper-right. Preserve hood TEAL, scarf CORAL RED, BLACK-AND-IVORY STRIPED SLEEVES and TWO IVORY DAGGERS. Same leftward gaze, small nose, huge angular cat ears and cunning cute expression. EXACT1672x941 transparent PNG canvas, similar extents x22..1652,y22..918. Keep original layout proportions, no standing pose, no new weapon, no flip.\nCHANGES: BLACK FUR and body/legs need THREE DISTINCT SOLID TONES, light plane in BLUE-GRAY on upper-left forehead/arms/thigh/tail so body and both legs are legible against a dark scene. Base black and cooler darkest shadow remain truly dark. Open teal HOOD slightly around forehead and move cloth away from ear silhouettes so BOTH exposed triangular ears and full head read as feline, not a tiny black face inside oversized hood. Teal hood and cape also exactly3 tones. SHRINK CORAL SCARF to LESS AREA THAN THE BODY: only two narrow tapered trailing ribbons with3 flat coral tones, no huge sail. Maintain scarf motion RIGHT. Negative transparent space around head and ears; do not put scarf behind ears. Black/ivory sleeve stripes, two distinct daggers and curled tail stay.\nBOTH GOLD EYES must have thick upper eyelid + TWO-TONE gold iris + dark VERTICAL SLIT pupil, no white sclera. Exactly ONE large circular WHITE highlight upper-left (20px diameter or more) AND ONE SMALL ROUND WHITE reflection lower-right (12px or more) IN EACH EYE, including smaller far eye. Do not omit far-eye reflection. No third sparkle, no shiny streak. Tiny nose at least12px.\nAt most24 colors total, reuse this palette: black fur #72849A #293646 #111923, teal cloth #3D9CB0 #196777 #113E53, coral scarf #FF9C8B #E97071 #AE465C, ivory sleeves and blades #FFF3D9 #E5D5B5 #AF9C83, gold iris #FFD66C #BD802E, nose reusecoral, pupil/lid reuse#111923, highlights #FFFFFF. No gradient, no extra micro-shades, no black perimeter stroke. No text, no floor shadow, no magical effects, no glows, no background. Flat vector game illustration in the same style as the reference. Hard-edged cel shading with exactly three tones per material (highlight, base, shadow), single light source from the upper left. No gradients, no texture, no grain, no noise, no glow, no blur. Crisp clean edges, no black outlines, fully transparent background with no semi-transparent fringe. Eyes: thick upper lid line, two-tone iris, one clear white highlight at the upper left and a small reflection at the lower right. Smallest details at least 10 px wide. Head-to-body ratio about 1:1.4."
+        },
+        {
+          "name": "warrior",
+          "stage": "전체 보정 1",
+          "prompt": "Use case: precise-object-edit. Image1 is the CURRENT REDRAW TO CORRECT, image2 the original title sprite FRAMING / CANVAS reference, image3 the shared face/material guide. Preserve all successful changes in image1: character identity, pose, gaze, clothing/accessories, broad plates, reduced cloth and readable dark body. Do NOT restore the old problems fromimage2.\nCRITICAL QUALITY FIX: output a CLEAN FLAT-COLOR PNG with NO MORE THAN24 discrete opaque RGB COLORS TOTAL, each physical material EXACTLY THREE SOLID COLORS. Repaint each broad surface as a uniform flat fill with ZERO tiny pixel color variation; no gradient banding, grain or mottling even at3x. No glossy many-facet extra shades. Alpha must be BINARY: 0 outside,255 inside, no translucent edge fringe, no ghost pixels, no white halo. This is an indexed-palette / hard matte production game sprite, not a soft rendering. Upper-left light only, dark leather/fur highlights BLUE-GRAY, base and shadow distinct.\nEvery eye must have two flat iris colors, dark pupil, exactly ONE LARGE WHITE ROUND upper-left highlight and ONE LOWER-RIGHT WHITE ROUND reflection of at least12px DIAMETER, including far eye. No extra highlights. Nose and pads also >=10px. Keep iris identity and white sclera only for warrior and mage; assassin retains vertical-slit pupils and no sclera.\nCANVAS FIX ESSENTIAL: EXACT 1672px wide x941px high (16:9 landscape), NOT1602x981. Follow image2's canvas dimensions. Keep whole sword, feet, shield and tail with margins. Maintain low rightward lunge, both eyes fully visible above shield, reducedcape away from ears, exactly3-4 large gold armor plates,2-3 large finger lumps, rear sole broad horizontal. Use exactlythree blue-gray/dark colors for dark gloves/leggings/boots, not brown multitone hand. No new spikes or armor details.\n\n\nUse the master guide's LIMITED PALETTE, REUSE colors and do not add near-identical tints. No text, background, floor shadow or magic. Flat vector game illustration in the same style as the reference. Hard-edged cel shading with exactly three tones per material (highlight, base, shadow), single light source from the upper left. No gradients, no texture, no grain, no noise, no glow, no blur. Crisp clean edges, no black outlines, fully transparent background with no semi-transparent fringe. Eyes: thick upper lid line, two-tone iris, one clear white highlight at the upper left and a small reflection at the lower right. Smallest details at least 10 px wide. Head-to-body ratio about 1:1.4."
+        },
+        {
+          "name": "mage",
+          "stage": "전체 보정 1",
+          "prompt": "Use case: precise-object-edit. Image1 is the CURRENT REDRAW TO CORRECT, image2 the original title sprite FRAMING / CANVAS reference, image3 the shared face/material guide. Preserve all successful changes in image1: character identity, pose, gaze, clothing/accessories, broad plates, reduced cloth and readable dark body. Do NOT restore the old problems fromimage2.\nCRITICAL QUALITY FIX: output a CLEAN FLAT-COLOR PNG with NO MORE THAN24 discrete opaque RGB COLORS TOTAL, each physical material EXACTLY THREE SOLID COLORS. Repaint each broad surface as a uniform flat fill with ZERO tiny pixel color variation; no gradient banding, grain or mottling even at3x. No glossy many-facet extra shades. Alpha must be BINARY: 0 outside,255 inside, no translucent edge fringe, no ghost pixels, no white halo. This is an indexed-palette / hard matte production game sprite, not a soft rendering. Upper-left light only, dark leather/fur highlights BLUE-GRAY, base and shadow distinct.\nEvery eye must have two flat iris colors, dark pupil, exactly ONE LARGE WHITE ROUND upper-left highlight and ONE LOWER-RIGHT WHITE ROUND reflection of at least12px DIAMETER, including far eye. No extra highlights. Nose and pads also >=10px. Keep iris identity and white sclera only for warrior and mage; assassin retains vertical-slit pupils and no sclera.\n\nEYE FIX ESSENTIAL: add the MISSING SMALL LOWER-RIGHT WHITE DOT to BOTH lavender irises. In the1536x1024 image the large eye is aroundx790,y475 and the far eye aroundx952,y541; place clearly visible lower-right reflection roughlyx818,y504 andx958,y556, diameter16px, WITHOUT removing the existing upper-left highlight. Keep shortened natural downward leg, three cream shades in both arms/legs, TAN WOOD staff with open cyan ring, same airborne pose. Robe panels each at most3 flat purple tones, no tiny jewelry-like shards. EXACT1536x1024 canvas. No glow/effects; ring center alpha0.\n\nUse the master guide's LIMITED PALETTE, REUSE colors and do not add near-identical tints. No text, background, floor shadow or magic. Flat vector game illustration in the same style as the reference. Hard-edged cel shading with exactly three tones per material (highlight, base, shadow), single light source from the upper left. No gradients, no texture, no grain, no noise, no glow, no blur. Crisp clean edges, no black outlines, fully transparent background with no semi-transparent fringe. Eyes: thick upper lid line, two-tone iris, one clear white highlight at the upper left and a small reflection at the lower right. Smallest details at least 10 px wide. Head-to-body ratio about 1:1.4."
+        },
+        {
+          "name": "assassin",
+          "stage": "전체 보정 1",
+          "prompt": "Use case: precise-object-edit. Image1 is the CURRENT REDRAW TO CORRECT, image2 the original title sprite FRAMING / CANVAS reference, image3 the shared face/material guide. Preserve all successful changes in image1: character identity, pose, gaze, clothing/accessories, broad plates, reduced cloth and readable dark body. Do NOT restore the old problems fromimage2.\nCRITICAL QUALITY FIX: output a CLEAN FLAT-COLOR PNG with NO MORE THAN24 discrete opaque RGB COLORS TOTAL, each physical material EXACTLY THREE SOLID COLORS. Repaint each broad surface as a uniform flat fill with ZERO tiny pixel color variation; no gradient banding, grain or mottling even at3x. No glossy many-facet extra shades. Alpha must be BINARY: 0 outside,255 inside, no translucent edge fringe, no ghost pixels, no white halo. This is an indexed-palette / hard matte production game sprite, not a soft rendering. Upper-left light only, dark leather/fur highlights BLUE-GRAY, base and shadow distinct.\nEvery eye must have two flat iris colors, dark pupil, exactly ONE LARGE WHITE ROUND upper-left highlight and ONE LOWER-RIGHT WHITE ROUND reflection of at least12px DIAMETER, including far eye. No extra highlights. Nose and pads also >=10px. Keep iris identity and white sclera only for warrior and mage; assassin retains vertical-slit pupils and no sclera.\n\n\nKeep the new blue-gray THREE-TONE black fur/body and exposed ear silhouette. Reduce cloth facets: teal hood/cape only3flat colors and coral scarf only3flat colors; narrow scarf remains smaller than body, keep both striped sleeves, exactly two ivory daggers and hooked tail. Make sure all FOUR white eye dots (two in eachgold iris) are at least12px and circular. EXACT1672x941canvas.\nUse the master guide's LIMITED PALETTE, REUSE colors and do not add near-identical tints. No text, background, floor shadow or magic. Flat vector game illustration in the same style as the reference. Hard-edged cel shading with exactly three tones per material (highlight, base, shadow), single light source from the upper left. No gradients, no texture, no grain, no noise, no glow, no blur. Crisp clean edges, no black outlines, fully transparent background with no semi-transparent fringe. Eyes: thick upper lid line, two-tone iris, one clear white highlight at the upper left and a small reflection at the lower right. Smallest details at least 10 px wide. Head-to-body ratio about 1:1.4."
+        },
+        {
+          "name": "warrior",
+          "stage": "전체 보정 2·최신 눈/방패 기준 적용",
+          "prompt": "Use case: precise-object-edit. Image1 is the exact CURRENT REDRAW TARGET; image2 is the UPDATED reference sheet. Keep all pose/identity/framing changes in image1, do not redesign or recompose.\nLATEST USER RULE OVERRIDES ALL EARLIER EYE RULES: REMOVE THE SMALL LOWER-RIGHT WHITE REFLECTION from BOTH eyes. Restore the flat iris color where that dot was. Leave ONLY ONE large white circular upper-left highlight IN EACH eye, no second dot, no crescent reflection, no additional eye sparkle. Keep two-tone iris + pupil + thick upper eyelid. Warrior brown/sclera, mage lavender/sclera, assassin gold/slit pupil/no sclera.\nFINAL FLAT MATERIAL PASS: exactly THREE broad SOLID SHADES per material, maximum24 discreet RGB colors total. Every face interior uniformly flat, NO subtle gradient/noise/dither/mottling or near-shades. Single upper-left light. Alpha outside0 inside255, sharp binary matte, no partial opacity outlines/white halo or colored residue. Do not render metal like a realistic material. This is a simple clean vector-style game sprite.\nUSER'S PRIORITY CHANGE: SIMPLIFY THE GOLD SHIELD'S RIM AND FACE. Use EXACTLY THREE GOLD COLORS TOTAL ACROSS BOTH RIM AND FRONT FACE: light #FFE17D on a broad upper-left plane, base #DDA43B on the broad main plane, shadow #966022 on broad lower-right plane. Remove ALL tiny segmented bevel facets, shiny strips, radial wedges and multiple concentric bevel bands. Rim must be ONE simple thick clean edge with only the SAME three fills as face, NOT three rim shades plus three different face shades. Keep the prominent flat ivory CROWN EMBLEM, use ONE ivory color in it, no extra shading. The whole gold shield should read like three large cut-paper shapes plus crown, not a faceted gold coin. Both eyes stay fully visible; shield doesn't rise. Also armor3-4broad plates only3goldtones, gloves/boots3blue-graydark tones, cape3redtones smaller than head+body, 2-3clear fingers, flat planted rear foot. Keep sword/low rightward lunge. EXACT1672x941 canvas; give10px transparent clearance around sword tip, shield and soles so nothing is cropped.\n\n\nNo letters, backdrop, floor/cast shadows, magic, aura or effects. Flat vector game illustration in the same style as the reference. Hard-edged cel shading with exactly three tones per material (highlight, base, shadow), single light source from the upper left. No gradients, no texture, no grain, no noise, no glow, no blur. Crisp clean edges, no black outlines, fully transparent background with no semi-transparent fringe. Eyes: thick upper lid line, two-tone iris, one clear white highlight at the upper left and NO secondary reflection at the lower right. Smallest details at least 10 px wide. Head-to-body ratio about 1:1.4."
+        },
+        {
+          "name": "mage",
+          "stage": "전체 보정 2·최신 눈/방패 기준 적용",
+          "prompt": "Use case: precise-object-edit. Image1 is the exact CURRENT REDRAW TARGET; image2 is the UPDATED reference sheet. Keep all pose/identity/framing changes in image1, do not redesign or recompose.\nLATEST USER RULE OVERRIDES ALL EARLIER EYE RULES: REMOVE THE SMALL LOWER-RIGHT WHITE REFLECTION from BOTH eyes. Restore the flat iris color where that dot was. Leave ONLY ONE large white circular upper-left highlight IN EACH eye, no second dot, no crescent reflection, no additional eye sparkle. Keep two-tone iris + pupil + thick upper eyelid. Warrior brown/sclera, mage lavender/sclera, assassin gold/slit pupil/no sclera.\nFINAL FLAT MATERIAL PASS: exactly THREE broad SOLID SHADES per material, maximum24 discreet RGB colors total. Every face interior uniformly flat, NO subtle gradient/noise/dither/mottling or near-shades. Single upper-left light. Alpha outside0 inside255, sharp binary matte, no partial opacity outlines/white halo or colored residue. Do not render metal like a realistic material. This is a simple clean vector-style game sprite.\n\nKeep the current airborne pose, big purple/ivory face, natural shortened lower leg, THREE clear cream planes on arms/legs, TAN wood staff separated from white fur, CYAN OPEN RING with alpha0 center. Three purple tones ONLY for robe and hat; no manyfold small facet shards on collar/brooch. Remove all cyan/purple haze OUTSIDE physical silhouette. Keep ONE upper-left highlight in EACH eye, lower-right dot removed. EXACT1536x1024 canvas; full hat, ring, tail and toes visible with margin.\n\nNo letters, backdrop, floor/cast shadows, magic, aura or effects. Flat vector game illustration in the same style as the reference. Hard-edged cel shading with exactly three tones per material (highlight, base, shadow), single light source from the upper left. No gradients, no texture, no grain, no noise, no glow, no blur. Crisp clean edges, no black outlines, fully transparent background with no semi-transparent fringe. Eyes: thick upper lid line, two-tone iris, one clear white highlight at the upper left and NO secondary reflection at the lower right. Smallest details at least 10 px wide. Head-to-body ratio about 1:1.4."
+        },
+        {
+          "name": "assassin",
+          "stage": "전체 보정 2·최신 눈/방패 기준 적용",
+          "prompt": "Use case: precise-object-edit. Image1 is the exact CURRENT REDRAW TARGET; image2 is the UPDATED reference sheet. Keep all pose/identity/framing changes in image1, do not redesign or recompose.\nLATEST USER RULE OVERRIDES ALL EARLIER EYE RULES: REMOVE THE SMALL LOWER-RIGHT WHITE REFLECTION from BOTH eyes. Restore the flat iris color where that dot was. Leave ONLY ONE large white circular upper-left highlight IN EACH eye, no second dot, no crescent reflection, no additional eye sparkle. Keep two-tone iris + pupil + thick upper eyelid. Warrior brown/sclera, mage lavender/sclera, assassin gold/slit pupil/no sclera.\nFINAL FLAT MATERIAL PASS: exactly THREE broad SOLID SHADES per material, maximum24 discreet RGB colors total. Every face interior uniformly flat, NO subtle gradient/noise/dither/mottling or near-shades. Single upper-left light. Alpha outside0 inside255, sharp binary matte, no partial opacity outlines/white halo or colored residue. Do not render metal like a realistic material. This is a simple clean vector-style game sprite.\n\n\nKeep the readable THREE-TONE black fur with blue-gray highlights on forehead/body/legs/tail, slightly opened teal hood and exposed ear silhouettes. Tealcloth3colors and coralcloth3colors only; scarf two narrow ribbons total area smaller than body, no broad sail. Preserve black/ivory striped sleeves, two ivory daggers, curled tail, original leftward pounce. ONE upper-left highlight in EACH golden eye, no second white dot. EXACT1672x941 canvas with no clipping of dagger tips or tail.\nNo letters, backdrop, floor/cast shadows, magic, aura or effects. Flat vector game illustration in the same style as the reference. Hard-edged cel shading with exactly three tones per material (highlight, base, shadow), single light source from the upper left. No gradients, no texture, no grain, no noise, no glow, no blur. Crisp clean edges, no black outlines, fully transparent background with no semi-transparent fringe. Eyes: thick upper lid line, two-tone iris, one clear white highlight at the upper left and NO secondary reflection at the lower right. Smallest details at least 10 px wide. Head-to-body ratio about 1:1.4."
+        },
+        {
+          "name": "warrior",
+          "stage": "최신 요청 부위 보정 1",
+          "prompt": "Use case: precise-object-edit. Change ONLY THE GOLD SHIELD in this exact sprite. Keep entire cat, pose, eyes (one white highlight per eye), armor, cape, hand, sword, feet, canvas and transparency UNCHANGED. Make the shield dramatically simpler: ONE FLAT ROUND GOLD DISK with the same ivory CROWN emblem. REMOVE THE BEVELED / FACETED OUTER METAL RIM completely. NO segmented rim, NO little gold wedges, NO concentric bevel rings, NO reflective edges. The entire gold disk, both edge and face, uses ONLY THREE LARGE UNIFORM FLAT COLOR SHAPES: light pale gold #FFE17D over upper-left area, base ochre gold #DDA43B over main central area, dark gold #966022 over lower-right area. The three shapes have clean simple boundaries, no smooth gradients. Crown is one flat ivory shape, same crown silhouette. No extra gold shades. Preserve overall shield size and position. Exact1672x941 transparent PNG, no shadow/text/effects."
+        },
+        {
+          "name": "mage",
+          "stage": "최신 요청 부위 보정 1",
+          "prompt": "Use case: precise-object-edit. Local EYE EDIT ONLY on this exact1536x1024 transparent cat sprite. REMOVE THE SMALL LOWER-RIGHT DOT from EACH lavender iris, including any white, pale yellow or lavender circular residue. There are now TWO BRIGHT WHITE DISCS in each eye; leave ONLY the LARGE UPPER-LEFT white disc, erase the SECOND LOWER-RIGHT disc fully into the underlying iris flat plane. Big near eye: erase small white disc centered aroundx823,y506. Far small eye: erase small white disc aroundx944,y552. Do not just recolor those circles: remove their shape entirely, filling with the surrounding iris color so no circle remains. Main white highlights nearx780,y451 andx929,y525 remain exactly. Final result MUST have EXACTLY TWO white iris highlights TOTAL for the whole cat, ONE in EACH eye. Preserve the pupil and upper lid, two-tone iris. Everything outside these two small eye regions remains IDENTICAL: pose, robe, staff, ring, tail, legs, background alpha, canvas. No glow/text/effects."
+        },
+        {
+          "name": "assassin",
+          "stage": "최신 요청 부위 보정 1",
+          "prompt": "Use case: precise-object-edit. Local EYE EDIT ONLY on this exact1672x941 transparent cat sprite. REMOVE THE SMALL LOWER-RIGHT REFLECTION CIRCLE from EACH gold iris. Left narrow eye: erase the small pale cream/gold dot aroundx491,y626. Right larger eye: erase the small pale cream/gold dot aroundx635,y638. Completely REMOVE THE CIRCULAR SHAPE, merging into the surrounding existing flat iris color; do not just recolor white dots yellow. LEAVE ONLY the LARGE UPPER-LEFT WHITE HIGHLIGHT of each iris, nearx478,y587 andx602,y612. Final whole character has EXACTLY TWO iris highlights TOTAL, ONE in EACH eye, zero lower-right white/yellow circles or glossy spots. Keep vertical black slit pupils and two-tone golden irises. EVERYTHING outside these two tiny eye edits identical: three-tone dark body, teal hood, coral scarf, two daggers, striped sleeves, curled tail, pose, exact canvas, alpha. No effects, text or shadows."
+        },
+        {
+          "name": "mage",
+          "stage": "최신 요청 눈 보정 2",
+          "prompt": "부분 수정입니다. 이 이미지에서 화면 왼쪽의 더 큰 눈 안을 보세요. 흰 원이 두 개 있습니다. 그중 아래쪽, 입에 더 가까운 흰 원 하나만 완전히 지우고 주변 홍채의 보라색 단색 면으로 메워주세요. 1536×1024 기준 중심 좌표 (824,506) 근처의 작은 흰 원입니다. 위쪽 (780,451) 근처의 큰 흰 원은 그대로 둡니다. 오른쪽 눈은 이미 흰 원 하나라 바꾸지 않습니다. 두 눈을 합쳐 흰 하이라이트는 정확히 두 개, 눈마다 하나씩이어야 합니다. 지운 위치에 연보라색 원이나 테두리도 남기지 마세요. 이 작은 영역 밖의 캐릭터, 자세, 색, 캔버스 크기 1536×1024, 투명 배경은 모두 그대로 보존합니다. 새 효과, 글자, 그림자 없음."
+        },
+        {
+          "name": "assassin",
+          "stage": "최신 요청 눈 보정 2",
+          "prompt": "부분 수정입니다. 이 이미지의 화면 왼쪽에 있는 작고 좁은 노란 눈에서, 위쪽의 큰 흰 하이라이트는 유지하고 아래쪽에 남은 작은 밝은 점을 완전히 지워주세요. 1672×941 기준 (492,626) 근처입니다. 그 자리의 밝은 점이나 동그란 흔적이 없어지도록 주변 노란 홍채의 단색 면으로 메웁니다. 오른쪽 눈은 이미 흰 하이라이트 하나뿐이므로 그대로 둡니다. 두 눈을 합쳐 큰 흰 하이라이트 정확히 두 개만 남고, 아래쪽에 작고 밝은 원은 하나도 없어야 합니다. 이 작은 눈 영역 밖의 캐릭터, 청록 두건, 코랄 머플러, 줄무늬 소매, 단검 두 자루, 꼬리, 자세, 색, 투명 배경과 캔버스 1672×941은 모두 그대로 보존합니다. 효과·글자·바닥 그림자 없음."
+        },
+        {
+          "name": "mage",
+          "stage": "최종 배경 번짐 제거",
+          "prompt": "Use case: background-extraction. This is NOT a new character drawing. Precisely CUT OUT only the PHYSICAL MAGE CAT, its clothing and wooden staff from this exact image into a true TRANSPARENT PNG. The cyan/purple/cream haze and dark cloudy field around the figure are UNWANTED BACKGROUND: DELETE THEM COMPLETELY, DO NOT FADE THEM. Every pixel outside the actual opaque silhouette of fur/hat/robe/paws/tail/staff/ring must have ALPHA ZERO. Ring's center and spaces between limbs/hat/staff/tail must be fully empty alpha0. No aura, blur, outer shadow, halo or translucent cloud allowed. Keep the white/cyan/purple tangible artwork sharp and fully OPAQUE inside silhouette, alpha255. Preserve exact pose, face, ONE WHITE HIGHLIGHT PER EYE (NO lower-right small reflection), natural shortened lower leg, tan wooden staff shaft and open cyan ring. Do not change any physical design, color or placement. Exact1536x1024 transparent PNG. Think a clean cut-paper opaque sticker with no lighting outside it. Only remove background/haze, never add any glow or effects."
+        }
+      ],
+      "checklist": [
+        {
+          "id": "alpha",
+          "label": "배경 완전 투명·반투명/흰 테두리 없음",
+          "warrior": false,
+          "mage": false,
+          "assassin": false
+        },
+        {
+          "id": "flat",
+          "label": "확대 시 얼룩·노이즈·그러데이션 없음",
+          "warrior": false,
+          "mage": false,
+          "assassin": false
+        },
+        {
+          "id": "tones",
+          "label": "모든 재질 3단·왼쪽 위 빛",
+          "warrior": false,
+          "mage": false,
+          "assassin": false
+        },
+        {
+          "id": "eyes",
+          "label": "눈 구조 통일·큰 하이라이트 1개·작은 반사광 없음",
+          "warrior": true,
+          "mage": true,
+          "assassin": false
+        },
+        {
+          "id": "silhouette",
+          "label": "검은 실루엣 구분·머리/귀 둘레 비움",
+          "warrior": true,
+          "mage": false,
+          "assassin": true
+        },
+        {
+          "id": "token",
+          "label": "72px에서 얼굴 보임",
+          "warrior": true,
+          "mage": true,
+          "assassin": true
+        },
+        {
+          "id": "palette",
+          "label": "작은 디테일 10px 이상·24색 이내",
+          "warrior": false,
+          "mage": false,
+          "assassin": false
+        },
+        {
+          "id": "class",
+          "label": "캐릭터별 수정 모두 반영",
+          "warrior": true,
+          "mage": false,
+          "assassin": true
+        },
+        {
+          "id": "identity",
+          "label": "콘셉트 색·의상·그림체 유지",
+          "warrior": true,
+          "mage": true,
+          "assassin": true
+        }
+      ],
+      "remaining": [
+        "원본 PNG에 0과 255 사이 알파가 남습니다. 배경은 투명하고 큰 번짐은 제거했지만, 가장자리까지 완전한 이진 알파는 아닙니다.",
+        "두 차례 전체 보정 후에도 면 내부의 미세한 RGB 변화가 남아 24색 제한과 완전한 단색 면을 통과하지 못했습니다. 일부 재질도 정확히 3단으로 제한되지 않았습니다.",
+        "법사냥은 모자와 귀의 겹침을 완전히 비우지 못했고, 로브 목 부분의 잔면이 남습니다.",
+        "냥살자의 작은 눈 아래에는 흰 반사광은 제거됐지만 미세한 밝은색 흔적이 남습니다."
+      ],
+      "files": [
+        "assets/title/warrior.png",
+        "assets/title/mage.png",
+        "assets/title/assassin.png",
+        "assets/concepts/character-art-reference.png",
+        "docs/images/character-art-check.png"
+      ],
+      "checkSheetMethod": "실제 최종 PNG의 불투명 윤곽으로 검은 실루엣을 만들고, 각 그림을 72×72px 안에 맞춰 실제 축소. 원본 PNG의 색·알파는 후처리하지 않음.",
+      "validation": {
+        "warrior": {
+          "canvas": [
+            1672,
+            941
+          ],
+          "visibleBounds": [
+            173,
+            5,
+            1629,
+            933
+          ],
+          "partialAlphaPixels": 669695,
+          "opaqueInteriorRGBColors": 45913,
+          "alphaLevels": 256
+        },
+        "mage": {
+          "canvas": [
+            1536,
+            1024
+          ],
+          "visibleBounds": [
+            32,
+            25,
+            1531,
+            992
+          ],
+          "partialAlphaPixels": 656517,
+          "opaqueInteriorRGBColors": 45111,
+          "alphaLevels": 255
+        },
+        "assassin": {
+          "canvas": [
+            1672,
+            941
+          ],
+          "visibleBounds": [
+            31,
+            33,
+            1645,
+            911
+          ],
+          "partialAlphaPixels": 552985,
+          "opaqueInteriorRGBColors": 39671,
+          "alphaLevels": 256
+        }
+      }
     }
   ],
   "note": "법사냥은 흰 배경에서 번짐 제거 후 이미지젠 배경 제거를 거쳤습니다. 선택한 최종 PNG를 기준으로 사용합니다.",
