@@ -31,6 +31,16 @@ test('두 냥국 선택 → 주사위 → 준비 완료, 되돌아오기', async
   await expect(page.getByRole('button', { name: '게임 시작' })).toBeVisible();
 });
 
+test('선택 화면은 타이틀에서 받은 그림을 다시 받지 않음', async ({ page }) => {
+  const images = [];
+  page.on('request', request => { if (request.url().includes('.webp')) images.push(new URL(request.url()).pathname); });
+  await enter(page);
+  await expect(page.getByRole('radio', { name: '냥전사', exact: true })).toBeAttached();
+  await page.waitForLoadState('networkidle');
+  expect(images.filter(path => path.endsWith('warrior.webp'))).toHaveLength(1);
+  expect(images).toHaveLength(new Set(images).size);
+});
+
 for (const [width, height] of [[390, 844], [844, 390], [768, 1024]]) {
   test(`선택 화면 ${width}×${height} 스크롤과 버튼 접근`, async ({ page }) => {
     await page.setViewportSize({ width, height });

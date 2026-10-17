@@ -1,11 +1,14 @@
 import './setup.css';
 import { CLASSES, createSetup, editPlayer, chooseClass, confirmClass, drawStartDie, rollStartDie, preparedGame } from './setup.js';
+import layout from './generated/title-layout.json';
 
 const pipPositions = { 1: [5], 2: [1, 9], 3: [1, 5, 9], 4: [1, 3, 7, 9], 5: [1, 3, 5, 7, 9], 6: [1, 3, 4, 6, 7, 9] };
+// 타이틀과 같은 주소를 써야 이미 받은 그림을 다시 받지 않는다.
+const revisions = Object.fromEntries(layout.layers.map(layer => [layer.name, layer.revision]));
 
 export function setupScreen(root, onBack) {
   let state = createSetup();
-  const image = classId => `${import.meta.env.BASE_URL}title/${classId}.webp`;
+  const image = classId => `${import.meta.env.BASE_URL}title/${classId}.webp?v=${revisions[classId]}`;
   const playerName = player => `플레이어 ${player + 1}`;
 
   function render(focusHeading = false) {
