@@ -25,5 +25,6 @@ for (const path of ['./', './Project_catfantagy/']) {
   assert.equal(new URL(manifest.start_url, root).href, root.href);
   for (const icon of manifest.icons) assert.ok(new URL(icon.src, root).pathname.startsWith(root.pathname));
 }
-assert.ok((await stat(new URL('title/layout.json', dist))).size > 0);
+const layout = JSON.parse(await readFile(new URL('../src/generated/title-layout.json', import.meta.url), 'utf8'));
+for (const layer of layout.layers) assert.ok((await stat(new URL(`title/${layer.name}.webp`, dist))).size > 0);
 console.log('웹앱 설정 확인: 독립 실행, 상대 경로, 아이콘 3종, 안전 영역 통과');

@@ -5,34 +5,36 @@
   font-style: normal;
   font-display: swap;
 }
-:root { font-family: 'Catfantagy UI', sans-serif; font-weight: 700; color: #fff9e7; background: #103d42; color-scheme: dark; }
+:root { font-family: 'Catfantagy UI', sans-serif; font-weight: 700; color: #fff9e7; background: #35adfd; color-scheme: dark; }
 * { box-sizing: border-box; }
-body { margin: 0; }
+body { margin: 0; background: #35adfd; }
 button { font: inherit; cursor: pointer; -webkit-tap-highlight-color: transparent; }
 button:focus-visible { outline: 3px solid #ffda63; outline-offset: 6px; }
 [hidden] { display: none !important; }
 #app { --safe-width: calc(100vw - env(safe-area-inset-left) - env(safe-area-inset-right)); --safe-height: calc(100svh - env(safe-area-inset-top) - env(safe-area-inset-bottom)); padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left); width: 100%; height: 100svh; display: grid; place-items: center; overflow: hidden; background: radial-gradient(ellipse, #23666a, #0b282d); }
-.stage { position: relative; width: min(var(--safe-width), calc(var(--safe-height) * 1.776833)); aspect-ratio: 1672 / 941; overflow: hidden; isolation: isolate; container-type: inline-size; background: #58bdf3; }
+/* 그림 가장자리 색과 맞춰 남는 여백이 그림처럼 이어지게 한다. */
+.stage { position: fixed; inset: 0; overflow: hidden; isolation: isolate; background: linear-gradient(#35adfd 0 49%, #7fb846 49% 63%, #046e67 63% 92%, #02504f); }
+/* 1672×941 그림을 안전 영역(가운데 1255×941)이 다 보이는 크기로 맞춘다. */
+.canvas { --u: min(var(--safe-width) / 1255, var(--safe-height) / 941); position: absolute; left: calc(50% + (env(safe-area-inset-left) - env(safe-area-inset-right)) / 2); top: calc(50% + (env(safe-area-inset-top) - env(safe-area-inset-bottom)) / 2); width: calc(var(--u) * 1672); height: calc(var(--u) * 941); translate: -50% -50%; container-type: size; background: #35adfd; }
 .art, .layer { position: absolute; pointer-events: none; }
 .art { inset: 0; overflow: hidden; }
 .layer { opacity: 0; transform-origin: center; }
-.layer img { display: block; width: 100%; height: 100%; object-fit: contain; }
-.sky img, .hills img { object-fit: fill; }
-.start { position: absolute; z-index: 60; left: 50%; bottom: 3.4%; transform: translateX(-50%); border: 1px solid #fff9e754; border-radius: 100px; padding: .48em 1.65em; color: #fff9e7; background: #123c3edb; white-space: nowrap; font-size: clamp(14px, 2.35cqw, 44px); letter-spacing: .09em; box-shadow: 0 5px 18px #102c3340; }
-.start:hover { background: #184e50; }
-.start:active { scale: .97; }
-.skip, .replay { position: absolute; z-index: 70; top: max(14px, 2.1%); right: max(14px, 1.8%); padding: 9px 13px; border: 1px solid #fff5; border-radius: 24px; color: white; background: #123c3eaa; font-size: clamp(11px, 1cqw, 16px); }
-.replay { top: auto; bottom: 4.5%; }
-.status { position: absolute; z-index: 70; inset: 45% 8% auto; text-align: center; font-size: clamp(16px, 2cqw, 24px); text-shadow: 0 2px 12px #123c3e; }
-.retry { position: absolute; z-index: 70; left: 50%; top: 60%; transform: translateX(-50%); padding: 12px 24px; border: 0; border-radius: 24px; color: #173d42; background: #ffda63; }
+.trees-left, .trees-right { transform-origin: 50% 100%; }
+.layer img { display: block; width: 100%; height: 100%; }
+.start { position: absolute; z-index: 60; left: 50%; bottom: 3.8%; translate: -50% 0; padding: 0 .5em 0 .62em; border: 0; color: #fff9e7; background: none; white-space: nowrap; font-size: clamp(16px, 2.4cqw, 42px); letter-spacing: .12em; text-shadow: 2px 0 #08403d, -2px 0 #08403d, 0 2px #08403d, 0 -2px #08403d, 0 4px 12px #08403d99; animation: start-fade .3s ease-out; }
+.start:active { scale: .96; }
+/* 대기 연출은 몇 번만 하고 멈춘다. 멈춘 화면은 다시 그리지 않아 저사양 기기의 발열을 막는다. */
+.stage[data-state="ready"][data-motion="full"] .start { animation: start-rise .3s ease-out, start-pulse 2.4s ease-in-out .3s 3; }
+.stage[data-state="ready"][data-motion="full"] .mage { animation: mage-float 3.2s ease-in-out 4 alternate; }
+@keyframes start-fade { from { opacity: 0; } }
+@keyframes start-rise { from { opacity: 0; transform: translateY(35%); } }
+@keyframes start-pulse { 50% { opacity: .6; } }
+@keyframes mage-float { to { transform: translateY(-1.8%); } }
+.controls { position: absolute; z-index: 70; top: calc(env(safe-area-inset-top) + 12px); right: calc(env(safe-area-inset-right) + 12px); display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 6px 8px; }
+.controls button { padding: 0 14px; border: 1px solid #fff5; border-radius: 22px; color: white; background: #123c3eaa; font-size: 13px; opacity: .9; }
+.controls .replay { padding: 0; font-size: 20px; }
+.motion-note { flex-basis: 100%; margin: 0; text-align: right; font-size: 11px; text-shadow: 0 0 3px #08403d, 0 1px 2px #08403d; }
+.status { position: absolute; z-index: 70; inset: 45% 8% auto; text-align: center; font-size: clamp(16px, 2vw, 24px); text-shadow: 0 2px 12px #123c3e; }
+.retry { position: absolute; z-index: 70; left: 50%; top: 60%; translate: -50% 0; padding: 12px 24px; border: 0; border-radius: 24px; color: #173d42; background: #ffda63; }
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
-@media (max-aspect-ratio: 1/1) {
-  .start { bottom: 3%; padding: .55em 1em; }
-  .skip, .replay { padding: 7px 10px; right: 8px; }
-  .replay { bottom: auto; top: 10px; }
-}
-.start, .skip, .replay, .retry { min-height: 44px; min-width: 44px; }
-
-.motion-note { display: block; margin-top: 4px; font-size: 10px; line-height: 1.3; color: #d8e6d7; }
-.motion-toggle { position: absolute; z-index: 70; bottom: 4.5%; left: max(14px, 1.8%); min-height: 44px; padding: 9px 13px; border: 1px solid #fff5; border-radius: 24px; color: white; background: #123c3eaa; font-size: clamp(11px, 1cqw, 16px); }
-@media (max-aspect-ratio: 1/1) { .motion-toggle { bottom: auto; top: 10px; left: 8px; } }
+.start, .controls button, .retry { min-height: 44px; min-width: 44px; }

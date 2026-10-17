@@ -1,27 +1,34 @@
+const bounce = 'cubic-bezier(.2,1.15,.35,1)';
+const rise = 'cubic-bezier(.2,1.2,.35,1)';
+const pop = 'cubic-bezier(.34,1.56,.64,1)';
+const dash = 'cubic-bezier(.18,1.25,.4,1)';
+// [지연, 길이, 시작 모양, 움직임, 불투명해지는 지점]. 지점이 없으면 처음부터 보인다.
 const entrances = {
-  sky: [0, 220, 'scale(1.025)', 'none'],
-  hills: [100, 470, 'translateY(65%)', 'translateY(-1.5%)'],
-  mountains: [330, 500, 'translateY(90%)', 'translateY(-2%)'],
-  mine: [620, 480, 'translateY(125%) scale(.94)', 'translateY(-3%) scale(1.01)'],
-  crystals: [620, 480, 'translateY(125%) scale(.94)', 'translateY(-3%) scale(1.01)'],
-  castle: [620, 480, 'translateY(125%) scale(.94)', 'translateY(-2%) scale(1.01)'],
-  warrior: [1050, 510, 'translate(-125%, 12%) rotate(-10deg)', 'translate(2%, -1%) rotate(1deg)'],
-  assassin: [1090, 510, 'translate(125%, -14%) rotate(12deg)', 'translate(-2%, 1%) rotate(-1deg)'],
-  mage: [1170, 570, 'translateY(210%) scale(.86)', 'translateY(-4%) scale(1.025)'],
-  logo: [1740, 460, 'translateY(-14%) scale(1.16)', 'translateY(1%) scale(.985)'],
+  sky: [0, 1200, 'scale(1.06)', 'ease-out'],
+  hills: [0, 650, 'translateY(70%)', bounce, .001],
+  foreground: [120, 620, 'translateY(100%)', bounce, .001],
+  mountains: [320, 700, 'translateY(100%)', 'cubic-bezier(.2,1.1,.35,1)', .001],
+  mine: [560, 600, 'translateY(100%)', rise, .001],
+  'trees-left': [600, 480, 'scale(.5, 0)', pop, .001],
+  crystals: [640, 600, 'translateY(100%)', rise, .001],
+  'trees-right': [660, 480, 'scale(.5, 0)', pop, .001],
+  castle: [760, 680, 'translateY(100%)', rise, .001],
+  warrior: [1300, 420, 'translate(-120%, 8%) rotate(-8deg)', dash, .001],
+  assassin: [1420, 420, 'translate(120%, -10%) rotate(9deg)', dash, .001],
+  mage: [1720, 560, 'translateY(-35%) scale(.55) rotate(-8deg)', pop, .2],
+  logo: [2120, 560, 'scale(1.7)', pop, .15],
 };
 
 export function animateTitle(layers, { reducedMotion = false, fullMotion = false } = {}) {
   return [...layers].map(layer => {
-    const [delay, duration, from, settle] = entrances[layer.dataset.layer];
-    const reduced = reducedMotion && !fullMotion;
-    layer.style.opacity = '0';
-    layer.style.willChange = 'transform, opacity';
-    return layer.animate([
-      { opacity: 0, transform: reduced ? 'none' : from, offset: 0, easing: 'cubic-bezier(.16,1,.3,1)' },
-      { opacity: 1, transform: reduced ? 'none' : settle, offset: .78, easing: 'ease-out' },
-      { opacity: 1, transform: 'none', offset: 1 },
-    ], { delay, duration, fill: 'both' });
+    const [delay, duration, from, easing, fadeBy] = entrances[layer.dataset.layer];
+    if (reducedMotion && !fullMotion) {
+      return layer.animate([{ opacity: 0, transform: 'none' }, { opacity: 1, transform: 'none' }], { delay, duration: 300, fill: 'both' });
+    }
+    // 지형 뒤나 화면 밖에서 기다리다가 움직이는 순간 완전히 보인다.
+    const frames = fadeBy ? [{ offset: 0, opacity: 0, transform: from, easing }, { offset: fadeBy, opacity: 1 }, { offset: 1, opacity: 1, transform: 'none' }]
+      : [{ offset: 0, opacity: 1, transform: from, easing }, { offset: 1, opacity: 1, transform: 'none' }];
+    return layer.animate(frames, { delay, duration, fill: 'both' });
   });
 }
 
