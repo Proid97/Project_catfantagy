@@ -11,9 +11,10 @@ body { margin: 0; background: #35adfd; }
 button { font: inherit; cursor: pointer; -webkit-tap-highlight-color: transparent; }
 button:focus-visible { outline: 3px solid #ffda63; outline-offset: 6px; }
 [hidden] { display: none !important; }
-#app { --safe-width: calc(100vw - env(safe-area-inset-left) - env(safe-area-inset-right)); --safe-height: calc(100svh - env(safe-area-inset-top) - env(safe-area-inset-bottom)); padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left); width: 100%; height: 100svh; display: grid; place-items: center; overflow: hidden; background: radial-gradient(ellipse, #23666a, #0b282d); }
+/* --viewport-gap: iOS 홈 화면 앱이 짧게 알려 준 화면 높이를 main.js가 채우는 값 */
+#app { --app-height: calc(100svh + var(--viewport-gap, 0px)); --safe-width: calc(100vw - env(safe-area-inset-left) - env(safe-area-inset-right)); --safe-height: calc(var(--app-height) - env(safe-area-inset-top) - env(safe-area-inset-bottom)); padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left); position: fixed; inset: 0 0 auto; height: var(--app-height); display: grid; place-items: center; overflow: hidden; background: radial-gradient(ellipse, #23666a, #0b282d); }
 /* 그림 가장자리 색과 맞춰 남는 여백이 그림처럼 이어지게 한다. */
-.stage { position: fixed; inset: 0; overflow: hidden; isolation: isolate; background: linear-gradient(#35adfd 0 49%, #7fb846 49% 63%, #046e67 63% 92%, #02504f); }
+.stage { position: absolute; inset: 0; overflow: hidden; isolation: isolate; background: linear-gradient(#35adfd 0 49%, #7fb846 49% 63%, #046e67 63% 92%, #02504f); }
 /* 1672×941 그림을 안전 영역(가운데 1255×941)이 다 보이는 크기로 맞춘다. */
 .canvas { --u: min(var(--safe-width) / 1255, var(--safe-height) / 941); position: absolute; left: calc(50% + (env(safe-area-inset-left) - env(safe-area-inset-right)) / 2); top: calc(50% + (env(safe-area-inset-top) - env(safe-area-inset-bottom)) / 2); width: calc(var(--u) * 1672); height: calc(var(--u) * 941); translate: -50% -50%; container-type: size; background: #35adfd; }
 .art, .layer { position: absolute; pointer-events: none; }

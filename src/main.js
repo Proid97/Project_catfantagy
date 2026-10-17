@@ -3,6 +3,7 @@ import { setupScreen } from './setup-screen.js';
 import { animateTitle, syncIntroVisibility } from './title-intro.js';
 import layout from './generated/title-layout.json';
 
+const app = document.querySelector('#app');
 const stage = document.querySelector('.stage');
 const art = document.querySelector('.art');
 const start = document.querySelector('.start');
@@ -20,6 +21,17 @@ let animations = [];
 let loading = false;
 let motionPreference;
 try { motionPreference = localStorage.getItem('title-motion'); } catch { /* 저장이 막혀도 재생은 가능하다. */ }
+
+// iOS 홈 화면 앱은 CSS 화면 높이를 상태 표시줄만큼 짧게 줄 때가 있다(iPad mini 5 실측: 768 중 736).
+// 앱이 화면 폭을 다 쓸 때만 실제 화면 높이와 비교해 모자란 만큼 채운다. WebKit이 고쳐지면 차이가 0이 된다.
+function fillScreen() {
+  const root = document.documentElement.style;
+  root.removeProperty('--viewport-gap');
+  const [short, long] = [screen.width, screen.height].sort((a, b) => a - b);
+  const full = innerWidth === long ? short : innerWidth === short ? long : 0;
+  const gap = navigator.standalone && full ? full - app.clientHeight : 0;
+  if (gap > 0) root.setProperty('--viewport-gap', `${gap}px`);
+}
 
 function useReducedMotion() {
   return motionPreference === 'reduced' || (motionPreference !== 'full' && reducedMotion.matches);
@@ -145,4 +157,6 @@ document.addEventListener('keydown', event => {
 reducedMotion.addEventListener('change', () => {
   if (stage.dataset.state === 'ready' || (useReducedMotion() && stage.dataset.state === 'intro')) ready();
 });
+addEventListener('resize', fillScreen);
+fillScreen();
 load();
