@@ -1,4 +1,5 @@
 import sharp from 'sharp';
+import { createHash } from 'node:crypto';
 import { readFile, mkdir, writeFile, stat, rename, readdir } from 'node:fs/promises';
 
 const source = new URL('../assets/title/', import.meta.url);
@@ -13,19 +14,22 @@ for (const layer of layout.layers) {
   const name = layer.file.replace('.png', '.webp');
   const destination = new URL(name, output);
   const original = await stat(input);
+  const bytes = await readFile(input);
+  layer.revision = createHash('sha256').update(bytes).digest('hex').slice(0, 12);
   originalBytes += original.size;
   let current;
   try { current = await stat(destination); } catch (error) {
     if (error.code !== 'ENOENT') throw error;
   }
   if (!current || current.mtimeMs < Math.max(original.mtimeMs, changedAt)) {
-    let image = sharp(await readFile(input));
+    let image = sharp(bytes);
     if (!layer.useFullImage) {
       const [left, top, right, bottom] = layer.sourceBounds;
       image = image.extract({ left, top, width: right - left, height: bottom - top });
     }
     const temporary = new URL(`${name}.tmp.webp`, output);
-    await image.webp({ quality: 88, alphaQuality: 100, effort: 6 }).toFile(temporary.pathname);
+    await image.resize({ width: Math.ceil(layer.w * 1.5), height: Math.ceil(layer.h * 1.5), fit: 'inside', withoutEnlargement: true })
+      .webp({ quality: 88, alphaQuality: 100, effort: 6 }).toFile(temporary.pathname);
     await rename(temporary, destination);
   }
   outputBytes += (await stat(destination)).size;

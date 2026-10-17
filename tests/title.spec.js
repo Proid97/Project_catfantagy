@@ -11,7 +11,7 @@ test('등장 순서, 자연 종료, 시작 입력과 되돌아오기', async ({ 
     name: layer.dataset.layer, delay: layer.getAnimations()[0].effect.getTiming().delay,
   })));
   expect(times.sort((a, b) => a.delay - b.delay).map(item => item.name)).toEqual([
-    'sky', 'ground', 'regions', 'castle', 'warrior', 'assassin', 'mage', 'logo',
+    'sky', 'hills', 'mountains', 'mine', 'crystals', 'castle', 'warrior', 'assassin', 'mage', 'logo',
   ]);
   await ready(page);
   expect(await page.evaluate(() => document.getAnimations().length)).toBe(0);
@@ -26,7 +26,7 @@ test('등장 순서, 자연 종료, 시작 입력과 되돌아오기', async ({ 
   await expect(page.locator('.stage')).toHaveAttribute('data-state', 'intro');
   await page.getByRole('button', { name: '연출 건너뛰기' }).click();
   await ready(page);
-  await page.waitForTimeout(4300);
+  await page.waitForTimeout(2400);
   expect(await page.evaluate(() => document.getAnimations().length)).toBe(0);
   expect(errors).toEqual([]);
 });
@@ -61,15 +61,15 @@ test('터치로 시작', async ({ browser }) => {
 });
 
 test('이미지 실패 뒤 재시도', async ({ page }) => {
-  await page.route('**/title/mage.webp', route => route.abort());
+  await page.route('**/title/mage.webp*', route => route.abort());
   await page.goto('/');
   await expect(page.locator('.stage')).toHaveAttribute('data-state', 'error');
   await expect(page.getByRole('button', { name: '다시 불러오기' })).toBeVisible();
-  await page.unroute('**/title/mage.webp');
+  await page.unroute('**/title/mage.webp*');
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.getByRole('button', { name: '다시 불러오기' }).click();
   await ready(page);
-  expect(await page.locator('.art img').count()).toBe(8);
+  expect(await page.locator('.art img').count()).toBe(10);
 });
 
 test('연출 중 모션 줄이기 적용', async ({ page }) => {
@@ -124,4 +124,18 @@ test('화면이 가려진 동안 연출을 멈추고 돌아오면 이어서 재�
   expect(paused).toBe(true);
   await page.evaluate(() => { window.testHidden = false; document.dispatchEvent(new Event('visibilitychange')); });
   await ready(page);
+});
+
+test('선택한 전체 움직임은 다음 실행에도 유지', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.goto('/');
+  await ready(page);
+  await page.getByRole('button', { name: '타이틀 연출 다시 보기' }).click();
+  await ready(page);
+  await page.reload();
+  await expect(page.locator('.stage')).toHaveAttribute('data-motion', 'full');
+  await ready(page);
+  await page.getByRole('button', { name: '움직임: 전체', exact: true }).click();
+  await ready(page);
+  await expect(page.locator('.stage')).toHaveAttribute('data-motion', 'reduced');
 });
