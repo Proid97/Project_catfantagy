@@ -63,6 +63,149 @@
     {
       "name": "landscape",
       "prompt": "Simplify this exact transparent fantasy title LANDSCAPE asset substantially while retaining recognizable layout. Keep left wooden MINE entrance with short rails and ONE small gold ore cart, green rolling hills and central winding path, purple crystal region and blue lake on right. No castle, no characters, no logo, no text, no sky/clouds. Area ABOVE the skyline remains genuinely transparent.\n\nCRITICAL SIMPLIFICATION:\n- Cut total individual trees to EXACTLY EIGHT readable simple triangular evergreen silhouettes: FOUR at the far left around/below the mine, FOUR at the far right near the crystal slope. No trees elsewhere. No forest carpet, no distant tiny trees, no repeated rows of trees, no tree-like pointed shrubs.\n- Behind terrain use ONLY THREE broad smooth mountain peaks: two large gray angular mountains on LEFT, one low broad blue-gray ridge in the far distance behind center-right. No chain of many little peaks, no serrated sawtooth skyline, no extra small rocky mountains.\n- At right use ONLY THREE large purple crystal prisms with large flat faces. Keep the lake as ONE clean blue shape plus TWO broad pale-blue water lines.\n- Foreground uses THREE large smooth green hill color shapes, one broad cream winding path, a FEW simple large rocks, and at most THREE rounded shrub clumps. No individual grass blades, no flower dots, no pebble scatter, no tiny gold ore scattered across slopes.\n- Mine is iconic: wooden rectangular support frame, solid dark entrance, short track with a few readable ties, one cart with 3-4 big gold chunks.\n- All surfaces are perfectly clean large uniform vector-style color regions with at most ONE flat hard-edged shadow tone each. ABSOLUTELY NO NOISE, NO GRANULAR PIXEL TEXTURE, NO PAPER GRAIN, NO PAINTERLY MOTTLE, NO SAND-LIKE SPECKLES, NO GRASS TEXTURE, NO COMPLEX LITTLE FACETS. Smooth deliberate edges. No gradients or lighting effects.\nMaintain landscape 16:9 framing and bottom ground reaching frame edge. The center should have open gently rolling hills and path for later castle and characters. Generously spaced scenery, same basic green/teal/gray/purple/blue palette as reference. This is a CLEAN SIMPLE indie-game cut-paper/vector-style BACKGROUND LAYER with transparent sky, not an intricate fantasy landscape painting."
+    },
+    {
+      "name": "mine",
+      "change": "둥근 섬 받침과 앞 바위를 없애고 언덕색의 낮은 초록 가장자리로 연결",
+      "prompt": "Use case: precise-object-edit. Output a production PNG sprite with genuine alpha transparency, not a checkerboard painted background. Flat clean vector illustration matching the edit target. No typography, no watermark, no floor shadow or cast shadow, no outer glow, no aura, no noise/grain/texture. Solid opaque flat color within physical shapes and fully transparent empty space outside. Keep full silhouette with transparent padding. Image 1 is the EDIT TARGET, image 2 only the hill palette/style reference. MODIFY ONLY THE LOWER BASE of image 1. Keep the same chunky warm timber mine portal, dark opening, GOLD ORE CART and short rails, and the simple blue-gray rock around entrance. Remove the separate oval island / pedestal / thick base outline and remove the big foreground boulder that makes an island. The lower rock silhouette should terminate low behind a SMALL FLAT irregular lime-green transition skirt in the same green as the reference hills, with no rim, no visible soil side face, no mound-shaped plinth, no ellipse, no grass spikes, no floating island. The mine must look dug into a slope when layered on hills. Full short rail ends must remain visible. Retain geometry and camera of upper mine and cart. Canvas square 1254x1254 or larger, no crop, no extraneous scenery.",
+      "referenceFiles": [
+        "assets/title/mine.png",
+        "assets/title/hills.png"
+      ],
+      "referenceCommit": "f9a4646f5b34c58e017129fa4b395a1276ffea6e",
+      "file": "assets/title/mine.png",
+      "canvas": [
+        1254,
+        1254
+      ],
+      "visibleBounds": [
+        12,
+        136,
+        1243,
+        1094
+      ]
+    },
+    {
+      "name": "crystals",
+      "change": "연두 풀과 높은 바위 받침을 없애고 낮고 평평한 회색 바위로 정리",
+      "prompt": "Use case: precise-object-edit. Output a production PNG sprite with genuine alpha transparency, not a checkerboard painted background. Flat clean vector illustration matching the edit target. No typography, no watermark, no floor shadow or cast shadow, no outer glow, no aura, no noise/grain/texture. Solid opaque flat color within physical shapes and fully transparent empty space outside. Keep full silhouette with transparent padding. Image 1 is the EDIT TARGET. Change ONLY the bottom support area. Keep EXACTLY THREE PURPLE CRYSTALS, preserve their original number, relative heights, asymmetrical tilt, colors and facets. REMOVE ALL pointed lime-green grass blades and green decorations completely. REMOVE the tall stacked boulder island / pedestal. Replace it with ONE very LOW, FLAT blue-gray rock slab with just two or three broad simple facets; height at most 6% of whole crystal cluster. No oval platform, no mound, no tall foreground boulders, no floating island, no grass, no green anywhere. The lowest crystal edges rest on this thin low rock, clean simple continuous silhouette. Square 1254x1254 or larger, full silhouette with padding.",
+      "referenceFiles": [
+        "assets/title/crystals.png"
+      ],
+      "referenceCommit": "f9a4646f5b34c58e017129fa4b395a1276ffea6e",
+      "file": "assets/title/crystals.png",
+      "canvas": [
+        1254,
+        1254
+      ],
+      "visibleBounds": [
+        154,
+        88,
+        1094,
+        1148
+      ]
+    },
+    {
+      "name": "warrior",
+      "change": "색과 돌진 자세를 유지하며 방패 문양을 콘셉트의 왕관으로 수정",
+      "prompt": "Use case: precise-object-edit. Output a production PNG sprite with genuine alpha transparency, not a checkerboard painted background. Flat clean vector illustration matching the edit target. No typography, no watermark, no floor shadow or cast shadow, no outer glow, no aura, no noise/grain/texture. Solid opaque flat color within physical shapes and fully transparent empty space outside. Keep full silhouette with transparent padding. Image 1 is the EDIT TARGET: the title warrior in a low rightward lunge. Image 2 is ONLY the authoritative shield emblem reference; DO NOT borrow its standing pose or change anything else to match image 2. Change ONLY THE IVORY EMBLEM INSIDE THE SHIELD in image 1 to the same recognizable THREE-POINTED CROWN heraldic emblem from image 2. It is an upright crown with a tall central peak, two lower side peaks, and a clear connected downward lower band / base, with the shield gold visible in the lower inner negative space, matching the concept's crown. It must read as a crown, NOT the letter W, NOT a zigzag lightning bolt or angular disconnected glyph. Orient this crown correctly on the existing tilted shield face. Preserve image 1's EXACT pose, orange fur, stripes, facial expression, cape, armor, sword, tail, paws, silhouette, perspective, positions, canvas framing and sizes. Do not redesign/repose the cat or add a different shield. Wide canvas 1672x941 or larger in the same aspect ratio, complete existing silhouette, transparent outside. This is a local emblem replacement only.",
+      "referenceFiles": [
+        "assets/title/warrior.png",
+        "assets/concepts/cat-warrior.png"
+      ],
+      "referenceCommit": "f9a4646f5b34c58e017129fa4b395a1276ffea6e",
+      "file": "assets/title/warrior.png",
+      "canvas": [
+        1672,
+        941
+      ],
+      "visibleBounds": [
+        28,
+        19,
+        1617,
+        929
+      ]
+    },
+    {
+      "name": "mage",
+      "change": "색과 공중 자세를 유지하며 지팡이 끝을 가운데가 투명한 하늘색 고리로 수정",
+      "prompt": "Use case: precise-object-edit. Output a production PNG sprite with genuine alpha transparency, not a checkerboard painted background. Flat clean vector illustration matching the edit target. No typography, no watermark, no floor shadow or cast shadow, no outer glow, no aura, no noise/grain/texture. Solid opaque flat color within physical shapes and fully transparent empty space outside. Keep full silhouette with transparent padding. Image 1 is the EDIT TARGET: the airborne title mage with extended right paw. Image 2 ONLY references the staff's sky-blue OPEN RING, not a pose or character replacement. Change only the staff tip in image 1 to the same flat solid LIGHT CYAN CIRCULAR RING, with a CLEAR EMPTY FULLY TRANSPARENT CIRCULAR HOLE through the center (visible background through it). Remove the dark blue center disc/orb entirely. Ring is NOT a glowing ball, no pupil, no gem, no filled center, no blue interior; a uniform flat cyan annulus with a cyan small diamond connector. Remove all haze/glow outside the physical cat, staff and ring; clean hard edges to transparent alpha. Preserve image 1's EXACT airborne twist, white fur, purple hat/robe/eyes, cyan hatband, expression, ivory tail, extended paw, leg pose, staff angle/shaft and composition. Do not copy standing pose from image 2. Wide canvas 1536x1024 or larger in same aspect ratio, entire original cat and staff visible, no cropping.",
+      "referenceFiles": [
+        "assets/title/mage.png",
+        "assets/concepts/cat-mage.png"
+      ],
+      "referenceCommit": "f9a4646f5b34c58e017129fa4b395a1276ffea6e",
+      "file": "assets/title/mage.png",
+      "canvas": [
+        1536,
+        1024
+      ],
+      "visibleBounds": [
+        72,
+        39,
+        1498,
+        994
+      ]
+    },
+    {
+      "name": "castle",
+      "change": "청록 지붕, 큰 창문 다섯 개와 단순한 성벽. 붉은 발바닥 깃발 디자인 유지",
+      "prompt": "Use case: precise-object-edit. Output a production PNG sprite with genuine alpha transparency, not a checkerboard painted background. Flat clean vector illustration matching the edit target. No typography, no watermark, no floor shadow or cast shadow, no outer glow, no aura, no noise/grain/texture. Solid opaque flat color within physical shapes and fully transparent empty space outside. Keep full silhouette with transparent padding. Image 1 is the EDIT TARGET. Simplify architecture for readability when displayed at 75% size: keep same overall front-facing castle silhouette, central high tower, round side towers, ivory wall color, central arched wooden gate and EXACT same prominent red forked CAT-PAW FLAG. Preserve the red flag's same silhouette, size, pole, ivory large paw print with four toes plus central pad, and placement. Do NOT redesign this flag or add another. Change ALL CORAL-RED ROOFS to clean TEAL and BLUE-TEAL faces. Only the FLAG CLOTH remains red. Reduce windows to about five large readable dark teal openings total, remove tiny side windows, remove most protruding wall stone accents and deep little wall grooves, simplify crenellations to fewer broad merlons, keep door simply two wooden panels and one horizontal bar. Broad clean ivory walls with one flat beige shade. No stone texture, no tiny brick strokes, no little metal rivet scatter. Keep upper/lower castle proportions and full base, square canvas 1254x1254 or larger with transparent margin. Do not shrink the castle within canvas.",
+      "referenceFiles": [
+        "assets/title/castle.png"
+      ],
+      "referenceCommit": "f9a4646f5b34c58e017129fa4b395a1276ffea6e",
+      "file": "assets/title/castle.png",
+      "canvas": [
+        1254,
+        1254
+      ],
+      "visibleBounds": [
+        41,
+        21,
+        1214,
+        1220
+      ]
+    },
+    {
+      "name": "foreground",
+      "change": "양옆 62% 부근에서 가운데가 낮아지는 짙은 청록 앞쪽 언덕 띠",
+      "prompt": "Use case: stylized-concept. Asset type: transparent foreground plate for a flat vector game title scene. Image 1 is ONLY palette / shape style reference; DO NOT edit the supplied hills file. Create a NEW wide PNG layer on exact 1672x941 canvas. Upper approximately 62% of canvas is completely EMPTY TRANSPARENT ALPHA. A smooth solid DARK TEAL GREEN foreground hill band occupies the lower part and reaches left/right/bottom edges. At left and right the crest is at y about 583px (62% of 941), and in the MIDDLE the crest dips smoothly downward to about y 760px, forming a generous shallow U-shaped opening so a central path and castle gate behind it can remain visible. IMPORTANT the central dip is a LOWER HILL RIDGE, NOT an actual transparent hole cut through the lower ground: all pixels BELOW the ridge are opaque ground continuously through bottom edge. Two broad flat teal color shapes only, same dark teal foreground palette as reference, no lime main fill. Keep bottom central area a simple solid dark teal field for later code text. Place only ONE or TWO simple gray rocks and rounded dark green shrub shapes in EACH far bottom corner; no more than 4 little accent groups total. No center rocks. No trees, no tall grass blades, no flowers, no dirt rim, no island shape, no sky, NO castle/mine/crystals/characters/letters. No drop or cast shadows, no texture/grain/noise/gradients, no checkerboard. Crisp smooth vector-like edges. Match reference's width and height exactly.",
+      "referenceFiles": [
+        "assets/title/hills.png"
+      ],
+      "referenceCommit": "f9a4646f5b34c58e017129fa4b395a1276ffea6e",
+      "file": "assets/title/foreground.png",
+      "canvas": [
+        1672,
+        941
+      ],
+      "visibleBounds": [
+        0,
+        576,
+        1672,
+        941
+      ]
+    },
+    {
+      "name": "trees",
+      "change": "선택용 침엽수 네 그루. 두 그루씩 두 무리",
+      "prompt": "Use case: stylized-concept. Asset type: optional isolated sparse evergreen trees overlay for a clean flat fantasy game. Image 1 is ONLY palette / art style reference. Transparent PNG square 1254x1254 or larger. Exactly TWO SMALL SEPARATE TREE CLUSTERS with ample transparent space between: each cluster has TWO simple triangular evergreen trees of different heights, four individual trees TOTAL. Deep teal green with one hard-edged flat shadow tone and short warm brown trunks. Clean broad angular silhouettes, no needles, no tiny branches, no texture, no noise, no glow. Full silhouettes including trunks. Ground between and below trees completely transparent. NO grass mound, no island base, no hills, no rocks, no cast/drop shadow, no scenery, no words, no characters.",
+      "referenceFiles": [
+        "assets/title/hills.png"
+      ],
+      "referenceCommit": "f9a4646f5b34c58e017129fa4b395a1276ffea6e",
+      "file": "assets/title/trees.png",
+      "canvas": [
+        1254,
+        1254
+      ],
+      "visibleBounds": [
+        91,
+        436,
+        1175,
+        965
+      ]
     }
   ],
   "note": "법사냥은 흰 배경에서 번짐 제거 후 이미지젠 배경 제거를 거쳤습니다. 선택한 최종 PNG를 기준으로 사용합니다.",
