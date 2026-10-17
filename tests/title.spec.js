@@ -68,16 +68,20 @@ for (const [width, height] of [[1024, 768], [768, 1024], [844, 390], [2560, 1080
 }
 
 // iPad mini 5 홈 화면 앱 실측: 화면은 1024×768인데 CSS 높이는 736만 받아 아래 32가 비었다.
-for (const standalone of [true, false]) {
-  test(`화면 높이를 짧게 받을 때 ${standalone ? '홈 화면 앱은 아래까지 채움' : '브라우저는 그대로'}`, async ({ browser }) => {
+for (const [name, ios, standalone, height] of [['iOS 홈 화면 앱은 아래까지 채움', true, true, 768], ['iOS 브라우저는 그대로', true, false, 736], ['iOS가 아니면 그대로', false, true, 736]]) {
+  test(`화면 높이를 짧게 받을 때 ${name}`, async ({ browser }) => {
     const context = await browser.newContext({ viewport: { width: 1024, height: 736 }, screen: { width: 768, height: 1024 }, reducedMotion: 'reduce' });
-    if (standalone) await context.addInitScript(() => Object.defineProperty(Navigator.prototype, 'standalone', { get: () => true }));
+    await context.addInitScript(([ios, standalone]) => {
+      const supports = CSS.supports.bind(CSS);
+      CSS.supports = (...args) => (ios && args[0] === '-webkit-touch-callout') || supports(...args);
+      Object.defineProperty(Navigator.prototype, 'standalone', { get: () => standalone });
+    }, [ios, standalone]);
     const page = await context.newPage();
     await page.goto('http://127.0.0.1:4173/');
     await ready(page);
     const box = await page.locator('.canvas').boundingBox();
-    expect(Math.round(box.y + box.height)).toBe(standalone ? 768 : 736);
-    expect((await page.locator('.stage').boundingBox()).height).toBe(standalone ? 768 : 736);
+    expect(Math.round(box.y + box.height)).toBe(height);
+    expect((await page.locator('.stage').boundingBox()).height).toBe(height);
     await context.close();
   });
 }

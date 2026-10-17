@@ -37,5 +37,6 @@ button:focus-visible { outline: 3px solid #ffda63; outline-offset: 6px; }
 .motion-note { flex-basis: 100%; margin: 0; text-align: right; font-size: 11px; text-shadow: 0 0 3px #08403d, 0 1px 2px #08403d; }
 .status { position: absolute; z-index: 70; inset: 45% 8% auto; text-align: center; font-size: clamp(16px, 2vw, 24px); text-shadow: 0 2px 12px #123c3e; }
 .retry { position: absolute; z-index: 70; left: 50%; top: 60%; translate: -50% 0; padding: 12px 24px; border: 0; border-radius: 24px; color: #173d42; background: #ffda63; }
+.viewport-probe { position: fixed; z-index: 999; left: 8px; top: calc(env(safe-area-inset-top) + 6px); margin: 0; padding: 6px 8px; border-radius: 6px; color: #fff; background: #000b; font: 11px/1.45 ui-monospace, monospace; pointer-events: none; }
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 .start, .controls button, .retry { min-height: 44px; min-width: 44px; }
