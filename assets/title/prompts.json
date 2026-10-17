@@ -448,6 +448,77 @@
           "alphaLevels": 256
         }
       }
+    },
+    {
+      "name": "character-touchups",
+      "referenceCommit": "63583af8cc0f00089f85564257e343f9712dec38",
+      "branch": "art/character-touchups",
+      "tool": "ChatGPT 이미지젠 · 내장 도구",
+      "scope": "남은 작은 아트 문제와 전사 가죽 기본색 복원. 코드·배치·문서 본문은 변경하지 않음.",
+      "decisions": [
+        "전사 가죽의 기본색이 남색으로 바뀐 것은 원래 색 정체성 보존 범위를 넘은 수정이므로 짙은 갈색으로 복원. 푸른 회색 기운은 밝은 면에만 사용.",
+        "법사 모자에 귀를 위한 여유를 넣고 목의 작은 잔면을 넓은 천 면으로 정리.",
+        "냥살자 작은 눈의 동공 경계에 남은 밝은 흔적을 제거.",
+        "기준 시트의 가죽 견본과 법사 목을 갱신. 기존 점검 시트에 실제 수정 전·후 확대 비교 추가."
+      ],
+      "records": [
+        {
+          "name": "mage",
+          "prompt": "Use case: precise-object-edit. 이 이미지는 수정 대상인 기존 법사냥 스프라이트입니다. 전체를 새로 디자인하지 말고 아래 두 부분만 고칩니다. 1) 모자와 귀가 겹치는 부분: 흰 귀 두 개의 모양과 위치는 유지합니다. 모자 챙과 옆면을 귀 뒤로 살짝 물리고, 귀 둘레에 닿는 보라색 천에 작은 U자 여유 컷을 넣어 귀의 바깥 윤곽이 모자에 묻히지 않게 합니다. 특히 화면 가운데 큰 흰 귀의 윗부분·왼쪽 바깥 모서리 주변에는 12~20px 정도의 작고 명확한 투명 여유 틈을 만들고, 화면 오른쪽 작은 흰 귀도 끝과 바깥 모서리가 모자 챙에서 따로 읽히게 합니다. 귀 밑동은 얼굴에 자연스럽게 붙어 있어야 하며, 귀를 떠 있는 조각으로 분리하지 않습니다. 모자 자체를 없애거나 모양을 크게 바꾸지 않습니다. 2) 로브 목: 턱 바로 아래의 나비넥타이/보석처럼 잘게 쪼개진 작은 보라색 삼각 잔면을 지웁니다. 넓고 단순한 겹친 천 두 면으로 바꾸고, 보라색 밝음·기본·그림자 세 단색만 씁니다. 작은 보석·단추·다이아몬드 조각을 추가하지 않습니다. 나머지 전체 색, 눈마다 왼쪽 위 하이라이트 하나, 얼굴 표정과 시선, 공중 자세, 팔다리 길이, 꼬리, 연한 나무색 지팡이와 가운데가 뚫린 하늘색 고리는 그대로 유지합니다. 정확한 캔버스 1536×1024, 기존 위치와 크기 유지. 바깥과 고리 안은 진짜 알파 투명. 글자, 바닥 그림자, 마법, 빛 번짐이나 추가 효과 없음. 깔끔한 평면 벡터풍, 왼쪽 위 한 광원, 재질별 3단 색면, 검은 외곽선 없음."
+        },
+        {
+          "name": "assassin",
+          "prompt": "Use case: precise-object-edit. 이 이미지의 눈 부분만 국소 수정합니다. 화면 왼쪽의 더 작고 좁은 노란 눈에서 검은 세로 동공 아래쪽 왼쪽 경계에 붙어 있는 옅은 살구색/크림색 작은 밝은 흔적을 지워 주세요. 1672×941 기준 중심 (493,628) 부근이며, 검은 동공 아래쪽에 작은 밝은 점처럼 붙어 있는 부분입니다. 이 작은 영역을 옆의 노란 홍채와 같은 평평한 노란색으로 메워 동그란 점, 연한 테두리, 빛 반사가 남지 않게 합니다. 눈 위쪽의 큰 흰 하이라이트는 유지하며, 눈마다 큰 하이라이트 정확히 하나만 남깁니다. 오른쪽 큰 눈도 아래에 옅은 점이 남아 있으면 같은 방식으로 지웁니다. 새 작은 반사광을 절대 추가하지 마세요. 눈의 노란 홍채·세로 동공·표정·시선은 그대로 둡니다. 두건, 검은 털의 푸른 회색 밝은 면, 코랄 머플러, 줄무늬 소매, 단검 두 자루, 꼬리, 몸과 다리, 왼쪽 도약 자세, 기존 위치·크기는 일절 바꾸지 않습니다. 정확히 1672×941 PNG, 바깥은 진짜 알파 투명. 평면 벡터풍을 그대로 유지하고 글자·그림자·번짐·효과는 넣지 않습니다."
+        },
+        {
+          "name": "warrior",
+          "prompt": "Use case: precise-object-edit. 이 이미지의 전사냥에서 짙은 남색으로 바뀐 가죽 부분만 원래의 짙은 갈색 가죽으로 되돌립니다. 특히 양쪽 허벅지/다리 가죽, 두 발의 부츠, 칼을 쥔 가죽 장갑, 손목 가죽을 동일한 DARK WARM BROWN 계열로 통일합니다. 기본색은 짙은 갈색 #462B2B, 그림자는 더 어두운 갈색 #261A20. 왼쪽 위의 밝은 면만 푸른 회색 기운이 살짝 도는 회갈색 #73666D를 써서 정확히 세 단색 면으로 합니다. 기본면과 부츠 전체가 NAVY BLUE/BLUE LEATHER로 읽히면 안 됩니다. 원래의 갈색 가죽이 주색으로 보여야 합니다. 칼 쥔 손의 2~3개 큰 손가락 덩어리와 평평하게 딛는 뒷발 모양은 그대로 유지합니다. 흰 종아리 털과 손목 털은 가죽이 아니므로 색을 바꾸지 않습니다. 나머지 주황 고양이 털, 줄무늬, 눈마다 하이라이트 하나, 금 갑옷 큰 판, 진홍 망토, 검, 단순화한 큰 금색 세 면의 둥근 방패와 아이보리 왕관 문양, 자세·시선·몸 비율·위치·크기는 전부 그대로 유지합니다. 정확히1672×941 PNG, 진짜 투명 배경. 새 장식, 글자, 그림자, 빛·마법 효과 없음. 기존 평면 벡터풍 단색 경계와 왼쪽 위 광원을 유지합니다."
+        },
+        {
+          "name": "assassin",
+          "stage": "작은 눈 동공 경계 추가 보정",
+          "prompt": "Use case: precise-object-edit. Image1 is the full sprite edit target, image2 is ONLY a greatly magnified locator crop of the tiny defect. Look at the LEFT EDGE OF THE DARK VERTICAL PUPIL in the smaller gold eye: a pale cream triangular fleck/notch protrudes into it at full-sprite coordinate aboutx492,y627. REMOVE THAT FLECK by filling it with the SAME DARK BROWN AS THE PUPIL, smoothly connecting the pupil's left edge above and below. Make the vertical pupil edge continuous and clean, no bright nick or pale triangle interrupting it. Do NOT fill this defect with a pale iris color again: it must merge into the dark pupil edge. Keep all surrounding golden iris planes and the one big upper-left white highlight unchanged. The large eye, head, hood, scarf, body, weapons, striped sleeves, tail, pose and framing are completely unchanged. Exact1672x941 transparent PNG, no effects, no new highlights, no text. Only this tiny pupil-edge repair."
+        },
+        {
+          "name": "character-art-reference",
+          "prompt": "Use case: precise-object-edit. Update only these small areas of this same character reference sheet. 1) In the WARRIOR column, the row labeled LEATHER currently has blue-gray/navy swatches. Keep its three rectangular chips and change them to the restored warm DARK BROWN LEATHER palette: highlight muted gray-brown #73666D, base dark warm brown #462B2B, shadow deep brown #261A20. It must read brown, not navy. All other material chips unchanged. 2) MAGE neck area in the face study: remove the small jewel-like triangular purple facets under the chin; replace with two broad simple overlapping purple cloth collar planes, three-tone purple only. Also let the white ears read cleanly through small clearance notches in the hat rim like the supplied updated mage sprite (image2). Keep all eyes with one upper-left white highlight and no small reflection. Keep every other face, palette, label, sheet layout, light arrow and illustration style. No new objects or captions, no texture or glow. Image1 is the sheet edit target; image2 ONLY illustrates the mage ear/collar correction."
+        }
+      ],
+      "checks": [
+        {
+          "item": "전사 짙은 갈색 가죽 복원",
+          "result": "✓"
+        },
+        {
+          "item": "법사 모자·귀 여유",
+          "result": "✓",
+          "note": "귀가 통과하는 컷과 주변 여유를 넣음. 귀는 얼굴에 붙어 있음."
+        },
+        {
+          "item": "법사 목 작은 잔면 제거",
+          "result": "✓"
+        },
+        {
+          "item": "냥살자 눈 아래 옅은 흔적 제거",
+          "result": "✓"
+        },
+        {
+          "item": "캔버스 크기·큰 하이라이트 1개·알파 배경",
+          "result": "✓"
+        },
+        {
+          "item": "정리 뒤 실행용 이미지·게임 화면 검수",
+          "result": "미확인",
+          "note": "이번 요청은 원본 아트만 수정. 미세한 색·알파 값은 최신 설계서대로 기존 빌드에서 정리함."
+        }
+      ],
+      "files": [
+        "assets/title/warrior.png",
+        "assets/title/mage.png",
+        "assets/title/assassin.png",
+        "assets/concepts/character-art-reference.png",
+        "docs/images/character-art-check.png"
+      ]
     }
   ],
   "note": "법사냥은 흰 배경에서 번짐 제거 후 이미지젠 배경 제거를 거쳤습니다. 선택한 최종 PNG를 기준으로 사용합니다.",

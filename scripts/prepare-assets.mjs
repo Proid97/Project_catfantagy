@@ -29,6 +29,15 @@ function clean(file) {
   })());
   return cleaned.get(file);
 }
+// sourceBounds가 없는 층은 정리된 그림에서 실제 그림 영역을 재고 2px 여유를 둔다. 그림을 바꿔도 다시 잴 필요가 없다.
+async function bounds(png) {
+  const { data, info } = await sharp(png).extractChannel(3).raw().toBuffer({ resolveWithObject: true });
+  let left = info.width, top = info.height, right = 0, bottom = 0;
+  for (let y = 0; y < info.height; y++) for (let x = 0; x < info.width; x++) if (data[y * info.width + x] >= 128) {
+    left = Math.min(left, x); right = Math.max(right, x); top = Math.min(top, y); bottom = Math.max(bottom, y);
+  }
+  return [Math.max(0, left - 2), Math.max(0, top - 2), Math.min(info.width, right + 3), Math.min(info.height, bottom + 3)];
+}
 for (const file of new Set(layout.layers.map(layer => layer.file))) originalBytes += (await stat(new URL(file, source))).size;
 for (const layer of layout.layers) {
   const input = new URL(layer.file, source);
@@ -38,11 +47,12 @@ for (const layer of layout.layers) {
     if (error.code !== 'ENOENT') throw error;
   }
   if (!current || current.mtimeMs < Math.max((await stat(input)).mtimeMs, changedAt)) {
-    const [left, top, right, bottom] = layer.sourceBounds;
+    const png = await clean(layer.file);
+    const [left, top, right, bottom] = layer.sourceBounds ?? await bounds(png);
     // 비율을 지키는 그림은 큰 화면에서도 선명하게, 늘려 채우는 지형은 원본 크기로 둔다.
     const scale = layer.fit === 'stretch' ? 1 : 1.75;
     const temporary = new URL(`${layer.name}.tmp.webp`, output);
-    await sharp(await clean(layer.file)).extract({ left, top, width: right - left, height: bottom - top })
+    await sharp(png).extract({ left, top, width: right - left, height: bottom - top })
       .resize({ width: Math.ceil(layer.w * scale), height: Math.ceil(layer.h * scale), fit: 'inside', withoutEnlargement: true })
       .webp({ quality: 88, alphaQuality: 100, effort: 6 }).toFile(fileURLToPath(temporary));
     await rename(temporary, destination);

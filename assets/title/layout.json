@@ -9,7 +9,7 @@
     "w": 1255,
     "h": 941
   },
-  "note": "현재 타이틀 배치. name은 실행용 파일 이름, file은 원본 PNG입니다. sourceBounds로 투명 여백을 자른 뒤 상자에 맞춥니다. fit이 stretch면 상자를 꽉 채우고, 없으면 비율을 지킵니다. safeArea는 4:3 화면에서도 반드시 보이는 영역입니다.",
+  "note": "현재 타이틀 배치. name은 실행용 파일 이름, file은 원본 PNG입니다. sourceBounds가 없으면 빌드 때 실제 그림 영역을 자동으로 재서 자르고 상자에 맞춥니다. 그림의 일부만 쓰는 층(하늘, 나무 왼쪽·오른쪽)만 sourceBounds를 적습니다. fit이 stretch면 상자를 꽉 채우고, 없으면 비율을 지킵니다. safeArea는 4:3 화면에서도 반드시 보이는 영역입니다.",
   "layers": [
     {
       "name": "sky",
@@ -30,12 +30,6 @@
     {
       "name": "mountains",
       "file": "mountains.png",
-      "sourceBounds": [
-        25,
-        233,
-        1747,
-        701
-      ],
       "x": 0,
       "y": 160,
       "w": 1672,
@@ -45,12 +39,6 @@
     {
       "name": "hills",
       "file": "hills.png",
-      "sourceBounds": [
-        0,
-        452,
-        1672,
-        941
-      ],
       "x": 0,
       "y": 452,
       "w": 1672,
@@ -91,12 +79,6 @@
     {
       "name": "mine",
       "file": "mine.png",
-      "sourceBounds": [
-        8,
-        130,
-        1246,
-        1100
-      ],
       "x": 140,
       "y": 300,
       "w": 360,
@@ -106,12 +88,6 @@
     {
       "name": "crystals",
       "file": "crystals.png",
-      "sourceBounds": [
-        148,
-        82,
-        1100,
-        1152
-      ],
       "x": 1170,
       "y": 290,
       "w": 270,
@@ -121,12 +97,6 @@
     {
       "name": "castle",
       "file": "castle.png",
-      "sourceBounds": [
-        36,
-        16,
-        1218,
-        1224
-      ],
       "x": 681,
       "y": 318,
       "w": 430,
@@ -136,12 +106,6 @@
     {
       "name": "foreground",
       "file": "foreground.png",
-      "sourceBounds": [
-        0,
-        572,
-        1672,
-        941
-      ],
       "x": 0,
       "y": 572,
       "w": 1672,
@@ -152,12 +116,6 @@
     {
       "name": "mage",
       "file": "mage.png",
-      "sourceBounds": [
-        30,
-        23,
-        1533,
-        994
-      ],
       "x": 385,
       "y": 190,
       "w": 490,
@@ -167,12 +125,6 @@
     {
       "name": "warrior",
       "file": "warrior.png",
-      "sourceBounds": [
-        171,
-        3,
-        1631,
-        935
-      ],
       "x": -10,
       "y": 262,
       "w": 770,
@@ -183,12 +135,6 @@
     {
       "name": "assassin",
       "file": "assassin.png",
-      "sourceBounds": [
-        29,
-        31,
-        1647,
-        913
-      ],
       "x": 950,
       "y": 205,
       "w": 740,
@@ -199,12 +145,6 @@
     {
       "name": "logo",
       "file": "logo.png",
-      "sourceBounds": [
-        26,
-        12,
-        1661,
-        935
-      ],
       "x": 548,
       "y": 10,
       "w": 575,
