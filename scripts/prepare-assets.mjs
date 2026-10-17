@@ -1,6 +1,7 @@
 import sharp from 'sharp';
 import { createHash } from 'node:crypto';
 import { readFile, mkdir, writeFile, stat, rename, readdir } from 'node:fs/promises';
+import { fileURLToPath } from 'node:url';
 
 const source = new URL('../assets/title/', import.meta.url);
 const output = new URL('../public/title/', import.meta.url);
@@ -26,7 +27,7 @@ for (const layer of layout.layers) {
     const temporary = new URL(`${layer.name}.tmp.webp`, output);
     await sharp(await readFile(input)).extract({ left, top, width: right - left, height: bottom - top })
       .resize({ width: Math.ceil(layer.w * scale), height: Math.ceil(layer.h * scale), fit: 'inside', withoutEnlargement: true })
-      .webp({ quality: 88, alphaQuality: 100, effort: 6 }).toFile(temporary.pathname);
+      .webp({ quality: 88, alphaQuality: 100, effort: 6 }).toFile(fileURLToPath(temporary));
     await rename(temporary, destination);
   }
   const bytes = await readFile(destination);
@@ -67,5 +68,5 @@ for (const [name, size] of [['app-192.png', 192], ['app-512.png', 512], ['apple-
     .extract({ left, top, width: right - left, height: bottom - top })
     .resize(Math.round(size * .7), Math.round(size * .7), { fit: 'inside' }).png().toBuffer();
   await sharp({ create: { width: size, height: size, channels: 4, background: '#103d42' } })
-    .composite([{ input: content, gravity: 'centre' }]).removeAlpha().png().toFile(new URL(name, icons).pathname);
+    .composite([{ input: content, gravity: 'centre' }]).removeAlpha().png().toFile(fileURLToPath(new URL(name, icons)));
 }
