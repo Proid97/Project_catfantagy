@@ -261,7 +261,6 @@
 | [assassin.png](../assets/title/assassin.png) | 도약하는 냥살자 |
 | [logo.png](../assets/title/logo.png) | ‘틀’을 정리하고 정면 정사각형 주사위 두 개를 넣은 로고 |
 
-- `landscape.png`는 이전 지형 참고용으로 남기며 현재 실행에는 쓰지 않습니다.
 - **TOUCH TO START는 어느 PNG에도 포함하지 않습니다.** 실제 Pretendard 폰트를 사용해 코드로 표시합니다.
 - 파일별 크기와 투명 여백이 달라 단순히 같은 위치에 겹치면 원본 구도가 나오지 않습니다. [layout.json](../assets/title/layout.json)이 현재 배치의 기준입니다. 층마다 자를 영역(`sourceBounds`)·위치·겹침 순서를 담고, 나무는 같은 파일에서 두 영역을 잘라 씁니다.
 - 로고 수정본은 눈으로 확인했습니다. 주사위는 떨어진 두 정사각형이며, 눈은 각각 3개·4개입니다. 지형도 원본과 비교해 나무·봉우리·잔디테일을 줄였습니다.

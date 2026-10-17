@@ -9,7 +9,7 @@
     "w": 1255,
     "h": 941
   },
-  "note": "현재 타이틀 배치. name은 실행용 파일 이름, file은 원본 PNG입니다. sourceBounds로 투명 여백을 자른 뒤 상자에 맞춥니다. fit이 stretch면 상자를 꽉 채우고, 없으면 비율을 지킵니다. safeArea는 4:3 화면에서도 반드시 보이는 영역입니다. landscape.png는 이전 지형 참고용입니다.",
+  "note": "현재 타이틀 배치. name은 실행용 파일 이름, file은 원본 PNG입니다. sourceBounds로 투명 여백을 자른 뒤 상자에 맞춥니다. fit이 stretch면 상자를 꽉 채우고, 없으면 비율을 지킵니다. safeArea는 4:3 화면에서도 반드시 보이는 영역입니다.",
   "layers": [
     {
       "name": "sky",

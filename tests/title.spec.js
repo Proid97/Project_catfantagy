@@ -61,7 +61,7 @@ for (const [width, height] of [[1024, 768], [768, 1024], [844, 390], [2560, 1080
     const start = page.getByRole('button', { name: '게임 시작' });
     await expect(start).toBeInViewport();
     expect((await start.boundingBox()).height).toBeGreaterThanOrEqual(44);
-    await page.screenshot({ path: `test-results/title-${width}x${height}.png` });
+    await page.screenshot({ path: test.info().outputPath(`title-${width}x${height}.png`) });
     await start.click();
     await expect(page.getByRole('heading', { name: '플레이어 1의 냥국을 골라요' })).toBeVisible();
   });

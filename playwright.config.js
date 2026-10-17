@@ -3,6 +3,8 @@ import { defineConfig } from '@playwright/test';
 export default defineConfig({
   testDir: './tests',
   testMatch: '**/*.spec.js',
+  // 검사 캡처는 숨은 캐시 폴더에 둔다. 최상위 폴더를 늘리지 않는다.
+  outputDir: 'node_modules/.cache/playwright',
   timeout: 20000,
   use: {
     baseURL: 'http://127.0.0.1:4173',

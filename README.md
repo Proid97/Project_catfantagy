@@ -12,6 +12,20 @@
 | [게임 설계](docs/game-design.md) | 현재 규칙, 클래스, 남은 설계 |
 | [대화 맥락](docs/project-context.md) | 결정한 이유, 바뀐 규칙, 다음 작업 |
 
+## 폴더 안내
+
+| 폴더 | 내용 |
+|---|---|
+| `assets/` | 원본 그림. 콘셉트, 타이틀 PNG와 배치 기준 `layout.json` |
+| `src/` | 게임 코드. 규칙은 `setup.js`, 화면은 `main.js`·`setup-screen.js` |
+| `tests/` | 자동 검사 |
+| `scripts/` | 그림 정리·변환, 웹앱 설정 검사 |
+| `public/` | 홈 화면 앱 설정, 글꼴 라이선스 |
+| `docs/` | 설계·맥락 문서와 README 그림 |
+| `.github/`, `.agents/` | 자동 배포 설정, GPT용 Ponytail 지침. 도구가 정한 자리라 옮기지 않음 |
+
+`node_modules/`, `dist/`, `public/title/`, `public/icons/`, `src/generated/`는 자동으로 생깁니다. 저장소에 올리지 않고, 지워도 다시 만들어집니다.
+
 현재는 **냥국 선택·시작 순서 준비 구현 단계**입니다. 약 2.7초 동안 하늘 → 동산 → 뒷산 → 광산·수정산·왕성 → 세 고양이 → 로고 → 시작 문구가 등장합니다. 터치·클릭·Enter로 시작합니다. 연출 중에 화면을 누르면 건너뛰기만 하고 시작하지는 않습니다. 다시 보기도 지원합니다. 시작하면 두 플레이어가 냥국을 고르고 시작 순서 주사위를 굴립니다. 첫 배치 지도와 실제 전투는 아직 없습니다.
 
 ![현재 타이틀 아트 배치 · 시작 문구와 버튼은 코드로 표시](docs/images/title-screen.webp)
@@ -21,8 +35,6 @@
 [웹앱 열기](https://proid97.github.io/Project_catfantagy/)
 
 `main` 브랜치를 GitHub Pages에 자동으로 올립니다. 링크를 아는 사람은 누구나 열 수 있습니다(공개). Safari에서 열어 타이틀 화면이 보이는지 확인합니다.
-
-이전 비공개 확인 주소(Sites, 본인 계정만): https://catfantagy-preview.proid6638.chatgpt.site
 
 1. Safari의 **공유 → 홈 화면에 추가**를 누릅니다.
 2. **웹 앱으로 열기**가 보이면 켜고 추가합니다.
@@ -75,7 +87,7 @@ npm test
 
 [Ponytail](.agents/skills/ponytail/SKILL.md)은 공식 저장소의 `6f1c2bf` 판을 포함했습니다. 기존 기능·브라우저 기본 기능을 먼저 쓰고, 필요한 라이브러리를 선택합니다. 출처: [DietrichGebert/ponytail](https://github.com/DietrichGebert/ponytail/tree/6f1c2bfff0c837d268929a7c4e490918eb4fab29), MIT 라이선스 포함.
 
-이미지 원본은 `assets/title/`, 실행용 생성물은 `public/title/`과 `public/icons/`, 글꼴과 배치 생성물은 `src/generated/`, 화면 코드는 `src/`, 선택·시작 순서 규칙은 `src/setup.js`, 자동 검증은 `tests/`에서 관리합니다. 배치 기준은 `assets/title/layout.json` 한 곳에서 수정합니다. UI 문구를 추가하면 `npm run assets`를 다시 실행해 필요한 글자를 포함합니다. 지형은 별도 PNG를 통째로 움직입니다. 이미지 내용에 따른 식별값을 URL에 붙여 이전 그림이 캐시에 남는 문제를 줄입니다.
+배치 기준은 `assets/title/layout.json` 한 곳에서 수정합니다. UI 문구를 추가하면 `npm run assets`를 다시 실행해 필요한 글자를 포함합니다. 지형은 별도 PNG를 통째로 움직입니다. 이미지 내용에 따른 식별값을 URL에 붙여 이전 그림이 캐시에 남는 문제를 줄입니다.
 
 아트는 ChatGPT 이미지젠으로 제작합니다. 메인 캐릭터와 타이틀 원본은 [게임 설계](docs/game-design.md#메인-콘셉트)에 있습니다. Pretendard의 글자 모양을 유지한 부분 글꼴을 생성합니다. OFL 라이선스에 맞춰 생성물 이름은 `Catfantagy UI`로 바꾸고, 원 저작권과 라이선스는 `public/licenses/pretendard.txt`에 포함했습니다.
 
