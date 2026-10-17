@@ -24,30 +24,15 @@ try { motionPreference = localStorage.getItem('title-motion'); } catch { /* 저�
 
 // iOS 홈 화면 앱은 CSS 화면 높이를 상태 표시줄만큼 짧게 줄 때가 있다(iPad mini 5 실측: 768 중 736).
 // 앱이 화면 폭을 다 쓸 때만 실제 화면 높이와 비교해 모자란 만큼 채운다. WebKit이 고쳐지면 차이가 0이 된다.
+// 높이는 문서 기준값으로 잰다. Safari는 CSS가 오기 전에 이 스크립트를 실행할 수 있어 #app 높이는 믿을 수 없다.
 const ios = CSS.supports('-webkit-touch-callout', 'none');
 const installed = matchMedia('(display-mode: standalone)');
-// 임시 진단: iOS 실기기에서 화면 높이 값을 확인한다. 원인을 확정하면 지운다.
-const probe = ios ? document.body.appendChild(Object.assign(document.createElement('pre'), { className: 'viewport-probe' })) : null;
 function fillScreen() {
-  const root = document.documentElement.style;
-  root.removeProperty('--viewport-gap');
   const [short, long] = [screen.width, screen.height].sort((a, b) => a - b);
   const full = innerWidth === long ? short : innerWidth === short ? long : 0;
-  const standalone = Boolean(navigator.standalone || installed.matches);
-  const measured = app.clientHeight;
-  const gap = ios && standalone && full ? full - measured : 0;
-  if (gap > 0) root.setProperty('--viewport-gap', `${gap}px`);
-  if (probe) {
-    const inset = getComputedStyle(app);
-    probe.textContent = [
-      `진단 ${new URL(import.meta.url).pathname.split('/').pop()}`,
-      `standalone ${navigator.standalone} · display-mode ${installed.matches}`,
-      `screen ${screen.width}×${screen.height} · inner ${innerWidth}×${innerHeight}`,
-      `html ${document.documentElement.clientHeight} · app ${measured} → ${app.clientHeight} · 채움 ${Math.max(gap, 0)}`,
-      `안전 영역 위 ${inset.paddingTop} 아래 ${inset.paddingBottom} · visual ${visualViewport?.height} (${visualViewport?.offsetTop})`,
-      `배치 ${getComputedStyle(app).position} · 문서 ${document.documentElement.scrollHeight} · 스크롤 ${scrollY}`,
-    ].join('\n');
-  }
+  const standalone = navigator.standalone || installed.matches;
+  const gap = ios && standalone && full ? full - document.documentElement.clientHeight : 0;
+  document.documentElement.style.setProperty('--viewport-gap', `${Math.max(gap, 0)}px`);
 }
 
 function useReducedMotion() {

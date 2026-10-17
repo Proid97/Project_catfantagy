@@ -68,7 +68,8 @@ for (const [width, height] of [[1024, 768], [768, 1024], [844, 390], [2560, 1080
 }
 
 // iPad mini 5 홈 화면 앱 실측: 화면은 1024×768인데 CSS 높이는 736만 받아 아래 32가 비었다.
-for (const [name, ios, standalone, height] of [['iOS 홈 화면 앱은 아래까지 채움', true, true, 768], ['iOS 브라우저는 그대로', true, false, 736], ['iOS가 아니면 그대로', false, true, 736]]) {
+// 배포 직후 첫 실행처럼 CSS가 스크립트보다 늦게 와도 같은 결과여야 한다(실기기에서 688만큼 밀린 적 있음).
+for (const [name, ios, standalone, height, slowCss] of [['iOS 홈 화면 앱은 아래까지 채움', true, true, 768], ['iOS 홈 화면 앱은 CSS가 늦어도 같음', true, true, 768, true], ['iOS 브라우저는 그대로', true, false, 736], ['iOS가 아니면 그대로', false, true, 736]]) {
   test(`화면 높이를 짧게 받을 때 ${name}`, async ({ browser }) => {
     const context = await browser.newContext({ viewport: { width: 1024, height: 736 }, screen: { width: 768, height: 1024 }, reducedMotion: 'reduce' });
     await context.addInitScript(([ios, standalone]) => {
@@ -76,6 +77,7 @@ for (const [name, ios, standalone, height] of [['iOS 홈 화면 앱은 아래까
       CSS.supports = (...args) => (ios && args[0] === '-webkit-touch-callout') || supports(...args);
       Object.defineProperty(Navigator.prototype, 'standalone', { get: () => standalone });
     }, [ios, standalone]);
+    if (slowCss) await context.route('**/assets/*.css', async route => { await new Promise(done => setTimeout(done, 1500)); await route.continue(); });
     const page = await context.newPage();
     await page.goto('http://127.0.0.1:4173/');
     await ready(page);
