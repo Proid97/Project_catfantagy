@@ -45,6 +45,7 @@ function fillScreen() {
       `screen ${screen.width}×${screen.height} · inner ${innerWidth}×${innerHeight}`,
       `html ${document.documentElement.clientHeight} · app ${measured} → ${app.clientHeight} · 채움 ${Math.max(gap, 0)}`,
       `안전 영역 위 ${inset.paddingTop} 아래 ${inset.paddingBottom} · visual ${visualViewport?.height} (${visualViewport?.offsetTop})`,
+      `배치 ${getComputedStyle(app).position} · 문서 ${document.documentElement.scrollHeight} · 스크롤 ${scrollY}`,
     ].join('\n');
   }
 }
