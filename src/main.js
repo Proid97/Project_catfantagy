@@ -1,9 +1,11 @@
 import './style.css';
 import { setupScreen } from './setup-screen.js';
-import { animateTitle, syncIntroVisibility } from './title-intro.js';
+import { animateTitle, shakeTitle, syncIntroVisibility } from './title-intro.js';
+import layout from './generated/title-layout.json';
 
 const stage = document.querySelector('.stage');
 const art = document.querySelector('.art');
+const canvas = document.querySelector('.canvas');
 const start = document.querySelector('.start');
 const skip = document.querySelector('.skip');
 const replay = document.querySelector('.replay');
@@ -52,8 +54,8 @@ function ready() {
   for (const layer of art.children) {
     layer.style.opacity = '1';
     layer.style.transform = 'none';
-    layer.style.willChange = 'auto';
   }
+  stage.dataset.motion = useReducedMotion() ? 'reduced' : 'full';
   state('ready');
 }
 
@@ -62,7 +64,7 @@ function intro({ fullMotion = false } = {}) {
   const reduced = useReducedMotion() && !fullMotion;
   stage.dataset.motion = reduced ? 'reduced' : 'full';
   state('intro');
-  animations = animateTitle(art.children, { reducedMotion: reduced, fullMotion });
+  animations = [...animateTitle(art.children, { reducedMotion: reduced, fullMotion }), ...(reduced ? [] : shakeTitle(canvas))];
   syncIntroVisibility(animations, document.hidden);
   Promise.all(animations.map(animation => animation.finished)).then(() => {
     if (stage.dataset.state === 'intro') ready();
@@ -78,28 +80,25 @@ async function load() {
   retry.hidden = true;
   art.replaceChildren();
   try {
-    const response = await fetch(`${assetRoot}layout.json`, { cache: 'no-store' });
-    if (!response.ok) throw new Error(`layout: ${response.status}`);
-    const layout = await response.json();
     for (const layer of layout.layers) {
-      const name = layer.file.replace('.png', '');
-        const element = document.createElement('div');
-        element.className = `layer ${name}`;
-        element.dataset.layer = name;
-        Object.assign(element.style, {
-          left: `${layer.x / layout.canvas.width * 100}%`,
-          top: `${layer.y / layout.canvas.height * 100}%`,
-          width: `${layer.w / layout.canvas.width * 100}%`,
-          height: `${layer.h / layout.canvas.height * 100}%`,
-          zIndex: String(layer.z),
-        });
-        const image = new Image();
-        image.alt = '';
-        image.decoding = 'async';
-        image.src = `${assetRoot}${name}.webp?v=${layer.revision}`;
-        image.style.objectPosition = layer.align?.replaceAll('-', ' ') ?? 'center';
-        element.append(image);
-        art.append(element);
+      const element = document.createElement('div');
+      element.className = `layer ${layer.name}`;
+      element.dataset.layer = layer.name;
+      Object.assign(element.style, {
+        left: `${layer.x / layout.canvas.width * 100}%`,
+        top: `${layer.y / layout.canvas.height * 100}%`,
+        width: `${layer.w / layout.canvas.width * 100}%`,
+        height: `${layer.h / layout.canvas.height * 100}%`,
+        zIndex: String(layer.z),
+      });
+      const image = new Image();
+      image.alt = '';
+      image.decoding = 'async';
+      image.src = `${assetRoot}${layer.name}.webp?v=${layer.revision}`;
+      image.style.objectFit = layer.fit === 'stretch' ? 'fill' : 'contain';
+      image.style.objectPosition = layer.align?.replaceAll('-', ' ') ?? 'center';
+      element.append(image);
+      art.append(element);
     }
     await Promise.all([...art.querySelectorAll('img')].map(image => image.decode()));
     await document.fonts.load('700 24px "Catfantagy UI"', 'TOUCH TO START');
@@ -123,8 +122,12 @@ start.addEventListener('click', () => {
   window.dispatchEvent(new CustomEvent('title:start'));
 });
 skip.addEventListener('click', ready);
-// 직접 누른 재생은 전체 연출을 요청한 것으로 처리한다.
-replay.addEventListener('click', () => { rememberMotion('full'); intro({ fullMotion: true }); });
+// 연출 중 화면을 누르면 건너뛰기만 한다. pointerdown이면 같은 터치의 클릭이 새로 나타난 시작 버튼에 닿는다.
+stage.addEventListener('click', event => {
+  if (stage.dataset.state === 'intro' && !event.target.closest('button')) ready();
+});
+// 다시 보기는 저장된 설정을 바꾸지 않고 전체 연출을 한 번 보여준다.
+replay.addEventListener('click', () => intro({ fullMotion: true }));
 motionToggle.addEventListener('click', () => {
   rememberMotion(stage.dataset.motion === 'full' ? 'reduced' : 'full');
   intro();
@@ -141,9 +144,6 @@ document.addEventListener('keydown', event => {
   else if (stage.dataset.state === 'ready') start.click();
 });
 reducedMotion.addEventListener('change', () => {
-  if (useReducedMotion() && stage.dataset.state === 'intro') {
-    stage.dataset.motion = 'reduced';
-    ready();
-  }
+  if (stage.dataset.state === 'ready' || (useReducedMotion() && stage.dataset.state === 'intro')) ready();
 });
 load();

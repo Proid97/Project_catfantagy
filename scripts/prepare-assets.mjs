@@ -4,37 +4,36 @@ import { readFile, mkdir, writeFile, stat, rename, readdir } from 'node:fs/promi
 
 const source = new URL('../assets/title/', import.meta.url);
 const output = new URL('../public/title/', import.meta.url);
+const generated = new URL('../src/generated/', import.meta.url);
 const layout = JSON.parse(await readFile(new URL('layout.json', source), 'utf8'));
 await mkdir(output, { recursive: true });
+await mkdir(generated, { recursive: true });
 const changedAt = Math.max((await stat(new URL('layout.json', source))).mtimeMs, (await stat(new URL(import.meta.url))).mtimeMs);
 let originalBytes = 0;
 let outputBytes = 0;
+for (const file of new Set(layout.layers.map(layer => layer.file))) originalBytes += (await stat(new URL(file, source))).size;
 for (const layer of layout.layers) {
   const input = new URL(layer.file, source);
-  const name = layer.file.replace('.png', '.webp');
-  const destination = new URL(name, output);
-  const original = await stat(input);
-  const bytes = await readFile(input);
-  layer.revision = createHash('sha256').update(bytes).digest('hex').slice(0, 12);
-  originalBytes += original.size;
+  const destination = new URL(`${layer.name}.webp`, output);
   let current;
   try { current = await stat(destination); } catch (error) {
     if (error.code !== 'ENOENT') throw error;
   }
-  if (!current || current.mtimeMs < Math.max(original.mtimeMs, changedAt)) {
-    let image = sharp(bytes);
-    if (!layer.useFullImage) {
-      const [left, top, right, bottom] = layer.sourceBounds;
-      image = image.extract({ left, top, width: right - left, height: bottom - top });
-    }
-    const temporary = new URL(`${name}.tmp.webp`, output);
-    await image.resize({ width: Math.ceil(layer.w * 1.5), height: Math.ceil(layer.h * 1.5), fit: 'inside', withoutEnlargement: true })
+  if (!current || current.mtimeMs < Math.max((await stat(input)).mtimeMs, changedAt)) {
+    const [left, top, right, bottom] = layer.sourceBounds;
+    // 비율을 지키는 그림은 큰 화면에서도 선명하게, 늘려 채우는 지형은 원본 크기로 둔다.
+    const scale = layer.fit === 'stretch' ? 1 : 1.75;
+    const temporary = new URL(`${layer.name}.tmp.webp`, output);
+    await sharp(await readFile(input)).extract({ left, top, width: right - left, height: bottom - top })
+      .resize({ width: Math.ceil(layer.w * scale), height: Math.ceil(layer.h * scale), fit: 'inside', withoutEnlargement: true })
       .webp({ quality: 88, alphaQuality: 100, effort: 6 }).toFile(temporary.pathname);
     await rename(temporary, destination);
   }
-  outputBytes += (await stat(destination)).size;
+  const bytes = await readFile(destination);
+  layer.revision = createHash('sha256').update(bytes).digest('hex').slice(0, 12);
+  outputBytes += bytes.length;
 }
-await writeFile(new URL('layout.json', output), JSON.stringify(layout));
+await writeFile(new URL('title-layout.json', generated), JSON.stringify(layout));
 console.log(`타이틀 이미지 ${(originalBytes / 1e6).toFixed(2)} MB → ${(outputBytes / 1e6).toFixed(2)} MB (${Math.round((1 - outputBytes / originalBytes) * 100)}% 감소)`);
 
 // 모든 화면의 소스에서 필요한 글자를 모아 부분 글꼴을 만든다.
@@ -56,8 +55,6 @@ const restored = createFont(subset, { type: 'woff2' }).get();
 for (const char of 'TOUCH TO START냥국을불러오는중') {
   if (!(char.codePointAt(0) in restored.cmap)) throw new Error(`폰트에 글자가 없음: ${char}`);
 }
-const generated = new URL('../src/generated/', import.meta.url);
-await mkdir(generated, { recursive: true });
 await writeFile(new URL('catfantagy-ui-bold.woff2', generated), subset);
 console.log(`Pretendard ${(font.length / 1000).toFixed(1)} KB → ${(subset.length / 1000).toFixed(1)} KB`);
 

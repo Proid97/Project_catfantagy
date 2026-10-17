@@ -1,58 +1,62 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { animateTitle, syncIntroVisibility } from '../src/title-intro.js';
+import { animateTitle, shakeTitle, syncIntroVisibility } from '../src/title-intro.js';
 
-function layers() {
-  return ['sky', 'hills', 'mountains', 'mine', 'crystals', 'castle', 'warrior', 'assassin', 'mage', 'logo'].map(name => ({
-    dataset: { layer: name }, style: {},
-    animate(frames, timing) { return { frames, timing, playState: 'running', pause() { this.playState = 'paused'; }, play() { this.playState = 'running'; } }; },
-  }));
-}
+const names = ['sky', 'mountains', 'hills', 'trees-left', 'trees-right', 'mine', 'crystals', 'castle', 'foreground', 'mage', 'warrior', 'assassin', 'logo'];
+const element = layer => ({
+  dataset: { layer }, style: {},
+  animate(frames, timing) { return { frames, timing, playState: 'running', pause() { this.playState = 'paused'; }, play() { this.playState = 'running'; } }; },
+});
+const byName = animations => Object.fromEntries(animations.map((item, index) => [names[index], item]));
 
-test('전체 연출에서 이동·회전을 포함한 순서와 마지막 로고 유지', () => {
-  const animations = animateTitle(layers());
-  assert.deepEqual(animations.map(item => item.timing.delay), [0, 100, 330, 620, 620, 620, 1050, 1090, 1170, 1740]);
-  assert.equal(animations.at(-1).timing.delay + animations.at(-1).timing.duration, 2200);
-  assert.match(animations[6].frames[0].transform, /translate/);
+test('전체 연출: 지형 → 캐릭터 → 로고 순서와 끝나는 시간', () => {
+  const animations = byName(animateTitle(names.map(element)));
+  const start = name => animations[name].timing.delay;
+  assert.deepEqual(['sky', 'hills', 'foreground', 'mountains', 'mine', 'trees-left', 'crystals', 'trees-right', 'castle', 'warrior', 'assassin', 'mage', 'logo'].map(start),
+    [0, 0, 120, 320, 560, 600, 640, 660, 760, 1300, 1420, 1720, 2120]);
+  assert.equal(Math.max(...Object.values(animations).map(item => item.timing.delay + item.timing.duration)), 2680);
+  assert.match(animations.warrior.frames[0].transform, /translate\(-120%/);
+  assert.equal(animations['trees-left'].frames[0].transform, 'scale(.5, 0)');
 });
 
-test('동작 줄이기에서도 10개 레이어가 차례로 등장, 큰 이동은 생략', () => {
-  const animations = animateTitle(layers(), { reducedMotion: true });
-  assert.equal(animations.length, 10);
-  assert.ok(animations.every(item => item.frames.every(frame => frame.transform === 'none')));
-  assert.deepEqual(animations.map(item => item.timing.delay), [0, 100, 330, 620, 620, 620, 1050, 1090, 1170, 1740]);
+test('숨어 있다가 움직이는 순간 완전히 보이고, 하늘은 처음부터 보임', () => {
+  const animations = byName(animateTitle(names.map(element)));
+  assert.deepEqual(animations.castle.frames.map(frame => [frame.offset, frame.opacity]), [[0, 0], [.001, 1], [1, 1]]);
+  assert.equal(animations.castle.frames.at(-1).transform, 'none');
+  assert.equal(animations.mage.frames[1].offset, .2);
+  assert.equal(animations.logo.frames[1].offset, .15);
+  assert.ok(animations.sky.frames.every(frame => frame.opacity === 1));
+  assert.ok(Object.values(animations).every(item => item.timing.fill === 'both'));
+});
+
+test('동작 줄이기: 같은 순서로 0.3초씩 나타나고 이동은 없음', () => {
+  const animations = animateTitle(names.map(element), { reducedMotion: true });
+  assert.equal(animations.length, 13);
+  assert.ok(animations.every(item => item.timing.duration === 300 && item.frames.every(frame => frame.transform === 'none')));
   assert.ok(animations.every(item => item.frames[0].opacity === 0 && item.frames[1].opacity === 1));
+  assert.equal(byName(animations).logo.timing.delay, 2120);
 });
 
 test('직접 누른 다시 보기는 동작 줄이기 상태에서도 전체 재생', () => {
-  const animations = animateTitle(layers(), { reducedMotion: true, fullMotion: true });
-  assert.match(animations[6].frames[0].transform, /translate\(-125%/);
-  assert.match(animations[7].frames[0].transform, /rotate/);
+  const animations = byName(animateTitle(names.map(element), { reducedMotion: true, fullMotion: true }));
+  assert.match(animations.assassin.frames[0].transform, /rotate\(9deg\)/);
 });
 
-test('백그라운드에서 멈추고 복귀하면 재개', () => {
-  const animations = animateTitle(layers());
-  syncIntroVisibility(animations, true);
-  assert.ok(animations.every(item => item.playState === 'paused'));
-  syncIntroVisibility(animations, false);
-  assert.ok(animations.every(item => item.playState === 'running'));
+test('그림 흔들림은 마법사·로고 착지에 맞춰 두 번', () => {
+  const shakes = shakeTitle(element('canvas'));
+  assert.deepEqual(shakes.map(item => [item.timing.delay, item.timing.duration]), [[1700, 200], [2330, 160]]);
+  assert.equal(shakes[0].frames[1].transform, 'translate(-0.35%, 0.2%)');
+  assert.equal(shakes[1].frames[1].transform, 'translate(-0.175%, 0.1%)');
+  assert.equal(shakes[0].frames.at(-1).transform, 'translate(0%, 0%)');
 });
 
-test('끝나거나 취소된 연출을 화면 복귀 시 다시 시작하지 않음', () => {
-  const animations = animateTitle(layers());
+test('백그라운드에서 멈추고 복귀하면 재개, 끝난 연출은 다시 시작하지 않음', () => {
+  const animations = animateTitle(names.map(element));
   animations[0].playState = 'finished';
   animations[1].playState = 'idle';
   syncIntroVisibility(animations, true);
+  assert.ok(animations.slice(2).every(item => item.playState === 'paused'));
   syncIntroVisibility(animations, false);
-  assert.equal(animations[0].playState, 'finished');
-  assert.equal(animations[1].playState, 'idle');
-});
-
- test('자원과 성은 함께 등장하며 법사는 아래에서 상승', () => {
-  const animations = animateTitle(layers());
-  assert.equal(animations[3].timing.delay, animations[4].timing.delay);
-  assert.equal(animations[4].timing.delay, animations[5].timing.delay);
-  assert.match(animations[8].frames[0].transform, /translateY\(210%\)/);
-  assert.equal(animations[6].frames[1].offset, .78);
-  assert.equal(animations[6].frames.at(-1).transform, 'none');
+  assert.ok(animations.slice(2).every(item => item.playState === 'running'));
+  assert.deepEqual(animations.slice(0, 2).map(item => item.playState), ['finished', 'idle']);
 });
