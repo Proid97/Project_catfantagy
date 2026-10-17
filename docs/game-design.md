@@ -177,37 +177,39 @@
 
 **합의:** 지금 그림체(벡터풍 색면, 큰 눈, 과장된 비율)를 유지합니다. **임시:** 아래 수치는 2026-10-17 타이틀 캐릭터 3종을 분석해 정한 첫 기준이며, 새 그림으로 검증하며 다듬습니다.
 
+기준 시트: [character-art-reference.png](../assets/concepts/character-art-reference.png). 세 캐릭터의 얼굴과 눈 구조, 재질별 3단 색 견본, 빛 방향을 담았습니다.
+
 | 항목 | 기준 |
 |---|---|
 | 빛 | 왼쪽 위 한 방향. 밝은 면은 왼쪽·위, 그림자는 오른쪽·아래 |
 | 명암 | 재질마다 **3단**(밝은 면·기본·그림자). 단계 사이는 단색 경계이고 그러데이션·얼룩·번짐은 없음. 그림자는 기본보다 확실히 어둡게, 색상은 살짝 붉거나 푸른 쪽으로 |
 | 짙은 재질 | 검정·짙은 남색도 3단. 밝은 면을 푸른 회색으로 넣어 형태를 보이게 함 |
 | 외곽 | 검은 외곽선 없음. 색면 경계로 형태를 만들고, 가장자리는 반투명 없이 또렷하게 |
-| 눈 | 굵은 위 눈꺼풀 선 + 홍채 2단(기본·위쪽 그림자) + 동공 + **하이라이트**(왼쪽 위, 홍채 폭의 약 1/4) + 작은 반사광(오른쪽 아래). 흰자 유무와 동공 모양만 캐릭터 고유 |
-| 색 수 | 캐릭터당 재질 6~8개 × 3단, 24색 이내. 같은 색의 미세한 변형 금지 |
+| 눈 | 굵은 위 눈꺼풀 선 + 홍채 2단(기본·위쪽 그림자) + 동공 + 왼쪽 위 큰 **하이라이트** 1개(홍채 폭의 약 1/4). 작은 반사광은 넣지 않음. 흰자 유무와 동공 모양만 캐릭터 고유 |
+| 색 수 | 캐릭터당 재질 6~8개 × 3단(기준 시트의 색 견본). 원본 PNG의 미세한 색 변형은 정리 단계에서 합쳐지므로, 검수는 정리 뒤 색 덩어리로 함 |
 | 실루엣 | 검게 칠해도 클래스가 읽힘. 머리·귀 둘레는 망토·소품과 겹치지 않게 트고, 대표 형태 하나(전사 방패, 법사 모자·지팡이, 냥살자 꼬리·단검)를 크게 |
 | 비율 | 머리 : 몸 = 1 : 1.2~1.6. 72px 토큰 크기에서도 얼굴이 보임 |
 | 작은 디테일 | 하이라이트·코·발바닥은 긴 변 1672px 기준 지름 10px 이상. 정리 과정에서 사라지지 않게 함 |
 | 접지 | 서 있는 발은 바닥면이 평평하게 보임. 공중 자세는 몸 아래를 비워 떠 있음을 보여 줌 |
 
-**부위별 현황** (2026-10-17 타이틀 그림)
+**부위별 현황** (2026-10-17 재제작 뒤, 점검 시트: [character-art-check.png](images/character-art-check.png))
 
 | 부위 | 냥전사 | 냥법사 | 냥살자 |
 |---|---|---|---|
-| 눈 | 흰자+갈색 동공, 하이라이트 없음. 한쪽 눈이 방패에 가려 표정이 안 읽힘 | **기준에 가장 가까움.** 작은 반사광이 너무 작음 | 노란 홍채·세로 동공은 유지. 하이라이트 없음 |
-| 얼굴·귀 | 귀·털 끝의 날카로움 좋음 | 좋음 | 두건에 덮여 머리가 작게 읽힘 |
-| 몸·옷 | 금 갑옷이 4~5단에 조각이 많아 몸이 안 읽힘. 큰 판 3~4개로 묶고 3단 | 로브 경계에 번짐 많음 | 검은 몸이 1단이라 형태가 없음 |
-| 천 | 빨간 망토가 7단 이상이고 실루엣의 절반을 차지해 머리가 묻힘 | 모자 3단 좋음 | 청록 두건 2단. 코랄 머플러가 4가지 색으로 얼룩지고 몸보다 넓음 |
-| 손·팔 | 칼 쥔 검은 손이 뭉개짐 | 흰 팔의 그림자가 약해 평평함 | 흑백 줄무늬 소매 좋음(정체성) |
-| 다리·발 | 뒷발이 땅 없이 떠 있고 발바닥 면이 없음 | 아래로 뻗은 다리가 길게 늘어져 어색 | 검은 다리가 짙은 배경에 묻힘 |
-| 소품 | 방패 왕관 문양 잘 읽힘 | 지팡이가 팔과 같은 크림색이라 구분이 약함 | 단검 두 자루의 실루엣 강함 |
-| 많이 쓰인 색 | 24색 | 10색 | 15색 |
+| 눈 | 두 눈이 보이고 하이라이트 있음 | 기준과 같음 | 하이라이트 추가. 눈 아래 옅은 밝은 흔적이 남음 |
+| 몸·옷 | 금 갑옷을 큰 판으로, 방패 테두리를 큰 금색 면 3개로 단순화 | 로브 목 부분에 잔면이 남음 | 검은 몸에 푸른 회색 밝은 면이 생겨 형태가 읽힘 |
+| 천 | 망토를 줄여 머리·귀가 드러남 | 모자와 귀가 겹치는 곳이 남음 | 머플러 면적을 줄이고 3단으로 |
+| 다리·소품 | 뒷발에 바닥면이 생김. 다리가 짙은 갈색에서 짙은 남색 가죽으로 바뀜 | 다리 길이가 자연스럽고 지팡이는 나무색 | 줄무늬 소매·단검·말린 꼬리 유지 |
+| 정리 전 색 → 정리 뒤 색 덩어리 | 49,363 → 166 | 49,449 → 173 | 43,331 → 134 |
+
+- 원본 PNG는 몸 안쪽까지 알파 128~254로 살짝 투명하고, 배경에 옅은 잡티가 있습니다(이전 그림도 같음). 정리 단계에서 완전 불투명·완전 투명으로 바뀝니다.
+- 남은 일: 법사의 모자·귀 겹침과 로브 목 잔면, 냥살자 눈 아래 흔적.
 
 **생성과 정리 공정**
 
 1. 이미지젠 요청 끝에 아래 공통 문구를 붙입니다.
    ```text
-   Flat vector game illustration in the same style as the reference. Hard-edged cel shading with exactly three tones per material (highlight, base, shadow), single light source from the upper left. No gradients, no texture, no grain, no noise, no glow, no blur. Crisp clean edges, no black outlines, fully transparent background with no semi-transparent fringe. Eyes: thick upper lid line, two-tone iris, one clear white highlight at the upper left and a small reflection at the lower right. Smallest details at least 10 px wide. Head-to-body ratio about 1:1.4.
+   Flat vector game illustration in the same style as the reference. Hard-edged cel shading with exactly three tones per material (highlight, base, shadow), single light source from the upper left. No gradients, no texture, no grain, no noise, no glow, no blur. Crisp clean edges, no black outlines, fully transparent background with no semi-transparent fringe. Eyes: thick upper lid line, two-tone iris, one large clear white highlight at the upper left, no small secondary reflection. Smallest details at least 10 px wide. Head-to-body ratio about 1:1.4.
    ```
 2. 생성 원본 PNG는 그대로 커밋합니다. 정리는 `npm run assets`가 실행용 WebP를 만들 때 자동으로 합니다. 반투명 가장자리를 알파 128 기준으로 또렷하게 하고, [vtracer](https://github.com/visioncortex/vtracer)(`@neplex/vectorizer`)로 색면 도형을 다시 딴 뒤 원래 크기로 되돌립니다. 설정은 `colorPrecision 6`, `layerDifference 16`, `filterSpeckle 6`, `cornerThreshold 60`입니다.
 3. 새 그림을 넣으면 같은 부위를 3배 확대해 원본과 비교합니다. 눈 하이라이트와 작은 디테일이 남았는지 확인합니다.
@@ -296,7 +298,7 @@
 | 왼쪽 아래 | 단순한 미니맵 | 누르면 화면 가운데에 크게 열림. 큰 미니맵은 내 시야 안에서 누가 어디에 배치 중인지 보는 용도. 큰 미니맵을 누르면 닫히며 누른 곳으로 화면 이동 |
 | 오른쪽 아래 | 겹쳐 놓은 내 카드 | 누르면 아래에 패가 펼쳐짐. 카드 하나를 누르면 가운데로 나오며 크게 보임 |
 
-- **내 턴 주사위:** 화면 가운데에서 누르면 주사위가 튀어 올랐다 떨어집니다. 나온 숫자의 타일이 반짝이고, 자원 아이콘이 아이템처럼 떨어졌다가 오른쪽 위로 날아갑니다. 재화 칸이 반짝이며 숫자가 오릅니다.
+- **내 턴 주사위:** 화면 가운데에서 누르면 주사위가 튀어 올랐다 떨어집니다. 나온 숫자의 **필드 타일**이 반짝이고, 그 타일에서 자원 아이콘이 아이템처럼 떨어집니다. 떨어진 아이콘은 오른쪽 위의 같은 재화 아이콘으로 쏙 빨려 들어가고, 재화 칸이 또리링 반응하며 숫자가 오릅니다.
 - **카드 사용:** 패를 펼쳐 카드를 맵으로 끌어다 놓습니다. 건물은 놓을 꼭짓점을, 유닛은 놓을 칸을 고릅니다.
 - **유닛:** 칸 위에 올라가는 토큰이며 칸 단위로 이동합니다.
 

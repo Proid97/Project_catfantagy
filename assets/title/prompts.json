@@ -397,8 +397,8 @@
         "assets/title/warrior.png",
         "assets/title/mage.png",
         "assets/title/assassin.png",
-        "assets/title/character-art-reference.png",
-        "assets/title/character-art-check.png"
+        "assets/concepts/character-art-reference.png",
+        "docs/images/character-art-check.png"
       ],
       "checkSheetMethod": "실제 최종 PNG의 불투명 윤곽으로 검은 실루엣을 만들고, 각 그림을 72×72px 안에 맞춰 실제 축소. 원본 PNG의 색·알파는 후처리하지 않음.",
       "validation": {
