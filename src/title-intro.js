@@ -18,7 +18,6 @@ const entrances = {
   mage: [1720, 560, 'translateY(-35%) scale(.55) rotate(-8deg)', pop, .2],
   logo: [2120, 560, 'scale(1.7)', pop, .15],
 };
-const shakes = [[1700, 200, 1], [2330, 160, .5]];
 
 export function animateTitle(layers, { reducedMotion = false, fullMotion = false } = {}) {
   return [...layers].map(layer => {
@@ -31,13 +30,6 @@ export function animateTitle(layers, { reducedMotion = false, fullMotion = false
       : [{ offset: 0, opacity: 1, transform: from, easing }, { offset: 1, opacity: 1, transform: 'none' }];
     return layer.animate(frames, { delay, duration, fill: 'both' });
   });
-}
-
-export function shakeTitle(element) {
-  return shakes.map(([delay, duration, size]) => element.animate(
-    [[0, 0], [-.35, .2], [.3, -.2], [-.15, .1], [0, 0]].map(([x, y]) => ({ transform: `translate(${x * size}%, ${y * size}%)` })),
-    { delay, duration },
-  ));
 }
 
 export function syncIntroVisibility(animations, hidden) {

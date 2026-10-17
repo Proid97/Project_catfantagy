@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { animateTitle, shakeTitle, syncIntroVisibility } from '../src/title-intro.js';
+import { animateTitle, syncIntroVisibility } from '../src/title-intro.js';
 
 const names = ['sky', 'mountains', 'hills', 'trees-left', 'trees-right', 'mine', 'crystals', 'castle', 'foreground', 'mage', 'warrior', 'assassin', 'logo'];
 const element = layer => ({
@@ -40,14 +40,6 @@ test('동작 줄이기: 같은 순서로 0.3초씩 나타나고 이동은 없음
 test('직접 누른 다시 보기는 동작 줄이기 상태에서도 전체 재생', () => {
   const animations = byName(animateTitle(names.map(element), { reducedMotion: true, fullMotion: true }));
   assert.match(animations.assassin.frames[0].transform, /rotate\(9deg\)/);
-});
-
-test('그림 흔들림은 마법사·로고 착지에 맞춰 두 번', () => {
-  const shakes = shakeTitle(element('canvas'));
-  assert.deepEqual(shakes.map(item => [item.timing.delay, item.timing.duration]), [[1700, 200], [2330, 160]]);
-  assert.equal(shakes[0].frames[1].transform, 'translate(-0.35%, 0.2%)');
-  assert.equal(shakes[1].frames[1].transform, 'translate(-0.175%, 0.1%)');
-  assert.equal(shakes[0].frames.at(-1).transform, 'translate(0%, 0%)');
 });
 
 test('백그라운드에서 멈추고 복귀하면 재개, 끝난 연출은 다시 시작하지 않음', () => {

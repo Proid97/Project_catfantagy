@@ -3,7 +3,8 @@ import { test, expect } from '@playwright/test';
 const stage = page => page.locator('.stage');
 const intro = page => expect(stage(page)).toHaveAttribute('data-state', 'intro');
 const ready = page => expect(stage(page)).toHaveAttribute('data-state', 'ready');
-const loops = page => page.evaluate(() => document.getAnimations().filter(item => item.effect.getTiming().iterations === Infinity).map(item => item.animationName).sort());
+// 반복 연출과 횟수. 끝없이 도는 연출이 있으면 Infinity가 나와 실패한다.
+const loops = page => page.evaluate(() => document.getAnimations().filter(item => item.effect.getTiming().iterations > 1).map(item => `${item.animationName} ${item.effect.getTiming().iterations}`).sort());
 // 시작 문구가 나타날 자리. 연출 중 이곳을 눌러도 건너뛰기만 해야 한다.
 const startSpot = async page => { const box = await page.locator('.canvas').boundingBox(); return [box.x + box.width / 2, box.y + box.height * .93]; };
 
@@ -20,7 +21,7 @@ test('등장 순서, 자연 종료, 시작 입력과 되돌아오기', async ({ 
   ]);
   await ready(page);
   expect(await page.evaluate(() => document.getAnimations().every(item => item instanceof CSSAnimation))).toBe(true);
-  expect(await loops(page)).toEqual(['mage-float', 'start-pulse']);
+  expect(await loops(page)).toEqual(['mage-float 4', 'start-pulse 3']);
   expect(await page.evaluate(() => document.fonts.check('700 24px "Catfantagy UI"'))).toBe(true);
   const start = page.getByRole('button', { name: '게임 시작' });
   expect(await start.evaluate(button => ['backgroundColor', 'boxShadow', 'borderTopWidth'].map(key => getComputedStyle(button)[key]))).toEqual(['rgba(0, 0, 0, 0)', 'none', '0px']);

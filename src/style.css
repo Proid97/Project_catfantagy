@@ -23,8 +23,9 @@ button:focus-visible { outline: 3px solid #ffda63; outline-offset: 6px; }
 .layer img { display: block; width: 100%; height: 100%; }
 .start { position: absolute; z-index: 60; left: 50%; bottom: 3.8%; translate: -50% 0; padding: 0 .5em 0 .62em; border: 0; color: #fff9e7; background: none; white-space: nowrap; font-size: clamp(16px, 2.4cqw, 42px); letter-spacing: .12em; text-shadow: 2px 0 #08403d, -2px 0 #08403d, 0 2px #08403d, 0 -2px #08403d, 0 4px 12px #08403d99; animation: start-fade .3s ease-out; }
 .start:active { scale: .96; }
-.stage[data-state="ready"][data-motion="full"] .start { animation: start-rise .3s ease-out, start-pulse 2.4s ease-in-out .3s infinite; }
-.stage[data-state="ready"][data-motion="full"] .mage { animation: mage-float 3.2s ease-in-out infinite alternate; }
+/* 대기 연출은 몇 번만 하고 멈춘다. 멈춘 화면은 다시 그리지 않아 저사양 기기의 발열을 막는다. */
+.stage[data-state="ready"][data-motion="full"] .start { animation: start-rise .3s ease-out, start-pulse 2.4s ease-in-out .3s 3; }
+.stage[data-state="ready"][data-motion="full"] .mage { animation: mage-float 3.2s ease-in-out 4 alternate; }
 @keyframes start-fade { from { opacity: 0; } }
 @keyframes start-rise { from { opacity: 0; transform: translateY(35%); } }
 @keyframes start-pulse { 50% { opacity: .6; } }

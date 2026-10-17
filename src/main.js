@@ -1,11 +1,10 @@
 import './style.css';
 import { setupScreen } from './setup-screen.js';
-import { animateTitle, shakeTitle, syncIntroVisibility } from './title-intro.js';
+import { animateTitle, syncIntroVisibility } from './title-intro.js';
 import layout from './generated/title-layout.json';
 
 const stage = document.querySelector('.stage');
 const art = document.querySelector('.art');
-const canvas = document.querySelector('.canvas');
 const start = document.querySelector('.start');
 const skip = document.querySelector('.skip');
 const replay = document.querySelector('.replay');
@@ -64,7 +63,7 @@ function intro({ fullMotion = false } = {}) {
   const reduced = useReducedMotion() && !fullMotion;
   stage.dataset.motion = reduced ? 'reduced' : 'full';
   state('intro');
-  animations = [...animateTitle(art.children, { reducedMotion: reduced, fullMotion }), ...(reduced ? [] : shakeTitle(canvas))];
+  animations = animateTitle(art.children, { reducedMotion: reduced, fullMotion });
   syncIntroVisibility(animations, document.hidden);
   Promise.all(animations.map(animation => animation.finished)).then(() => {
     if (stage.dataset.state === 'intro') ready();
