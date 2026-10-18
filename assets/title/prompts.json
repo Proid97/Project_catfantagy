@@ -591,5 +591,119 @@
       "name": "castle",
       "prompt": "Create an ORIGINAL cute fantasy CAT KINGDOM CASTLE transparent game asset. First reference is ONLY generic architectural design inspiration; second reference is ONLY clean flat illustration style/palette. Redraw from scratch, do not reproduce photograph, lettering or watermark. Strong compact frontal silhouette: central tall rectangular keep with battlements and a tall coral-red conical roof; two tall cylindrical back towers with battlements; two squat front cylindrical towers with smaller coral-red cone roofs; broad crenellated curtain wall and a central large arched warm wooden double gate. Ivory cream stone and restrained flat beige shadow facets, dark teal slim arched windows, a few large geometric masonry accents only. ONE SINGLE LARGE dominant coral-red forked flag on the central highest pole, flowing to the right and CLEARLY bearing a large ivory CAT PAW PRINT: one central pad + four toe pads. Make this paw flag conspicuous, at least a fifth of castle width. No other flags to compete. Exaggerated charming toy castle proportions, handsome monumental presence, recognizably same clean indie vector shape language as second reference. Entire castle including flag/pole/base surrounded by generous transparent padding. Roughly square upright composition, full foundation visible, no island, no grass/ground, no sky, no characters, no text. Genuine alpha transparency. Crisp flat opaque color shapes, no paper/stone texture, no grain/noise, no photorealistic material, no glow."
     }
-  ]
+  ],
+  "portraitHero": {
+    "source": "docs/game-design.md 세로 타이틀 새 방향, main 3bec0f234dbfb26ba0088b0bd8d3376db4631fb9",
+    "method": "층별 이미지젠 생성 후 PNG를 실제로 겹쳐 조립. PR #7 시안과 좌우 뒤집기를 사용하지 않음.",
+    "preserved": [
+      "logo.png",
+      "assassin.png",
+      "warrior.png",
+      "layout.json"
+    ],
+    "mageEyeFix": {
+      "changed": "눈 안쪽 9267픽셀만 교체. 흰자·눈동자·하이라이트는 단색 3종. 눈 밖 RGBA는 원본과 동일.",
+      "sourceCrop": [
+        700,
+        385,
+        1045,
+        570
+      ],
+      "comparison": "docs/images/mage-eye-fix.png"
+    },
+    "processing": {
+      "newLayers": "알파 0/255, 떨어진 잔색 제거, 각진 면의 색 정리. 전사 눈은 흰자·눈동자 각각 단색, 흰 하이라이트 1개를 보존.",
+      "reusedLayers": "미리보기에서는 기존 빌드처럼 투명 여백과 잡티만 정리. 원본 로고·냥살자는 변경하지 않음.",
+      "layout": "assets/title/layout-portrait.json. 모든 좌표는 1536×2048 기준. sourceBounds=[left,top,right,bottom].",
+      "caption": "미리보기에만 실제 Pretendard Bold 700으로 TOUCH TO START를 합성. 에셋에는 글자 없음."
+    },
+    "assets": [
+      {
+        "file": "assets/title/warrior-front.png",
+        "prompt": "Use case: stylized-concept. Create ONLY one isolated FRONT-FACING cat warrior character for a layered portrait game title, true transparent background, portrait canvas 1536x2048. Reference 1 is the exact existing character identity; reference 2 is the style reference. Preserve orange tabby fur, cream muzzle and inner ears, huge simple brown eyes, gold forehead V tiara, broad bright gold armor, rich crimson cape, dark BROWN leather gloves and leggings, ivory sword, gold kite shield with the SAME unmistakable cream three-point crown emblem from reference 1. NEW POSE: regal confident straight-on view, two feet planted wide on a horizontal ground-contact baseline near y=1950; flat soles, knees slightly bent. Both eyes visible. On image left one hand holds the long sword upright with tip above shoulder but BELOW ear tips and separated from head; on image right other arm holds the large kite shield below face at hip/chest height. Big crimson cape sweeps out dramatically BEHIND body into two broad angular wings, no cloth around ears. Face and chest face viewer. Top of ears near y=250, body fills canvas center, all cape and sword within 70px safety margins, no ground, no cast shadow, no glow, no scene, no text. Eyes: each white sclera a single flat cream-white shape, each pupil solid brown, exactly ONE clearly separate white upper-left highlight per eye, no second glint, no pupil stripe or mottling. Large paws and armor plates, two to four crisp facets each; keep limbs same athletic elongated cartoon proportions as reference, not round toy proportions. Clean indie flat vector illustration matching the style reference warrior exactly: angular faceted planes with straight hard edges, like folded paper or cut gems, two to four tones per material, single light source from the upper left. Bold dramatic silhouette, same body proportions and exaggeration as the reference. No rounded blobby shapes, no gradients, no texture, no grain, no noise, no glow, no blur, no black outlines. Crisp clean edges, fully transparent background. Simple eyes like the reference with one clear white highlight at the upper left. Smallest details at least 10 px wide.",
+        "transparent_generation": true,
+        "references": [
+          "warrior.png",
+          "style-reference-warrior.png"
+        ],
+        "purpose": "층별 원본 생성"
+      },
+      {
+        "file": "assets/title/sky-tall.png",
+        "prompt": "Use case: stylized-concept. Create ONLY a tall bright blue sky background layer for a portrait game title. Output opaque 1536x2700 canvas, no transparent pixels for this sky layer. Top 650px is extra sky for tall phones; the main 1536x2048 composition starts at y=650. Match reference 1's cheerful blue brightness and cream cloud color; match reference 2's angular flat art. Large sparse cream-white clouds, cut-paper polygon edges instead of rounded scallops, a few pale blue underside planes. Blue is flat uniform vivid daytime azure, no gradient, no vignette, no haze, no rays, no grain. Keep central area generously open for a logo, place clouds at upper corners and side edges with only 3 or 4 large cloud masses total. No mountains, ground, castle, characters, logo, words, numbers or UI. Ignore character-related common style clauses for this inanimate sky. Clean indie flat vector illustration matching the style reference warrior exactly: angular faceted planes with straight hard edges, like folded paper or cut gems, two to four tones per material, single light source from the upper left. Bold dramatic silhouette, same body proportions and exaggeration as the reference. No rounded blobby shapes, no gradients, no texture, no grain, no noise, no glow, no blur, no black outlines. Crisp clean edges, fully transparent background. Simple eyes like the reference with one clear white highlight at the upper left. Smallest details at least 10 px wide.",
+        "transparent_generation": false,
+        "references": [
+          "sky.png",
+          "style-reference-warrior.png"
+        ],
+        "purpose": "층별 원본 생성"
+      },
+      {
+        "file": "assets/title/peaks.png",
+        "prompt": "Use case: stylized-concept. Generate ONLY a landscape transparent PNG layer of majestic large SNOWY MOUNTAINS, approximately 2000x1100, for a bright portrait title composited later. Reference 1 is the existing terrain geometry, reference 2 is the hard-faceted art style. Make two to three interleaved mountain ridges: pale distant blue-gray peaks, medium blue-gray middle peaks, and a small nearer blue-gray foothill ridge. Broad bright WHITE snow caps clearly cover the upper half of the tallest 3 or 4 peaks. Large steep triangular silhouettes with very few big straight-edged facet planes, left upper faces light, lower-right faces blue-gray. Center remains a lower valley so a castle on its own separate rock hill can sit in front; taller mass left and right. All mountains are fully opaque shapes, outside silhouette genuinely transparent. Bottom of ridges ends in one clean low broad baseline suitable to hide behind a separate green hill layer. No sky, no clouds, no green fields, no castle, no trees, no rocks scattered, no characters, no words or effects. Keep very bright and monumental through scale, never dark or moody. Clean indie flat vector illustration matching the style reference warrior exactly: angular faceted planes with straight hard edges, like folded paper or cut gems, two to four tones per material, single light source from the upper left. Bold dramatic silhouette, same body proportions and exaggeration as the reference. No rounded blobby shapes, no gradients, no texture, no grain, no noise, no glow, no blur, no black outlines. Crisp clean edges, fully transparent background. Simple eyes like the reference with one clear white highlight at the upper left. Smallest details at least 10 px wide.",
+        "transparent_generation": true,
+        "references": [
+          "mountains.png",
+          "style-reference-warrior.png"
+        ],
+        "purpose": "층별 원본 생성"
+      },
+      {
+        "file": "assets/title/castle-hill.png",
+        "prompt": "Use case: stylized-concept. Create ONLY an isolated grand cream-stone cat castle on a tall rocky hill, genuine transparent background, portrait-ish 1600x1700 asset. Reference 1 is the EXACT castle design family: cream stone walls, teal/blue steep roofs, warm brown front gate, gold flagpole, ONE large red flag carrying a big cream cat PAW print with four toes. Keep this paw-flag design clearly readable, no other red roofs or red accents. Expand castle grandeur with a broad outer fortified wall, seven substantial towers at different heights and a tall central keep. Simplify windows to 5–7 total and parapets to a few big notches; avoid intricate masonry lines. Castle sits atop a HIGH steep blue-gray angular rock plateau occupying bottom 45% of silhouette, with a narrow warm-cream zigzag route up to front gate. Castle body fills upper 50%, flag rises above tallest central tower, comfortable transparent margins all sides. Rock base narrows lower down and will be hidden behind separate green field layer. Bright sunlit cream walls and teal roofs, not dark or photoreal. Huge simple geometric shapes, 2–4 color planes per material, all entirely opaque. No sky, clouds, distant mountains, green landscape, foreground terrain, characters, text or shadows outside the island. Clean indie flat vector illustration matching the style reference warrior exactly: angular faceted planes with straight hard edges, like folded paper or cut gems, two to four tones per material, single light source from the upper left. Bold dramatic silhouette, same body proportions and exaggeration as the reference. No rounded blobby shapes, no gradients, no texture, no grain, no noise, no glow, no blur, no black outlines. Crisp clean edges, fully transparent background. Simple eyes like the reference with one clear white highlight at the upper left. Smallest details at least 10 px wide.",
+        "transparent_generation": true,
+        "references": [
+          "castle.png",
+          "style-reference-warrior.png"
+        ],
+        "purpose": "층별 원본 생성"
+      },
+      {
+        "file": "assets/title/hills-tall.png",
+        "prompt": "Use case: stylized-concept. Generate ONLY an isolated middle-ground landscape layer, transparent PNG approximately 2000x1250, of bright fresh green angular rolling hills and open fields. Match reference 1's lime/yellow-green identity and cream path and reference 2's faceted cut-paper shape style. The upper silhouette is a low uneven ridge starting at about 25% canvas height, with two broad hills at edges and a very low central valley. Lower 70% entirely filled with green fields, spanning fully from left to right edge and to bottom edge. Broad warm cream winding road begins narrow at upper center and widens slightly down toward lower center, to connect to a separately drawn hilltop castle. Three or four large angular tone planes in the grass, not tessellated triangles everywhere. No trees, flowers, rocks, water, buildings, castle, distant mountains, sky, characters, lettering or shadows. Keep upper area transparent above hills. Crisp simple terrain, low detail, no decorative specks. Clean indie flat vector illustration matching the style reference warrior exactly: angular faceted planes with straight hard edges, like folded paper or cut gems, two to four tones per material, single light source from the upper left. Bold dramatic silhouette, same body proportions and exaggeration as the reference. No rounded blobby shapes, no gradients, no texture, no grain, no noise, no glow, no blur, no black outlines. Crisp clean edges, fully transparent background. Simple eyes like the reference with one clear white highlight at the upper left. Smallest details at least 10 px wide.",
+        "transparent_generation": true,
+        "references": [
+          "hills.png",
+          "style-reference-warrior.png"
+        ],
+        "purpose": "층별 원본 생성"
+      },
+      {
+        "file": "assets/title/ground-tall.png",
+        "prompt": "Use case: stylized-concept. Create ONLY a portrait foreground ground layer with transparent empty space ABOVE the ground, PNG 1536x1700. Reference 1 is dark teal foreground palette, reference 2 green field continuity, reference 3 hard flat angular art. Ground silhouette near y=100: a shallow slightly sloping grassy ridge, CENTER 60% is a wide FLAT level platform where a warrior's feet will stand. Top horizontal ground shelf uses medium green/teal, then bottom ground becomes rich dark teal-green in 3 broad flat polygon faces. Ground continues solidly to left, right and BOTTOM EDGES, absolutely no transparent gaps or cut-out island shape below ridge. Bottom 650px is extra ground for tall phones: simple uninterrupted dark teal, no important motifs there. Two small broad gray faceted rocks at outer left and right corners ONLY near top third, do not intrude on central feet platform or central text area. No plants needed. No characters, no buildings, no sky, no clouds, no paths, no shadow under character, no text, no logos. Center remains visually quiet to add TOUCH TO START later with code, but do NOT draw any lettering. Clean indie flat vector illustration matching the style reference warrior exactly: angular faceted planes with straight hard edges, like folded paper or cut gems, two to four tones per material, single light source from the upper left. Bold dramatic silhouette, same body proportions and exaggeration as the reference. No rounded blobby shapes, no gradients, no texture, no grain, no noise, no glow, no blur, no black outlines. Crisp clean edges, fully transparent background. Simple eyes like the reference with one clear white highlight at the upper left. Smallest details at least 10 px wide.",
+        "transparent_generation": true,
+        "references": [
+          "foreground.png",
+          "hills.png",
+          "style-reference-warrior.png"
+        ],
+        "purpose": "층별 원본 생성"
+      },
+      {
+        "file": "assets/title/warrior-front.png",
+        "prompt": "Use case: precise-object-edit. Edit reference 1's FRONT-FACING orange cat warrior for a layered title. Preserve this exact cat's face, eyes, orange striped fur, cream muzzle/ears, gold V forehead tiara, gold plate armor, crimson cape color, crown-emblem gold kite shield, brown leather gloves/leggings, feet wide apart and flat on ground. Reference 2 confirms the existing character identity. IMPORTANT silhouette adjustment for layering: the cape must start ONLY BELOW the shoulders and sweep broadly outward at WAIST/THIGH height, NOT up behind the ears or head. Keep transparent empty space at both sides of head and upper shoulders. Highest point of crimson cape on either side must be below chin level, never as tall as the ears. Cape still large and dramatic, angular two-panel sweep with sharp ends, largest width around knees/hips. Sword position change: image LEFT hand holds sword by upright handle at hip height, with long blade extending straight DOWN to rest its point on the same baseline as the feet; no sword above shoulder. Image RIGHT arm holds same kite shield slightly outward at hip height, shield top BELOW chin, both eyes entirely visible. Character is tall athletic cartoon, not squashed; ears top near y=230, flat foot baseline y=1950 on a 1536x2048 portrait transparent canvas, horizontal space around face remains empty. All props inside canvas. Each eye has single flat cream-white sclera, solid dark brown pupil and one white upper-left glint, no smears/streaks. No scene, ground, shadows, words, magic, glow or extra props. Clean indie flat vector illustration matching the style reference warrior exactly: angular faceted planes with straight hard edges, like folded paper or cut gems, two to four tones per material, single light source from the upper left. Bold dramatic silhouette, same body proportions and exaggeration as the reference. No rounded blobby shapes, no gradients, no texture, no grain, no noise, no glow, no blur, no black outlines. Crisp clean edges, fully transparent background. Simple eyes like the reference with one clear white highlight at the upper left. Smallest details at least 10 px wide.",
+        "transparent_generation": true,
+        "references": [
+          "exec-cb28f410-7055-48f5-80e1-6f3d28f520b8.png",
+          "warrior.png"
+        ],
+        "purpose": "망토를 아래로 내리고 검끝을 땅에 짚는 수정"
+      },
+      {
+        "file": "assets/title/mage.png",
+        "prompt": "Use case: precise-object-edit. EDIT TARGET is this enlarged close-up of the existing cat mage face. Make ONLY the eye interior colors clean. Keep the exact composition, framing, tilt, eye outline shape, eyelid silhouette, nose, mouth, fur and hat untouched. Both eyes must use the same structure: pale lilac sclera one UNIFORM FLAT COLOR (#dfbbf4), dark purple pupil one UNIFORM FLAT COLOR (#3c1767), exactly one white highlight in the UPPER LEFT of each pupil. Preserve the existing size and position of each pupil and each single highlight. Remove ALL pale vertical bands, dark mottled patches, streaks and smudged gradients inside the eyes. Do not draw iris streaks, rings, sparkles or any second glint. No blur, texture, glow or noise; hard-edged single-color eye regions, clean geometry. Return the SAME close-up crop and framing, not a whole character, no words or new props. Background remains original fur and hat, not a new scene. Clean indie flat vector illustration matching the style reference warrior exactly: angular faceted planes with straight hard edges, like folded paper or cut gems, two to four tones per material, single light source from the upper left. Bold dramatic silhouette, same body proportions and exaggeration as the reference. No rounded blobby shapes, no gradients, no texture, no grain, no noise, no glow, no blur, no black outlines. Crisp clean edges, fully transparent background. Simple eyes like the reference with one clear white highlight at the upper left. Smallest details at least 10 px wide.",
+        "transparent_generation": false,
+        "references": [
+          "mage-eyes-source.png"
+        ],
+        "purpose": "법사 눈 부분 생성 후 원본 합성"
+      }
+    ],
+    "previews": [
+      "docs/images/title-portrait-preview.png",
+      "docs/images/title-phone-preview.png",
+      "docs/images/mage-eye-fix.png",
+      "docs/images/title-face-check.png"
+    ]
+  }
 }
