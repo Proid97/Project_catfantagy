@@ -1,5 +1,6 @@
 import './style.css';
 import { setupScreen } from './setup-screen.js';
+import { mapScreen } from './map-screen.js';
 import { animateTitle, syncIntroVisibility } from './title-intro.js';
 import layout from './generated/title-layout.json';
 
@@ -14,7 +15,8 @@ const motionToggle = document.querySelector('.motion-toggle');
 const status = document.querySelector('.status');
 const retry = document.querySelector('.retry');
 const setup = document.querySelector('#setup');
-const openSetup = setupScreen(setup, () => { stage.hidden = false; ready(); start.focus(); });
+const openMap = mapScreen(document.querySelector('#map'));
+const openSetup = setupScreen(setup, () => { stage.hidden = false; ready(); start.focus(); }, classes => openMap({ players: classes.map((classId, index) => ({ name: index ? '봇' : '나', classId })) }));
 const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
 const assetRoot = `${import.meta.env.BASE_URL}title/`;
 let animations = [];
@@ -161,4 +163,8 @@ reducedMotion.addEventListener('change', () => {
 });
 addEventListener('resize', fillScreen);
 fillScreen();
-load();
+// #map으로 열면 타이틀을 건너뛰고 기본 두 냥국으로 판을 바로 본다(개발·시험용).
+if (location.hash === '#map') {
+  stage.hidden = true;
+  openMap();
+} else load();

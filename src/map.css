@@ -1,0 +1,30 @@
+.map-screen { --sea: #3d9fcb; --hud-panel: #fff8ebeb; --hud-ink: #263638; --hud-line: #2636381f; --hud-edge: #fff8eb; --hud-shadow: 0 3px 0 #0b3b5226, 0 6px 16px #0b3b5226; --card-back: #17575c; --card-mark: #ffda63; position: absolute; inset: 0; overflow: hidden; background: var(--sea); color: var(--hud-ink); }
+.map-canvas { position: absolute; inset: 0; display: block; width: 100%; height: 100%; touch-action: none; }
+/* 지도 조작이 HUD 아래에서도 되게, 실제 조작 요소만 입력을 받는다. */
+.hud { position: absolute; inset: calc(env(safe-area-inset-top) + 12px) calc(env(safe-area-inset-right) + 12px) calc(env(safe-area-inset-bottom) + 12px) calc(env(safe-area-inset-left) + 12px); pointer-events: none; }
+.hud > * { position: absolute; margin: 0; }
+.hud-panel { border-radius: 16px; background: var(--hud-panel); box-shadow: var(--hud-shadow); }
+.hud-players { top: 0; left: 0; padding: 8px 16px 8px 8px; }
+.player { display: flex; align-items: center; gap: 8px; margin: 0; font-size: 16px; }
+.avatar { display: grid; place-items: center; flex: none; width: 44px; height: 44px; border: 3px solid var(--accent); border-radius: 50%; background: var(--tint); color: var(--ink); font-size: 19px; }
+.opponents { margin: 6px 0 0; padding: 6px 0 0 6px; border-top: 1px solid var(--hud-line); list-style: none; }
+.opponents .player { font-size: 13px; }
+.opponents .avatar { width: 32px; height: 32px; border-width: 2px; font-size: 14px; }
+.hud-resources { top: 0; right: 0; display: flex; gap: 2px; padding: 4px 8px; list-style: none; }
+.hud-resources li { display: flex; align-items: center; gap: 5px; min-width: 54px; height: 36px; padding: 0 6px; font-size: 17px; font-variant-numeric: tabular-nums; }
+.hud-resources svg { flex: none; width: 24px; height: 24px; }
+.minimap { left: 0; bottom: 0; width: 176px; height: 132px; padding: 0; border: 3px solid var(--hud-edge); border-radius: 14px; overflow: hidden; background: var(--sea); box-shadow: var(--hud-shadow); pointer-events: auto; touch-action: manipulation; }
+.minimap canvas, .minimap-dialog canvas { display: block; width: 100%; height: 100%; }
+.minimap-view { position: absolute; left: 0; top: 0; border: 2px solid #fff; border-radius: 3px; box-shadow: 0 0 0 1px #0b3b5280; pointer-events: none; }
+/* 화면을 어둡게 덮지 않는다. 투명한 바깥을 누르면 닫힌다. */
+.minimap-dialog { height: min(80vw, 80vh); padding: 0; border: 3px solid var(--hud-edge); border-radius: 18px; overflow: hidden; background: var(--sea); box-shadow: 0 6px 0 #0b3b5233, 0 18px 48px #0b3b5259; }
+.minimap-dialog::backdrop { background: transparent; }
+.hand { right: 0; bottom: 0; width: 104px; height: 108px; }
+.hand span { position: absolute; right: 4px; bottom: 4px; width: 64px; height: 90px; border: 3px solid var(--hud-edge); border-radius: 10px; background: var(--card-back); box-shadow: var(--hud-shadow); }
+.hand span::after { content: ''; position: absolute; inset: 0; margin: auto; width: 20px; height: 20px; rotate: 45deg; border: 2px solid var(--card-mark); border-radius: 3px; }
+.hand span:nth-child(1) { transform: translate(-30px, -8px) rotate(-11deg); }
+.hand span:nth-child(2) { transform: translate(-15px, -3px) rotate(-4deg); }
+.hand span:nth-child(3) { transform: rotate(4deg); }
+@media (max-width: 480px) {
+  .hud-resources { display: grid; grid-template-columns: 1fr 1fr; }
+}

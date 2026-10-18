@@ -6,7 +6,7 @@ const pipPositions = { 1: [5], 2: [1, 9], 3: [1, 5, 9], 4: [1, 3, 7, 9], 5: [1, 
 // 타이틀과 같은 주소를 써야 이미 받은 그림을 다시 받지 않는다.
 const revisions = Object.fromEntries(layout.layers.map(layer => [layer.name, layer.revision]));
 
-export function setupScreen(root, onBack) {
+export function setupScreen(root, onBack, onPlay) {
   let state = createSetup();
   const image = classId => `${import.meta.env.BASE_URL}title/${classId}.webp?v=${revisions[classId]}`;
   const playerName = player => `플레이어 ${player + 1}`;
@@ -64,7 +64,7 @@ export function setupScreen(root, onBack) {
             </article>`).join('')}
           </div>
           <p class="order-message" role="status">${game ? '두 냥국과 시작 순서가 정해졌어요. 첫 배치 화면은 다음 단계에서 이어집니다.' : state.dice[0] ? `${playerName(1)} 차례예요. 시작 순서에서는 같은 숫자가 나오지 않아요.` : '어느 숫자가 나올까요? 준비됐다면 플레이어 1부터 굴려주세요.'}</p>
-          <footer class="setup-footer"><button class="quiet-button" data-action="edit" data-focus="edit">← 냥국 선택 바꾸기</button>${game ? '<span class="next-step-note">다음: 안개 속 첫 배치</span>' : '<span class="next-step-note">높은 숫자가 먼저!</span>'}</footer>
+          <footer class="setup-footer"><button class="quiet-button" data-action="edit" data-focus="edit">← 냥국 선택 바꾸기</button>${game ? '<button class="primary-button" data-action="play" data-focus="play">판 보기 →</button>' : '<span class="next-step-note">높은 숫자가 먼저!</span>'}</footer>
         `}
       </div>`;
     if (focusHeading) { root.scrollTop = 0; root.querySelector('h2').focus({ preventScroll: true }); }
@@ -82,6 +82,7 @@ export function setupScreen(root, onBack) {
     const player = Number(button.dataset.player);
     switch (button.dataset.action) {
       case 'back': root.hidden = true; onBack(); return;
+      case 'play': root.hidden = true; onPlay(state.classes); return;
       case 'reset': state = createSetup(); break;
       case 'player': state = editPlayer(state, player); break;
       case 'edit': state = editPlayer(state, state.active); break;
