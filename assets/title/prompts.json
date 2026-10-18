@@ -567,6 +567,68 @@
         "단색 배경 합성, 실루엣·72px 축소본 육안 확인"
       ],
       "unverified": "빌드 정리 후 게임 배치와 iPad 실기기"
+    },
+    {
+      "name": "title-portrait-mockup",
+      "file": "../../docs/images/title-portrait-mockup.png",
+      "reference_commit": "39c245c1d57cd2d32ed191900252651f77c7ddb2",
+      "mode": "ChatGPT built-in image_gen",
+      "references": [
+        "warrior.png",
+        "mage.png",
+        "assassin.png",
+        "castle.png",
+        "sky.png",
+        "mountains.png",
+        "hills.png",
+        "mine.png",
+        "crystals.png",
+        "foreground.png"
+      ],
+      "prompts": [
+        "Use case: compositing / ui-mockup.\nCreate the illustrated SCENE for a PORTRAIT title-screen mockup of the existing indie cat fantasy game. Aspect ratio 3:4 portrait, iPad vertical, target 1536×2048 pixels. One edge-to-edge finished scene, no device frame.\nUse the attached EXISTING ASSETS as identity/shape references, preserving their designs, flat angular indie-vector style, costume colors, props, face shapes and pose directions. This is a fresh vertical composition of the SAME game, not a new art style.\nINPUTS: image1 is the exact orange warrior asset. Image2 is the exact white mage asset with LEFT-side fluffy tail. Image3 is the exact black assassin asset. Image4 is the exact cream castle with teal roofs and one big red paw flag. Image5 is a contact sheet of actual sky/mountains/hills/mine/crystals/foreground for style and shape reference; do not reproduce contact-sheet layout or labels. The current game has a large colorful logo; reserve space for it but do not draw it.\nCOMPOSITION: energetic interlocking diagonal triangle with clear depth, a charming indie game poster. Top to bottom: spacious blue sky for a large logo; floating mage and a high castle flag; huge castle behind a diagonal three-cat confrontation; dark teal foreground and bottom breathing space.\nIMPORTANT RESERVED SPACE: top 0–32% is clean blue sky with only a few clouds near outer edges. NO text or logo will be drawn by you; the original PNG logo is overlaid there later. Keep the CENTER of this top zone uncluttered. Bottom 89–100% is quiet dark teal-green ground, no character limbs or props, for a code-rendered start caption later. NO text anywhere in this image.\nCASTLE: prominently in the middle background at approximately x=46–87%, y=39–76%. Exact existing cream castle, teal roofs, single red flag with large cream paw print. Keep its towers and flag legible; castle door should still peek through the gap between front characters. It is the recognizable prize the cats fight over. Flag does NOT rise into reserved logo zone.\nCHARACTERS: exactly three whole recognizable heroes, staggered at DIFFERENT HEIGHTS, all faces unobscured.\n- White mage floats at UPPER LEFT below the logo zone, around x=5–48%, y=33–58%. Same floppy purple hat with cyan band, purple robes, lavender eyes, pale wood staff ending in OPEN sky-blue ring, white fluffy tail curling on LEFT. Her gesture leads diagonally inward/down-right. Keep tail left, no jewel at collar. No magic glow.\n- Orange warrior lunges RIGHT from LOWER LEFT, around x=-3–67%, y=61–87%. Same gold armor, red cape trailing left, dark BROWN leather, sword raised diagonally up-right and round gold shield with simple cream CROWN emblem. Face and shield wholly visible, paws grounded on the front hill. Avoid chopping his feet off.\n- Black assassin lunges LEFT from MIDDLE RIGHT, slightly higher than warrior, around x=37–102%, y=53–79%. Same teal hood/cloak, coral scarf streaming right, black-and-cream striped sleeves, TWO ivory daggers, curled black tail, GOLD eyes with slit pupils. Face fully visible. Faces point toward one another and form a dramatic diagonal confrontation; do not align all three in a flat row. Keep main limbs and weapons readable; only far cape/scarf ends may approach screen edges.\nTERRAIN: existing simple rolling bright yellow-green hills rising toward castle, one or two blue-gray mountain peaks far behind LEFT. A small complete wooden-frame gold mine and gold cart peeking on LEFT midground around y=52–66%, not huge and not cut in half. Three purple crystals on RIGHT midground around y=43–61%, behind assassin, but crystal tips visible. Sparse conifers only 2–4 total. Use dark teal front hill at lower quarter to anchor the warrior and frame the start-caption space. A short gentle curve of light path may lead toward castle door, no busy scenery. Foreground tiny corner rocks/shrubs only.\nSTYLE: clean bright playful indie VECTOR-like illustration, large flat SOLID color planes, sharp angular silhouette, upper-left lighting, very limited simple cel shading. High readable contrast. Preserve existing cat proportions and expressions. No added armor detail or decorative particles. No gradients, mottled color, grain, painterly texture, bloom, fog glow or fuzzy edges. No black outlines around characters. NOT 3D render, not generic mobile-RPG painterly splash, not chibi redesign.\nTEXT: none at all. No logo, no 'touch to start', no words, no mock buttons, no status bar, no watermark. The original logo and actual Pretendard UI are composited afterward. Opaque full-screen scene.",
+        "Use case: precise-object-edit / composition adjustment. Edit the attached PORTRAIT game scene, keeping exact 3:4 portrait shape and the SAME existing three cat designs, poses, props, faces, castle design, mine, crystals and flat-vector art.\nThe TOP THIRD must be truly reserved for the original logo. In the current picture, the mage's staff and castle flag rise too high into that zone. Fix composition:\n- Make the ENTIRE area y=0 through y=34% of image height open BLUE SKY. Only simple small clouds at far left/right edges. Absolutely no character, staff, mountain, flag or building enters the central reserved logo box x=10–90%, y=3–33%.\n- Move the floating mage DOWN and make her about 20% smaller so her staff-ring top starts below y=35%, face around y=47%, feet around y=64%. Keep the white fluffy tail on her LEFT and sky-blue OPEN RING staff.\n- Move castle and its red paw flag DOWN: flag top at y=36%, teal roof below y=42%, towers around y=51–66%, door at y=70%. Castle remains prominent and unobscured behind the cats.\n- Keep the warrior low LEFT and assassin higher RIGHT in the same dramatic diagonal confrontation; make only small adjustments needed to fit mage/castle behind. Warrior front shield/face and both feet remain readable. Keep EXACT gold armor, BROWN leather and cream CROWN emblem. Assassin still has gold slit eyes, coral scarf, two daggers, striped sleeves and curled tail.\n- Retain complete gold mine on LEFT and 3 purple crystals on RIGHT peeking from behind heroes.\n- Simplify scenery: exactly FIVE small conifers TOTAL across the whole image, not a forest. Remove other little trees, lower foreground spiky bushes and small extra rocks. Keep just one low dark shrub and one simple corner rock on each bottom corner. Broad uninterrupted green hills and dark teal foreground, no dense tiny facets. Bottom 89–100% calm dark teal ground for start caption.\nKeep visual depth, bright blue sky and the engaging triangle of faces. Scene must fit beneath a large overlaid logo, not collide with it. NO text, NO logo, NO UI or button, no new characters. Crisp flat solid angular vector colors; no gradients, texture, grain, blur or glow. Output 3:4 portrait, preferably 1536×2048."
+      ],
+      "export": {
+        "canvas": [
+          1536,
+          2048
+        ],
+        "aspect": "3:4 portrait iPad",
+        "scene_source_canvas": [
+          1086,
+          1448
+        ],
+        "scene_source": "exec-64db4799-24bb-43d8-9f3b-4bf1e27a42ac.png",
+        "compositing": "기존 logo.png를 잘라 합성. 시작 문구는 실제 Pretendard 700 글리프 경로로 표시.",
+        "logo": {
+          "visible_bounds": [
+            26,
+            12,
+            1660,
+            935
+          ],
+          "left": 192,
+          "top": 45,
+          "width": 1152
+        },
+        "caption": {
+          "text": "TOUCH TO START",
+          "font": "Pretendard 700",
+          "size": 60,
+          "letter_spacing": 6.5,
+          "baseline": 1970,
+          "fill": "#fff2d9",
+          "stroke": "#03494d",
+          "stroke_width": 4
+        }
+      },
+      "checks": [
+        "위쪽 로고·왕성 깃발·법사 지팡이 겹침 확인",
+        "세 캐릭터 얼굴·발·대표 소품과 자원 지역 육안 확인",
+        "법사 꼬리 왼쪽, 방패 왕관, 주사위 정사각형 2개 유지"
+      ],
+      "scope": "검토용 모크업만 추가. 실제 타이틀 코드·배치·원본 에셋은 변경하지 않음."
     }
   ],
   "note": "법사냥은 흰 배경에서 번짐 제거 후 이미지젠 배경 제거를 거쳤습니다. 선택한 최종 PNG를 기준으로 사용합니다.",
