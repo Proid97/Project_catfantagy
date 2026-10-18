@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { readFile, stat, readdir } from 'node:fs/promises';
+import { readFile, readdir } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
 import sharp from 'sharp';
 
@@ -28,11 +28,20 @@ for (const path of ['./', './Project_catfantagy/']) {
 }
 const layout = JSON.parse(await readFile(new URL('../src/generated/title-layout.json', import.meta.url), 'utf8'));
 const { files } = JSON.parse(await readFile(new URL('../src/generated/map-art.json', import.meta.url), 'utf8'));
-for (const layer of layout.layers) assert.ok((await stat(new URL(`title/${layer.name}.webp`, dist))).size > 0);
+for (const layer of layout.layers) {
+  // 몸 안쪽이 비치지 않는다. 반투명(알파 128~254)은 가장자리뿐이라 그림의 10%보다 적다(보정이 빠지면 97%가 넘는다).
+  const alpha = await sharp(await readFile(new URL(`title/${layer.name}.webp`, dist))).ensureAlpha().extractChannel(3).raw().toBuffer();
+  let solid = 0, semi = 0;
+  for (const a of alpha) if (a >= 128) { solid++; if (a < 255) semi++; }
+  assert.ok(solid > 0 && semi < solid * .1, `타이틀 ${layer.name}의 몸 안쪽이 비침`);
+}
+// 성 그림(테두리를 구운 것)과 지붕·깃발 마스크는 크기가 같아야 픽셀이 맞는다.
+const [castle, mask] = await Promise.all(['castle', 'castle-team'].map(async name => sharp(await readFile(new URL(`game/${name}.webp`, dist))).metadata()));
+assert.deepEqual([castle.width, castle.height], [mask.width, mask.height]);
 // 지도 그림: 주소의 내용 해시가 실제 파일과 같고, 아직 쓰지 않는 그림(안개·마을·구름·주사위)은 싣지 않는다.
 for (const [path, revision] of Object.entries(files)) {
   assert.equal(createHash('sha256').update(await readFile(new URL(`${path}.webp`, dist))).digest('hex').slice(0, 12), revision, path);
 }
 const shipped = (await Promise.all(['map', 'game'].map(async folder => (await readdir(new URL(`${folder}/`, dist))).map(name => `${folder}/${name}`)))).flat();
 assert.deepEqual(shipped.sort(), Object.keys(files).map(path => `${path}.webp`).sort());
-console.log(`웹앱 설정 확인: 독립 실행, 상대 경로, 아이콘 3종, 안전 영역, 지도 그림 ${shipped.length}종 통과`);
+console.log(`웹앱 설정 확인: 독립 실행, 상대 경로, 아이콘 3종, 안전 영역, 타이틀 층 불투명, 성 마스크 크기, 지도 그림 ${shipped.length}종 통과`);

@@ -2,7 +2,6 @@ import sharp from 'sharp';
 import { createHash } from 'node:crypto';
 import { readFile, mkdir, writeFile, stat, rename, readdir } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
-import { vectorizeRaw, ColorMode, Hierarchical, PathSimplifyMode } from '@neplex/vectorizer';
 
 const source = new URL('../assets/title/', import.meta.url);
 const output = new URL('../public/title/', import.meta.url);
@@ -20,46 +19,21 @@ async function stale(destination, changed) {
     return true;
   }
 }
-// AI 생성 그림의 면 안쪽 얼룩을 없앤다. 색면 도형으로 다시 딴 그림에서 면 안쪽만 가져오고,
-// 테두리와 색 경계에서 3px 안은 원본을 그대로 둬 외곽선의 매끈함을 지킨다(2026-10-18 비교 뒤 '2단계' 채택).
-// 설정값과 비교 결과는 docs/game-design.md의 '캐릭터 아트 기준'. 원본 PNG는 바꾸지 않는다.
-const cleaned = new Map();
-function clean(file) {
-  if (!cleaned.has(file)) cleaned.set(file, (async () => {
-    const { data: original, info } = await sharp(await readFile(new URL(file, source))).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
-    const { width, height } = info;
-    const hard = Buffer.from(original);
-    for (let i = 3; i < hard.length; i += 4) hard[i] = hard[i] >= 128 ? 255 : 0;
-    const svg = await vectorizeRaw(hard, { width, height }, {
-      colorMode: ColorMode.Color, hierarchical: Hierarchical.Stacked, mode: PathSimplifyMode.Spline,
-      colorPrecision: 6, layerDifference: 16, filterSpeckle: 6, cornerThreshold: 60,
-      lengthThreshold: 4, maxIterations: 10, spliceThreshold: 45, pathPrecision: 2,
-    });
-    const flat = await sharp(Buffer.from(svg)).resize(width, height).ensureAlpha().raw().toBuffer();
-    // 경계: 정리된 그림에서 오른쪽·아래 이웃과 색이나 투명도가 다른 픽셀. 여기서 3px 안은 원본을 쓴다.
-    let keep = new Uint8Array(width * height);
-    const differs = (p, q) => Math.abs(flat[p] - flat[q]) + Math.abs(flat[p + 1] - flat[q + 1]) + Math.abs(flat[p + 2] - flat[q + 2]) + Math.abs(flat[p + 3] - flat[q + 3]) >= 8;
-    for (let y = 0; y < height; y++) for (let x = 0; x < width; x++) {
-      const i = y * width + x;
-      if (!(x < width - 1 && differs(i * 4, i * 4 + 4)) && !(y < height - 1 && differs(i * 4, (i + width) * 4))) continue;
-      keep[i] = 1;
-      if (x < width - 1) keep[i + 1] = 1;
-      if (y < height - 1) keep[i + width] = 1;
-    }
-    for (let step = 0; step < 3; step++) {
-      const grown = Uint8Array.from(keep);
-      for (let i = 0; i < keep.length; i++) if (!keep[i]) {
-        const x = i % width;
-        if ((x > 0 && keep[i - 1]) || (x < width - 1 && keep[i + 1]) || keep[i - width] || keep[i + width]) grown[i] = 1;
-      }
-      keep = grown;
-    }
-    for (let i = 0; i < keep.length; i++) if (keep[i]) original.copy(flat, i * 4, i * 4, i * 4 + 4);
-    return sharp(flat, { raw: { width, height, channels: 4 } }).png().toBuffer();
-  })());
-  return cleaned.get(file);
+// 생성 원본을 그대로 쓴다(사용자 결정). 예외 하나: 예전 원본(냥법사·냥살자·로고)은 몸 안쪽도 알파 128~254로 살짝 비쳐
+// 뒤 층이 보인다. 그림 경계(알파 128 미만)에서 3px 넘게 들어간 픽셀만 불투명하게 하고, 1~2px의 부드러운 가장자리와 색은 원본 그대로 둔다.
+async function opaque(png) {
+  const { data, info: { width, height } } = await sharp(png).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
+  const solid = (x, y) => x < 0 || y < 0 || x >= width || y >= height || data[(y * width + x) * 4 + 3] >= 128;
+  for (let y = 0; y < height; y++) for (let x = 0; x < width; x++) {
+    const i = (y * width + x) * 4 + 3;
+    if (data[i] < 128 || data[i] === 255) continue;
+    let inner = true;
+    for (let dy = -3; dy <= 3 && inner; dy++) for (let dx = -3; dx <= 3 && inner; dx++) inner = solid(x + dx, y + dy);
+    if (inner) data[i] = 255;
+  }
+  return sharp(data, { raw: { width, height, channels: 4 } });
 }
-// sourceBounds가 없는 층은 정리된 그림에서 실제 그림 영역을 재고 2px 여유를 둔다. 그림을 바꿔도 다시 잴 필요가 없다.
+// sourceBounds가 없는 층은 원본에서 실제 그림 영역(알파 128 이상)을 재고 2px 여유를 둔다. 그림을 바꿔도 다시 잴 필요가 없다.
 async function bounds(png) {
   const { data, info } = await sharp(png).extractChannel(3).raw().toBuffer({ resolveWithObject: true });
   let left = info.width, top = info.height, right = 0, bottom = 0;
@@ -74,13 +48,13 @@ for (const layer of layout.layers) {
   originalBytes += (await stat(input)).size;
   const destination = new URL(`${layer.name}.webp`, output);
   if (await stale(destination, Math.max((await stat(input)).mtimeMs, changedAt))) {
-    const png = await clean(file);
+    const png = await readFile(input);
     const [left, top, right, bottom] = layer.sourceBounds ?? await bounds(png);
     // iPad 세로(2배 화면)에서 캔버스 1px이 기기 1px이라 캐릭터·성·로고는 1배로 둔다.
     // 넓은 색면뿐인 지형(stretch)은 절반으로 줄여 디코드 메모리를 아낀다. 2배로 늘려 보여도 1배보다 거칠지 않았다(2026-10-18 비교).
     const scale = layer.fit === 'stretch' ? .5 : 1;
     const temporary = new URL(`${layer.name}.tmp.webp`, output);
-    await sharp(png).extract({ left, top, width: right - left, height: bottom - top })
+    await (await opaque(png)).extract({ left, top, width: right - left, height: bottom - top })
       .resize({ width: Math.ceil(layer.w * scale), height: Math.ceil(layer.h * scale), fit: 'inside', withoutEnlargement: true })
       .webp({ quality: 88, alphaQuality: 100, effort: 6 }).toFile(fileURLToPath(temporary));
     await rename(temporary, destination);
@@ -92,7 +66,34 @@ for (const layer of layout.layers) {
 await writeFile(new URL('title-layout.json', generated), JSON.stringify(layout));
 console.log(`타이틀 이미지 ${(originalBytes / 1e6).toFixed(2)} MB → ${(outputBytes / 1e6).toFixed(2)} MB (${Math.round((1 - outputBytes / originalBytes) * 100)}% 감소)`);
 
-// 지도 화면 그림. 이미 깨끗한 색면 그림이라 얼룩 정리 없이 줄이기만 한다. 크기는 2배 화면에서 가장 크게 보일 때 기준.
+// 임시 · 스티커 테두리: 그림 둘레에 크림색 띠, 그 바깥에 얇은 짙은 선을 빌드 때 굽는다. 그릴 때 드는 비용이 없다.
+// band·line은 결과 그림의 px. 그림(알파 128 이상)에서 떨어진 거리로 칠해 모서리가 둥글고 바깥 1px이 부드럽다.
+// 캔버스 크기는 그대로라 둘레에 band + line + 1px 넘게 빈 곳이 있어야 한다. 성·재화 아이콘에 쓰고, 마을·길·다른 건물도 이걸로 두른다.
+const OUTLINE = { band: [255, 246, 223], line: [43, 32, 20] }; // 지도 화면의 숫자 패(#fff6df)·성 테두리(#2b2014)와 같은 색
+async function sticker(image, band, line) {
+  const { data, info: { width, height } } = await image.ensureAlpha().raw().toBuffer({ resolveWithObject: true });
+  const reach = band + line;
+  const r = Math.ceil(reach + .5);
+  const near = []; // 가까운 순서의 이웃 [dx, dy, 거리]
+  for (let dy = -r; dy <= r; dy++) for (let dx = -r; dx <= r; dx++) near.push([dx, dy, Math.hypot(dx, dy)]);
+  near.sort((a, b) => a[2] - b[2]);
+  const back = Buffer.alloc(data.length);
+  for (let y = 0; y < height; y++) for (let x = 0; x < width; x++) {
+    const hit = near.find(([dx, dy]) => {
+      const u = x + dx, v = y + dy;
+      return u >= 0 && v >= 0 && u < width && v < height && data[(v * width + u) * 4 + 3] >= 128;
+    });
+    if (!hit) continue;
+    const t = Math.min(Math.max(hit[2] - band, 0), 1); // 0이면 띠, 1이면 선. 사이 1px은 섞는다
+    const i = (y * width + x) * 4;
+    for (let c = 0; c < 3; c++) back[i + c] = Math.round(OUTLINE.band[c] + (OUTLINE.line[c] - OUTLINE.band[c]) * t);
+    back[i + 3] = Math.round(255 * Math.min(Math.max(reach + .5 - hit[2], 0), 1));
+  }
+  const raw = { width, height, channels: 4 };
+  return sharp(back, { raw }).composite([{ input: data, raw }]);
+}
+
+// 지도 화면 그림. 이미 깨끗한 색면 그림이라 줄이기만 하고, 성·아이콘에는 스티커 테두리를 두른다. 크기는 2배 화면에서 가장 크게 보일 때 기준.
 // 지형 오브젝트는 타일과 같은 1024px 캔버스다. 같은 비율로 줄이되, 네 장을 모두 담는 상자만 잘라 디코드 메모리를 줄인다.
 const OBJECTS = ['forest', 'gold-mine', 'crystal', 'rock'];
 const objectFiles = OBJECTS.map(name => new URL(`../assets/map/${name}.png`, import.meta.url));
@@ -107,12 +108,13 @@ const mapArt = [
   // 바닥 타일·호수: 가장 크게 확대하면 칸 그림 하나가 약 600px.
   ...['grass-1', 'grass-2', 'grass-3', 'barren', 'lake'].map(name => [`map/${name}`, image => image.resize(600, 600)]),
   ...OBJECTS.map(name => [`map/${name}`, image => image.extract({ left, top, width, height }).resize(Math.round(width * 600 / 1024)), objectsChangedAt]),
-  // 성(원본 512px)은 판에서 88 단위로 그린다. 최대 확대 1.4배 × 2배 화면 = 246px → 원본의 절반인 256px.
-  ['game/castle', image => image.resize(256)],
-  ['game/castle-team', image => image.resize(256)],
-  // 재화 아이콘은 24 CSS px, 카드 뒷면은 64 CSS px 너비로 보인다.
-  ...['gold', 'crystal', 'wood', 'fish'].map(name => [`game/icon-${name}`, image => image.resize(48)]),
-  // 카드 뒷면은 둘레의 투명한 여백을 잘라 카드 칸을 꽉 채운다.
+  // 성(원본 512px)은 판에서 120 단위로 그린다. 최대 확대 1.4배 × 2배 화면 = 336px.
+  // 지붕·깃발 마스크는 테두리 없이 같은 크기로 둬 성 그림과 픽셀이 맞는다. 테두리는 화면에서 약 2~3.5 CSS px(확대 1~1.4배).
+  ['game/castle', image => sticker(image.resize(336), 5, 2)],
+  ['game/castle-team', image => image.resize(336)],
+  // 재화 아이콘은 24 CSS px(2배 화면 48px)로 보인다. 테두리(약 2.3 CSS px)가 들어갈 자리를 위해 44px로 줄이고 둘레를 2px 넓힌다.
+  ...['gold', 'crystal', 'wood', 'fish'].map(name => [`game/icon-${name}`, image => sticker(image.resize(44).extend({ top: 2, bottom: 2, left: 2, right: 2, background: '#0000' }), 3, 1.5)]),
+  // 카드 뒷면은 64 CSS px 너비로 보인다. 둘레의 투명한 여백을 잘라 카드 칸을 꽉 채운다.
   ['game/card-back', image => image.trim().resize(128)],
 ];
 const files = {};
@@ -123,7 +125,7 @@ for (const [path, resize, changed = 0] of mapArt) {
   await mkdir(new URL('.', destination), { recursive: true });
   if (await stale(destination, Math.max((await stat(input)).mtimeMs, changedAt, changed))) {
     const temporary = new URL(`../public/${path}.tmp.webp`, import.meta.url);
-    await resize(sharp(await readFile(input))).webp({ quality: 90, alphaQuality: 100, smartSubsample: true, effort: 6 }).toFile(fileURLToPath(temporary));
+    await (await resize(sharp(await readFile(input)))).webp({ quality: 90, alphaQuality: 100, smartSubsample: true, effort: 6 }).toFile(fileURLToPath(temporary));
     await rename(temporary, destination);
   }
   const bytes = await readFile(destination);
@@ -158,7 +160,7 @@ console.log(`Pretendard ${(font.length / 1000).toFixed(1)} KB → ${(subset.leng
 
 const icons = new URL('../public/icons/', import.meta.url);
 await mkdir(icons, { recursive: true });
-// 아이콘은 이미 정리하고 잘라 둔 로고에서 만든다.
+// 아이콘은 이미 잘라 둔 로고에서 만든다.
 const logo = await readFile(new URL('logo.webp', output));
 for (const [name, size] of [['app-192.png', 192], ['app-512.png', 512], ['apple-touch-icon.png', 180]]) {
   const content = await sharp(logo).resize(Math.round(size * .7), Math.round(size * .7), { fit: 'inside' }).png().toBuffer();

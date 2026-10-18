@@ -17,6 +17,12 @@ export const TERRAIN = {
 // 임시: 육지 기준 비율. 풀밭은 나머지. 수정산을 먼저 놓아야 가운데 자리를 고를 수 있다.
 const SHARE = { crystal: 0.07, forest: 0.14, lake: 0.14, gold: 0.10, rock: 0.10 };
 
+// 임시: 자원이 뭉치지 않게 하는 한도. 같은 종류가 이어진 덩어리는 최대 3칸(수정산 2칸).
+// 육지 한 칸과 그 육지 이웃(최대 7칸) 안의 자원 칸(숲·호수·금광·수정산)은 최대 4칸. 바위산·풀밭은 세지 않는다.
+const GROUP_MAX = { crystal: 2 };
+const GROUP_MAX_DEFAULT = 3;
+const DENSE_MAX = 4;
+
 // 임시: 카탄식 숫자 묶음. 이 게임에는 도둑이 없어서 7도 넣는다.
 const NUMBER_BASE = [2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8, 9, 9, 10, 10, 11, 11, 12];
 
@@ -137,37 +143,52 @@ function makeLand({ cols, rows, px, nbrs, center }, target, rng) {
   return all.filter(i => !sea.has(i));
 }
 
-// 지형: 비율대로 정확히 세어, 씨앗 한 칸에서 2~4칸짜리 덩어리로 자라게 놓는다. 나머지는 풀밭.
+// 지형: 비율대로 정확히 세어, 씨앗 한 칸에서 작은 덩어리(1~3칸, 수정산 1~2칸)로 자라게 놓는다. 나머지는 풀밭.
+// 같은 종류 덩어리끼리는 맞닿지 않게 하고(합쳐져 커지지 않게), 자원 칸이 한 칸 둘레에 DENSE_MAX개를 넘지 않게 한다.
 // 호수·바위산 덩어리가 지나갈 수 있는 칸을 끊으면 그 덩어리만 물리고 다른 곳에서 다시 놓는다.
 function paintTerrain({ nbrs, center }, land, rng) {
   const kind = [];
   const free = new Set(land);
+  // dense[i]: 육지 칸 i와 그 육지 이웃 중 자원 칸 수. 바다 칸은 undefined.
+  const dense = [];
+  land.forEach(i => { dense[i] = 0; });
   const joined = () => {
     const open = land.filter(i => kind[i] === undefined || TERRAIN[kind[i]].move !== 'blocked');
     const walk = new Set(open);
     return flood(nbrs, [open[0]], n => walk.has(n)).length === open.length;
   };
+  // 칸 c를 type으로 놓거나(add) 되돌린다. 자원이면 c와 그 육지 이웃의 dense를 함께 고친다.
+  const mark = (c, type, add) => {
+    if (add) { kind[c] = type; free.delete(c); } else { delete kind[c]; free.add(c); }
+    if (TERRAIN[type].resource) for (const x of [c, ...nbrs[c]]) if (dense[x] !== undefined) dense[x] += add ? 1 : -1;
+  };
   for (const [type, share] of Object.entries(SHARE)) {
     let left = Math.round(share * land.length);
+    const max = GROUP_MAX[type] ?? GROUP_MAX_DEFAULT;
+    const resource = TERRAIN[type].resource;
+    // 놓을 수 있는 칸: 비었고, 같은 종류의 다른 덩어리와 맞닿지 않고, 자원이면 둘레가 이미 꽉 차지 않음
+    const fits = (c, group) => free.has(c)
+      && nbrs[c].every(n => kind[n] !== type || group.includes(n))
+      && (!resource || [c, ...nbrs[c]].every(x => dense[x] === undefined || dense[x] < DENSE_MAX));
     // 놓을 곳이 끝내 없으면 남은 칸은 풀밭으로 둔다. 판 생성이 멈추지 않게 하는 안전장치.
     for (let tries = 0; left > 0 && tries < 1000; tries++) {
-      const pool = [...free];
+      const pool = [...free].filter(c => fits(c, []));
+      if (!pool.length) break;
       let seed = pick(pool, rng);
       // 수정산은 세 곳을 뽑아 가운데에 가장 가까운 곳에서 시작한다.
       if (type === 'crystal') for (let t = 0; t < 2; t++) { const c = pick(pool, rng); if (center[c] < center[seed]) seed = c; }
       const group = [seed];
-      free.delete(seed);
-      const size = Math.min(left, 2 + Math.floor(rng() * 3));
+      mark(seed, type, true);
+      const size = Math.min(left, 1 + Math.floor(rng() * max));
       while (group.length < size) {
-        const near = group.flatMap(g => nbrs[g]).filter(n => free.has(n));
+        const near = group.flatMap(g => nbrs[g]).filter(n => fits(n, group));
         if (!near.length) break;
         const next = pick(near, rng);
-        free.delete(next);
+        mark(next, type, true);
         group.push(next);
       }
-      for (const g of group) kind[g] = type;
       if (TERRAIN[type].move === 'blocked' && !joined()) {
-        for (const g of group) { delete kind[g]; free.add(g); }
+        for (const g of group) mark(g, type, false);
         continue;
       }
       left -= group.length;

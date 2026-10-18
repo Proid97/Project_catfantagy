@@ -11,6 +11,7 @@
 | [작업 지침](AGENTS.md) | 글쓰기, 파일명, 문서 갱신 방법 |
 | [게임 설계](docs/game-design.md) | 현재 규칙, 클래스, 남은 설계 |
 | [대화 맥락](docs/project-context.md) | 결정한 이유, 바뀐 규칙, 다음 작업 |
+| [카드 목록](docs/cards.md) | 종족별 카드 제안(유닛·건물·마법·함정) |
 
 ## 폴더 안내
 
@@ -80,7 +81,6 @@ npm test
 | Vite | 개발 서버와 배포용 빌드 |
 | Web Animations API | 이미지의 이동·회전·확대 연출. 별도 애니메이션 라이브러리 없이 처리 |
 | Sharp | 원본 PNG에서 투명 여백을 잘라 WebP 생성 |
-| @neplex/vectorizer | AI 생성 그림의 면 안쪽 얼룩 정리(vtracer로 색면을 다시 따서 면 안쪽에만 적용, 테두리는 원본 유지). 원본 PNG는 바꾸지 않음 |
 | fonteditor-core | 현재 화면에 쓰는 글자만 폰트에 남겨 용량 절감 |
 | Playwright | 등장 순서, 화면 크기, 입력, 로딩 실패 자동 확인 |
 | Pretendard | 실제 폰트 파일을 포함. 한글과 영문 UI에 적용 |

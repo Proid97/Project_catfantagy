@@ -258,7 +258,23 @@ test('그리기 비용(4인 판, CPU 6배 느리게)', async ({ browser, browser
 
 // iPad 2배 화면. 큰 미니맵에서 내 성 점(나의 색)을 눌러 그 꼭짓점으로 간 뒤 끝까지 확대한다.
 test('지형 그림과 성: 2배 화면 전체 보기와 내 성 가까이', async ({ browser }) => {
+  test.setTimeout(40000);
   const context = await browser.newContext({ viewport: { width: 768, height: 1024 }, deviceScaleFactor: 2 });
+  // 지도 그림판의 마지막 한 번 그리기에서 그림과 숫자를 그린 순서
+  await context.addInitScript(() => {
+    const proto = CanvasRenderingContext2D.prototype;
+    window.drawOrder = [];
+    for (const name of ['clearRect', 'drawImage', 'fillText']) {
+      const original = proto[name];
+      proto[name] = function (...args) {
+        if (this.canvas.classList?.contains('map-canvas')) {
+          if (name === 'clearRect') window.drawOrder = [];
+          else window.drawOrder.push(name);
+        }
+        return original.apply(this, args);
+      };
+    }
+  });
   const page = await context.newPage();
   const errors = watchErrors(page);
   await page.goto('http://127.0.0.1:4173/#map');
@@ -286,19 +302,41 @@ test('지형 그림과 성: 2배 화면 전체 보기와 내 성 가까이', asy
   await settled(page);
   await page.screenshot({ path: test.info().outputPath('map-ipad-duel-castle-2x.png') });
   // 내 색을 곱한 지붕·깃발(마스크의 두 회색 202, 155 × #f2b33d)은 다른 그림에 없는 색이다.
-  // 땅에 닿는 점이 화면 가운데(꼭짓점)에 있으면 지붕은 꼭짓점보다 31~87 CSS px 위에만 있다.
+  // 땅에 닿는 점이 화면 가운데(꼭짓점)에 있으면 지붕은 꼭짓점보다 43~120 CSS px 위, 좌우 58 CSS px 안에만 있다.
   const roof = await page.locator('.map-canvas').evaluate(canvas => {
-    const { data } = canvas.getContext('2d').getImageData(canvas.width / 2 - 140, canvas.height / 2 - 240, 280, 360);
+    const { data } = canvas.getContext('2d').getImageData(canvas.width / 2 - 180, canvas.height / 2 - 300, 360, 420);
     const count = { above: 0, near: 0 };
     for (let i = 0; i < data.length; i += 4) {
       if (![[192, 142, 48], [147, 109, 37]].some(([r, g, b]) => Math.abs(data[i] - r) <= 6 && Math.abs(data[i + 1] - g) <= 6 && Math.abs(data[i + 2] - b) <= 6)) continue;
       // 가운데에서 20 CSS px 위보다 높으면 위, 그 아래(가운데 아래 60px까지)는 가까이
-      count[Math.floor(i / 4 / 280) < 200 ? 'above' : 'near']++;
+      count[Math.floor(i / 4 / 360) < 260 ? 'above' : 'near']++;
     }
     return count;
   });
-  expect(roof.above).toBeGreaterThan(500);
+  expect(roof.above).toBeGreaterThan(2000);
   expect(roof.near).toBe(0);
+  // 숫자 패는 성보다 나중에 그려 성에 가려지지 않는다.
+  const order = await page.evaluate(() => window.drawOrder);
+  expect(order).toContain('fillText');
+  expect(order.lastIndexOf('drawImage')).toBeLessThan(order.indexOf('fillText'));
+  await page.locator('.hud-resources').screenshot({ path: test.info().outputPath('map-hud-resources-2x.png') });
+  // 팀전 전체 보기: 성 받침(플레이어 색 그대로)이 네 성 모두 보인다.
+  const team = await context.newPage();
+  team.on('pageerror', error => errors.push(error.message));
+  await team.goto('http://127.0.0.1:4173/#map-team');
+  await settled(team);
+  await team.screenshot({ path: test.info().outputPath('map-ipad-team-fit-2x.png') });
+  const discs = await team.locator('.map-canvas').evaluate((canvas, colors) => {
+    const { data } = canvas.getContext('2d').getImageData(0, 0, canvas.width, canvas.height);
+    const count = colors.map(() => 0);
+    for (let i = 0; i < data.length; i += 4) {
+      const hex = `#${[data[i], data[i + 1], data[i + 2]].map(v => v.toString(16).padStart(2, '0')).join('')}`;
+      const index = colors.indexOf(hex);
+      if (index >= 0) count[index]++;
+    }
+    return count;
+  }, ['#f2b33d', '#3f7fe0', '#e0524a', '#9a5ad6']);
+  for (const count of discs) expect(count).toBeGreaterThan(300);
   expect(errors).toEqual([]);
   await context.close();
 });

@@ -26,9 +26,11 @@ const OBJECT_H = objectBox[3] * UNIT;
 const TYPES = Object.keys(TERRAIN);
 const DISC_Y = 0.40 * TILE; // 숫자 패: 칸 아래쪽 가운데. 오브젝트 그림은 위쪽을 쓴다.
 const DISC_R = 0.26 * TILE;
-// 성 그림(원본 512px)을 그리는 크기(월드 단위). 보이는 성의 폭은 약 60으로 칸 폭의 30%.
-const CASTLE = 88;
-const CASTLE_MIN = 34; // 멀리서도 성 그림이 이 CSS px보다 작아지지 않게 한다(보이는 성 폭 약 23px). 플레이어 색이 지붕뿐이라 예전 색 블록(18px)보다 키웠다
+// 성 그림(원본 512px)을 그리는 크기(월드 단위). 보이는 성의 폭은 약 82로 칸 폭의 41%.
+// 임시: 이웃 꼭짓점(100 떨어짐, 길이 지날 자리)을 가리지 않는 가장 큰 크기. 테두리까지 잰 실루엣이 가장 가까운 이웃(오른쪽 위, 깃발 쪽)과 약 10 떨어진다.
+// 이웃 칸 숫자 패 가장자리를 약 10% 덮지만, 숫자 패를 성보다 나중에 그려 숫자는 가려지지 않는다.
+const CASTLE = 120;
+const CASTLE_MIN = 46; // 멀리서도 성 그림이 이 CSS px보다 작아지지 않게 한다(보이는 성 폭 약 32px). 확대 0.38배 아래에서 커진다
 const CASTLE_FOOT = 420 / 512; // 땅에 닿는 점(원본 256, 420)을 꼭짓점에 둔다
 const FOAM = 26; // 해안 거품 굵기. 절반은 육지 그림에 덮인다
 const CLASS_NAMES = { warrior: '냥전사', mage: '냥법사', assassin: '냥살자' };
@@ -301,6 +303,25 @@ export function mapScreen(root, onModes) {
         ctx.fill(paths[type]);
       }
     }
+    if (selected) {
+      // 밝은 칸에서도 보이게 어두운 테두리를 먼저 깐다.
+      const width = Math.max(7, 3 / zoom);
+      ctx.lineWidth = width + 5;
+      ctx.strokeStyle = PALETTE.selectEdge;
+      ctx.stroke(selected);
+      ctx.lineWidth = width;
+      ctx.strokeStyle = PALETTE.select;
+      ctx.stroke(selected);
+    }
+    // 성은 멀리서도 보이게 화면에서 일정 크기 아래로 줄지 않는다. 커져도 땅에 닿는 점은 꼭짓점에 그대로 있다.
+    const size = Math.max(CASTLE, CASTLE_MIN / zoom);
+    if (art) {
+      // 전체 보기에서는 지붕 색만으로 찾기 어려워 성 아래에 플레이어 색 받침을 깐다.
+      if (TILE * zoom < DETAIL) castleDots(ctx, 12 / zoom);
+      const level = levelOf(art.castles[0], size * k);
+      for (const { player, x, y } of castles) ctx.drawImage(art.castles[player][level], x - size / 2, y - size * CASTLE_FOOT, size, size);
+    } else castleDots(ctx, size * 0.2);
+    // 숫자 패는 성 다음에 그린다. 성 가장자리가 이웃 칸 숫자 패에 걸쳐도 숫자는 늘 보인다.
     if (TILE * zoom >= DETAIL) {
       ctx.fillStyle = PALETTE.disc;
       ctx.fill(paths.disc);
@@ -316,24 +337,6 @@ export function mapScreen(root, onModes) {
         ctx.fillText(tile.text, tile.x, tile.y + DISC_Y + 1);
       }
     }
-    if (selected) {
-      // 밝은 칸에서도 보이게 어두운 테두리를 먼저 깐다.
-      const width = Math.max(7, 3 / zoom);
-      ctx.lineWidth = width + 5;
-      ctx.strokeStyle = PALETTE.selectEdge;
-      ctx.stroke(selected);
-      ctx.lineWidth = width;
-      ctx.strokeStyle = PALETTE.select;
-      ctx.stroke(selected);
-    }
-    // 성은 멀리서도 보이게 화면에서 일정 크기 아래로 줄지 않는다. 커져도 땅에 닿는 점은 꼭짓점에 그대로 있다.
-    const size = Math.max(CASTLE, CASTLE_MIN / zoom);
-    if (art) {
-      // 전체 보기에서는 지붕 색만으로 찾기 어려워 성 아래에 플레이어 색 받침을 깐다.
-      if (TILE * zoom < DETAIL) castleDots(ctx, 9 / zoom);
-      const level = levelOf(art.castles[0], size * k);
-      for (const { player, x, y } of castles) ctx.drawImage(art.castles[player][level], x - size / 2, y - size * CASTLE_FOOT, size, size);
-    } else castleDots(ctx, size * 0.2);
     placeView(miniView, mini);
     performance.measure('map-render', { start, detail: { tiles: drawn, objects } });
     if (++renders % 120 === 0) performance.clearMeasures('map-render');

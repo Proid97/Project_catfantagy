@@ -171,6 +171,28 @@ for (const [mode, { cols, rows, land: target, players }] of Object.entries(MODES
     // 쏠림이 없으면 비율이 1에 가깝고, 지금은 0.7 안팎이다.
     assert.ok(mean(crystal) < 0.85 * mean(all), `수정산 ${mean(crystal).toFixed(2)} / 육지 ${mean(all).toFixed(2)}`);
   });
+
+  test(`${MODES[mode].name}: 같은 종류가 이어진 덩어리는 3칸 이하, 수정산은 2칸 이하`, () => {
+    for (const { seed, tiles } of boardsOf(mode)) {
+      const byKey = new Map(tiles.map(t => [key(t), t]));
+      for (const t of tiles) {
+        if (t.type === 'grass') continue;
+        const size = reach([t], c => byKey.get(key(c))?.type === t.type).size;
+        assert.ok(size <= (t.type === 'crystal' ? 2 : 3), `${mode} 시드 ${seed}: ${t.type} 덩어리 ${size}칸`);
+      }
+    }
+  });
+
+  test(`${MODES[mode].name}: 모든 육지 칸의 둘레(자기+육지 이웃)에 자원 칸이 4개 이하`, () => {
+    for (const { seed, tiles } of boardsOf(mode)) {
+      const byKey = new Map(tiles.map(t => [key(t), t]));
+      for (const t of tiles) {
+        const around = [t, ...DIRS.map(([dq, dr]) => byKey.get(key({ q: t.q + dq, r: t.r + dr })))];
+        const count = around.filter(o => o && TERRAIN[o.type].resource).length;
+        assert.ok(count <= 4, `${mode} 시드 ${seed}: ${key(t)} 둘레 자원 ${count}칸`);
+      }
+    }
+  });
 }
 
 test('4인 판 하나를 만드는 데 평균 100ms 미만', () => {
