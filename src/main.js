@@ -104,14 +104,12 @@ async function load() {
         top: `${layer.y / layout.canvas.height * 100}%`,
         width: `${layer.w / layout.canvas.width * 100}%`,
         height: `${layer.h / layout.canvas.height * 100}%`,
-        zIndex: String(layer.z),
       });
       const image = new Image();
       image.alt = '';
       image.decoding = 'async';
       image.src = `${assetRoot}${layer.name}.webp?v=${layer.revision}`;
       image.style.objectFit = layer.fit === 'stretch' ? 'fill' : 'contain';
-      image.style.objectPosition = layer.align?.replaceAll('-', ' ') ?? 'center';
       element.append(image);
       art.append(element);
     }

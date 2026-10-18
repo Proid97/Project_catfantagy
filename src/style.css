@@ -5,9 +5,9 @@
   font-style: normal;
   font-display: swap;
 }
-:root { font-family: 'Catfantagy UI', sans-serif; font-weight: 700; color: #fff9e7; background: #35adfd; color-scheme: dark; }
+:root { font-family: 'Catfantagy UI', sans-serif; font-weight: 700; color: #fff9e7; background: #28a8fd; color-scheme: dark; }
 * { box-sizing: border-box; }
-body { margin: 0; background: #35adfd; }
+body { margin: 0; background: #28a8fd; }
 /* 게임 화면이 손가락에 끌려 스크롤되거나 튕기지 않게 한다. */
 :root, body { overflow: hidden; overscroll-behavior: none; }
 button { font: inherit; cursor: pointer; -webkit-tap-highlight-color: transparent; }
@@ -16,16 +16,18 @@ button:focus-visible { outline: 3px solid #ffda63; outline-offset: 6px; }
 /* --viewport-gap: iOS 홈 화면 앱이 짧게 알려 준 화면 높이를 main.js가 채우는 값.
    iOS 26은 position: fixed 요소를 짧은 높이에서 잘라 그리므로 #app은 일반 배치로 둔다. */
 #app { --app-height: calc(100svh + var(--viewport-gap, 0px)); --safe-width: calc(100vw - env(safe-area-inset-left) - env(safe-area-inset-right)); --safe-height: calc(var(--app-height) - env(safe-area-inset-top) - env(safe-area-inset-bottom)); padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left); position: relative; height: var(--app-height); display: grid; place-items: center; overflow: hidden; background: radial-gradient(ellipse, #23666a, #0b282d); }
-/* 그림 가장자리 색과 맞춰 남는 여백이 그림처럼 이어지게 한다. */
-.stage { position: absolute; inset: 0; overflow: hidden; isolation: isolate; background: linear-gradient(#35adfd 0 49%, #7fb846 49% 63%, #046e67 63% 92%, #02504f); }
-/* 1672×941 그림을 안전 영역(가운데 1255×941)이 다 보이는 크기로 맞춘다. */
-.canvas { --u: min(var(--safe-width) / 1255, var(--safe-height) / 941); position: absolute; left: calc(50% + (env(safe-area-inset-left) - env(safe-area-inset-right)) / 2); top: calc(50% + (env(safe-area-inset-top) - env(safe-area-inset-bottom)) / 2); width: calc(var(--u) * 1672); height: calc(var(--u) * 941); translate: -50% -50%; container-type: size; background: #35adfd; }
+/* 하늘(위)과 땅(아래) 끝 색. 아주 긴 화면이나 지형이 올라오기 전에 그림처럼 이어진다. */
+.stage { isolation: isolate; background: linear-gradient(#28a8fd 50%, #01454c 50%); }
+/* 1536×2048(3:4) 핵심 영역을 안전 영역 안에 다 보이게 맞춘다. 하늘과 땅 층은 이 밖으로 이어지고, 무대가 자른다. */
+.canvas { --u: min(var(--safe-width) / 1536, var(--safe-height) / 2048); position: absolute; left: calc(50% + (env(safe-area-inset-left) - env(safe-area-inset-right)) / 2); top: calc(50% + (env(safe-area-inset-top) - env(safe-area-inset-bottom)) / 2); width: calc(var(--u) * 1536); height: calc(var(--u) * 2048); translate: -50% -50%; container-type: size; }
 .art, .layer { position: absolute; pointer-events: none; }
-.art { inset: 0; overflow: hidden; }
+.art { inset: 0; }
 .layer { opacity: 0; transform-origin: center; }
-.trees-left, .trees-right { transform-origin: 50% 100%; }
+/* 하늘은 아래끝을 고정하고 줄어든다. 커진 하늘이 언덕 아래로 삐져나오지 않는다. */
+.sky-tall { transform-origin: 50% 100%; }
 .layer img { display: block; width: 100%; height: 100%; }
-.start { position: absolute; z-index: 60; left: 50%; bottom: 3.8%; translate: -50% 0; padding: 0 .5em 0 .62em; border: 0; color: #fff9e7; background: none; white-space: nowrap; font-size: clamp(16px, 2.4cqw, 42px); letter-spacing: .12em; text-shadow: 2px 0 #08403d, -2px 0 #08403d, 0 2px #08403d, 0 -2px #08403d, 0 4px 12px #08403d99; animation: start-fade .3s ease-out; }
+/* 전사 발(1802) 아래 어두운 땅 위, 핵심 영역 1925 높이에 글자 가운데를 둔다. */
+.start { position: absolute; z-index: 60; left: 50%; top: 94%; translate: -50% -50%; padding: 0 .5em 0 .62em; border: 0; color: #fff9e7; background: none; white-space: nowrap; font-size: clamp(16px, 3.5cqw, 42px); letter-spacing: .12em; text-shadow: 2px 0 #08403d, -2px 0 #08403d, 0 2px #08403d, 0 -2px #08403d, 0 4px 12px #08403d99; animation: start-fade .3s ease-out; }
 .start:active { scale: .96; }
 /* 대기 연출은 몇 번만 하고 멈춘다. 멈춘 화면은 다시 그리지 않아 저사양 기기의 발열을 막는다. */
 .stage[data-state="ready"][data-motion="full"] .start { animation: start-rise .3s ease-out, start-pulse 2.4s ease-in-out .3s 3; }
@@ -34,7 +36,8 @@ button:focus-visible { outline: 3px solid #ffda63; outline-offset: 6px; }
 @keyframes start-rise { from { opacity: 0; transform: translateY(35%); } }
 @keyframes start-pulse { 50% { opacity: .6; } }
 @keyframes mage-float { to { transform: translateY(-1.8%); } }
-.controls { position: absolute; z-index: 70; top: calc(env(safe-area-inset-top) + 12px); right: calc(env(safe-area-inset-right) + 12px); display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 6px 8px; }
+/* 가로 화면의 가운데 기둥은 화면 오른쪽 끝에서 떨어져 있으므로, 안전 영역에서 그 거리를 뺀다(지도 HUD와 같음). */
+.controls { position: absolute; z-index: 70; top: calc(env(safe-area-inset-top) + 12px); right: max(12px, calc(env(safe-area-inset-right) + 12px - (100vw - 100%) / 2)); display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 6px 8px; }
 .controls button { padding: 0 14px; border: 1px solid #fff5; border-radius: 22px; color: white; background: #123c3eaa; font-size: 13px; opacity: .9; }
 .controls .replay { padding: 0; font-size: 20px; }
 .motion-note { flex-basis: 100%; margin: 0; text-align: right; font-size: 11px; text-shadow: 0 0 3px #08403d, 0 1px 2px #08403d; }
@@ -43,7 +46,7 @@ button:focus-visible { outline: 3px solid #ffda63; outline-offset: 6px; }
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 .start, .controls button, .retry { min-height: 44px; min-width: 44px; }
 /* 합의: 앱은 세로 화면. 가로로 돌리면 세로 화면(폭 = 높이의 3/4까지)을 가운데 기둥으로 두고 양옆은 배경으로 채운다. */
-.mode-screen, .map-screen { position: absolute; inset: 0; width: min(100%, var(--app-height) * 3 / 4); margin: 0 auto; overflow: hidden; }
+.stage, .mode-screen, .map-screen { position: absolute; inset: 0; width: min(100%, var(--app-height) * 3 / 4); margin: 0 auto; overflow: hidden; }
 /* 임시 대전 방식 선택(설계서 10장 6번). 어두운 화면 위쪽 1대1, 아래쪽 4인. 4인은 왼쪽 개인전, 오른쪽 팀전. */
 .mode-screen { --mode-bg: #0c1f23; --mode-card: #173a3f; --mode-card-on: #22525a; --mode-edge: #ffffff2e; --mode-sub: #b5cec6; display: flex; flex-direction: column; gap: 16px; padding: calc(env(safe-area-inset-top) + 12px) 16px calc(env(safe-area-inset-bottom) + 16px); background: var(--mode-bg); }
 .mode-back { align-self: flex-start; min-height: 44px; padding: 0 16px; border: 1px solid var(--mode-edge); border-radius: 22px; color: inherit; background: none; font-size: 15px; }

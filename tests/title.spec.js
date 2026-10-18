@@ -6,7 +6,7 @@ const ready = page => expect(stage(page)).toHaveAttribute('data-state', 'ready')
 // 반복 연출과 횟수. 끝없이 도는 연출이 있으면 Infinity가 나와 실패한다.
 const loops = page => page.evaluate(() => document.getAnimations().filter(item => item.effect.getTiming().iterations > 1).map(item => `${item.animationName} ${item.effect.getTiming().iterations}`).sort());
 // 시작 문구가 나타날 자리. 연출 중 이곳을 눌러도 건너뛰기만 해야 한다.
-const startSpot = async page => { const box = await page.locator('.canvas').boundingBox(); return [box.x + box.width / 2, box.y + box.height * .93]; };
+const startSpot = async page => { const box = await page.locator('.canvas').boundingBox(); return [box.x + box.width / 2, box.y + box.height * .94]; };
 
 test('등장 순서, 자연 종료, 시작 입력과 되돌아오기', async ({ page }) => {
   const errors = [];
@@ -17,7 +17,7 @@ test('등장 순서, 자연 종료, 시작 입력과 되돌아오기', async ({ 
     name: layer.dataset.layer, delay: layer.getAnimations()[0].effect.getTiming().delay,
   })));
   expect(times.sort((a, b) => a.delay - b.delay).map(item => item.name)).toEqual([
-    'sky', 'hills', 'foreground', 'mountains', 'mine', 'trees-left', 'crystals', 'trees-right', 'castle', 'warrior', 'assassin', 'mage', 'logo',
+    'sky-tall', 'hills-tall', 'peaks', 'castle-hill', 'ground-tall', 'warrior-front', 'assassin', 'mage', 'logo',
   ]);
   await ready(page);
   expect(await page.evaluate(() => document.getAnimations().every(item => item instanceof CSSAnimation))).toBe(true);
@@ -40,27 +40,39 @@ test('등장 순서, 자연 종료, 시작 입력과 되돌아오기', async ({ 
   expect(errors).toEqual([]);
 });
 
-for (const [width, height] of [[1024, 768], [768, 1024], [844, 390], [2560, 1080], [1672, 941]]) {
-  test(`화면 ${width}×${height}: 안전 영역과 버튼이 모두 보임`, async ({ page }) => {
+for (const [width, height] of [[768, 1024], [390, 844], [1024, 768], [2560, 1080], [844, 390]]) {
+  test(`화면 ${width}×${height}: 핵심 영역과 버튼이 모두 보임`, async ({ page }) => {
     await page.setViewportSize({ width, height });
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await page.goto('/');
     await ready(page);
     const box = await page.locator('.canvas').boundingBox();
-    const unit = box.width / 1672;
-    expect(box.x + 209 * unit).toBeGreaterThanOrEqual(-1);
-    expect(box.x + 1464 * unit).toBeLessThanOrEqual(width + 1);
+    expect(box.x).toBeGreaterThanOrEqual(-1);
     expect(box.y).toBeGreaterThanOrEqual(-1);
+    expect(box.x + box.width).toBeLessThanOrEqual(width + 1);
     expect(box.y + box.height).toBeLessThanOrEqual(height + 1);
-    // 4:3과 기준 해상도에서는 그림이 화면을 꽉 채워 남는 띠가 없다.
-    if ([1024, 1672].includes(width)) {
-      expect([box.x, box.y, width - box.x - box.width, height - box.y - box.height].every(gap => gap <= 1)).toBe(true);
+    // 지도 화면과 같은 가운데 세로 기둥(폭은 높이의 3/4까지).
+    const column = await stage(page).boundingBox();
+    expect(column.width).toBeCloseTo(Math.min(width, height * 3 / 4), 0);
+    expect(column.x).toBeCloseTo((width - column.width) / 2, 0);
+    if (width / height >= 3 / 4) {
+      // 3:4이거나 더 넓으면 핵심 영역이 기둥을 띠 없이 꽉 채운다.
+      expect([box.x - column.x, box.y, column.x + column.width - box.x - box.width, height - box.y - box.height].every(gap => Math.abs(gap) <= 1)).toBe(true);
+    } else {
+      // 더 긴 화면은 하늘이 위로, 땅이 아래로 이어진다.
+      expect((await page.locator('[data-layer="sky-tall"]').boundingBox()).y).toBeLessThanOrEqual(0);
+      const ground = await page.locator('[data-layer="ground-tall"]').boundingBox();
+      expect(ground.y + ground.height).toBeGreaterThan(box.y + box.height + 100);
     }
     expect(await loops(page)).toEqual([]);
     await expect(page.getByRole('button', { name: '타이틀 연출 다시 보기' })).toBeInViewport();
     const start = page.getByRole('button', { name: '게임 시작' });
     await expect(start).toBeInViewport();
-    expect((await start.boundingBox()).height).toBeGreaterThanOrEqual(44);
+    const startBox = await start.boundingBox();
+    expect(startBox.height).toBeGreaterThanOrEqual(44);
+    // 시작 문구는 전사 발 아래 어두운 땅 위에 있다.
+    const warrior = await page.locator('[data-layer="warrior-front"]').boundingBox();
+    expect(startBox.y).toBeGreaterThanOrEqual(warrior.y + warrior.height - 1);
     await page.screenshot({ path: test.info().outputPath(`title-${width}x${height}.png`) });
     await start.click();
     await expect(page.getByRole('button', { name: /^1대1 매치/ })).toBeVisible();
@@ -109,7 +121,7 @@ test('이미지 실패 뒤 재시도', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.getByRole('button', { name: '다시 불러오기' }).click();
   await ready(page);
-  expect(await page.locator('.art img').count()).toBe(13);
+  expect(await page.locator('.art img').count()).toBe(9);
 });
 
 test('연출 중 모션 줄이기 적용', async ({ page }) => {
@@ -130,7 +142,8 @@ test('첫 로딩 용량', async ({ page }) => {
   expect(entries.some(item => item.name.endsWith('.woff2'))).toBe(true);
   expect(entries.some(item => item.name.includes('layout.json'))).toBe(false);
   expect(bytes).toBeGreaterThan(300000);
-  expect(bytes).toBeLessThan(1100000);
+  // 세로 타이틀 실측 약 0.49MB(2026-10-18). 지형을 절반 크기로 내보내 이전 가로 타이틀(약 0.72MB)보다 작다.
+  expect(bytes).toBeLessThan(530000);
   console.log(`첫 로딩 리소스: ${bytes} bytes`);
 });
 
@@ -146,7 +159,7 @@ test('동작 줄이기: 순차 등장, 다시 보기는 설정을 바꾸지 않�
   await page.getByRole('button', { name: '타이틀 연출 다시 보기' }).click();
   await intro(page);
   await expect(stage(page)).toHaveAttribute('data-motion', 'full');
-  const from = await page.locator('[data-layer="warrior"]').evaluate(layer => layer.getAnimations()[0].effect.getKeyframes()[0].transform);
+  const from = await page.locator('[data-layer="warrior-front"]').evaluate(layer => layer.getAnimations()[0].effect.getKeyframes()[0].transform);
   expect(from).toContain('translate');
   await page.getByRole('button', { name: '연출 건너뛰기' }).click();
   await ready(page);

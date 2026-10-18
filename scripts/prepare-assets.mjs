@@ -68,15 +68,17 @@ async function bounds(png) {
   }
   return [Math.max(0, left - 2), Math.max(0, top - 2), Math.min(info.width, right + 3), Math.min(info.height, bottom + 3)];
 }
-for (const file of new Set(layout.layers.map(layer => layer.file))) originalBytes += (await stat(new URL(file, source))).size;
 for (const layer of layout.layers) {
-  const input = new URL(layer.file, source);
+  const file = `${layer.name}.png`;
+  const input = new URL(file, source);
+  originalBytes += (await stat(input)).size;
   const destination = new URL(`${layer.name}.webp`, output);
   if (await stale(destination, Math.max((await stat(input)).mtimeMs, changedAt))) {
-    const png = await clean(layer.file);
+    const png = await clean(file);
     const [left, top, right, bottom] = layer.sourceBounds ?? await bounds(png);
-    // 비율을 지키는 그림은 큰 화면에서도 선명하게, 늘려 채우는 지형은 원본 크기로 둔다.
-    const scale = layer.fit === 'stretch' ? 1 : 1.75;
+    // iPad 세로(2배 화면)에서 캔버스 1px이 기기 1px이라 캐릭터·성·로고는 1배로 둔다.
+    // 넓은 색면뿐인 지형(stretch)은 절반으로 줄여 디코드 메모리를 아낀다. 2배로 늘려 보여도 1배보다 거칠지 않았다(2026-10-18 비교).
+    const scale = layer.fit === 'stretch' ? .5 : 1;
     const temporary = new URL(`${layer.name}.tmp.webp`, output);
     await sharp(png).extract({ left, top, width: right - left, height: bottom - top })
       .resize({ width: Math.ceil(layer.w * scale), height: Math.ceil(layer.h * scale), fit: 'inside', withoutEnlargement: true })

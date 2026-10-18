@@ -1,21 +1,20 @@
 const bounce = 'cubic-bezier(.2,1.15,.35,1)';
 const rise = 'cubic-bezier(.2,1.2,.35,1)';
 const pop = 'cubic-bezier(.34,1.56,.64,1)';
-const dash = 'cubic-bezier(.18,1.25,.4,1)';
 // [지연, 길이, 시작 모양, 움직임, 불투명해지는 지점]. 지점이 없으면 처음부터 보인다.
+// 100vh는 화면 아래 밖에서 출발한다는 뜻이다. 긴 휴대폰에서도 시작 모습이 보이지 않는다.
+// 뒷산과 성은 언덕 뒤에 숨은 자리에서 올라온다. 뒷산 아래끝이 평평해 언덕이 먼저 자리 잡는다.
+// 성은 89%만 내려 숨긴다. 깃발 끝은 언덕 능선 아래, 바위 아래끝은 언덕 아래끝(2000) 위에 있다.
 const entrances = {
-  sky: [0, 1200, 'scale(1.06)', 'ease-out'],
-  hills: [0, 650, 'translateY(70%)', bounce, .001],
-  foreground: [120, 620, 'translateY(100%)', bounce, .001],
-  mountains: [320, 700, 'translateY(100%)', 'cubic-bezier(.2,1.1,.35,1)', .001],
-  mine: [560, 600, 'translateY(100%)', rise, .001],
-  'trees-left': [600, 480, 'scale(.5, 0)', pop, .001],
-  crystals: [640, 600, 'translateY(100%)', rise, .001],
-  'trees-right': [660, 480, 'scale(.5, 0)', pop, .001],
-  castle: [760, 680, 'translateY(100%)', rise, .001],
-  warrior: [1300, 420, 'translate(-120%, 8%) rotate(-8deg)', dash, .001],
-  assassin: [1420, 420, 'translate(120%, -10%) rotate(9deg)', dash, .001],
-  mage: [1720, 560, 'translateY(-35%) scale(.55) rotate(-8deg)', pop, .2],
+  'sky-tall': [0, 1200, 'scale(1.06)', 'ease-out'],
+  'hills-tall': [0, 700, 'translateY(100vh)', bounce, .001],
+  peaks: [420, 650, 'translateY(100%)', 'cubic-bezier(.2,1.1,.35,1)', .001],
+  'castle-hill': [600, 650, 'translateY(89%)', rise, .001],
+  'ground-tall': [760, 600, 'translateY(100vh)', bounce, .001],
+  'warrior-front': [1100, 560, 'translateY(100vh)', rise, .001],
+  // 냥살자와 냥법사는 전사 뒤에서 각자 바깥쪽으로 튀어나온다.
+  assassin: [1560, 460, 'translate(32%, 6%) scale(.6) rotate(8deg)', pop, .2],
+  mage: [1680, 460, 'translate(-32%, 6%) scale(.6) rotate(-8deg)', pop, .2],
   logo: [2120, 560, 'scale(1.7)', pop, .15],
 };
 
