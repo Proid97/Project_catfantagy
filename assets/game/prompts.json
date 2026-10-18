@@ -375,5 +375,64 @@
       "castle.png, village.png": "원본은 팀 마스크 추출을 위해 분홍 지붕으로 생성한 판뿐. 중립색 본 그림 원본 없음. 요청 4의 새 2D 원본으로 교체 예정.",
       "castle-team.png, village-team.png": "생성 그림이 아니라 이전 색 변환으로 만든 마스크라 독립 생성 원본 없음. 새 2D 제작에서 맞춤."
     }
+  },
+  "flat_objects": {
+    "mode": "ChatGPT built-in image_gen",
+    "rule": "생성 원본 RGB를 유지. 벡터화·색 축소·전체 알파 이진화 없음. 빈 배경 제거, 안쪽 불투명화, 부드러운 가장자리 유지와 캔버스 맞춤만 적용. 팀 파일은 생성된 회색 부분 픽셀만 분리.",
+    "references": [
+      "assets/concepts/style-reference-warrior.png",
+      "assets/title/trees.png",
+      "assets/title/mine.png",
+      "assets/title/crystals.png",
+      "assets/title/castle.png"
+    ],
+    "assets": [
+      {
+        "file": "castle.png",
+        "source": "exec-616d22e2-2ea5-44c7-a365-b1ff19358ffe.png",
+        "prompt": "Use case: stylized-concept. Draw ONE flat 2D board-game building sprite from the FRONT, like an illustrated cardboard standee. Genuine transparent PNG square canvas512x512, object inside x60..452,y40..420, bottom contact middle (256,420). Keep broad simple readable silhouette at 48px height. No isometric view, no top-down view, no 3D miniature/diorama, no thick rocky plinth or floor base, no external cast shadow, no outlines or sticker border. Two or three big FLAT color shapes per material, no fine triangulation or texture. Fully opaque artwork, smooth antialiased 1–2px silhouette, no alpha holes or matte residue. CREAM STONE is warm yellow-cream with warm ochre shadows (not gray), wood is warm brown. IMPORTANT for team-color separation: ONLY roofs and fabric flag are NEUTRAL GRAYSCALE, white/light gray/base gray/dark gray, RGB gray without blue or purple tint. No other gray anywhere: make flagpole GOLD or BROWN, not metal gray. Paw emblem is warm cream, distinct from gray flag. Gray roofs/flag are not a changed design: code will tint them teal/gold/blue/red/purple later. No words, numbers, UI, people, glow or magical effects. Subject: a small but grand cat CASTLE from the same title castle design family: cream front wall with a big brown arched doorway, a taller CENTER tower and two shorter side towers, three simple pointed roofs, ONE LARGE flag bearing a big cream cat PAW with FOUR toes on the central pole. The castle has FRONT elevation, wall not cylindrical depth-rendered, crenellations just 3–4 big squared notches, TWO tiny dark window shapes total. Very broad flat cream wall shapes, three gray triangular roof silhouettes, each split only into a light left plane and dark right plane. No angled side walls, no visible wall top ellipses, no little brick lines. Baseline level and flat. Keep top flag and roof tips separate and clean. No green grass or surrounding scenery. Clean indie flat vector illustration matching the style reference warrior exactly: angular faceted planes with straight hard edges, like folded paper or cut gems, two to four tones per material, single light source from the upper left. Bold dramatic silhouette, same body proportions and exaggeration as the reference. No rounded blobby shapes, no gradients, no texture, no grain, no noise, no glow, no blur, no black outlines. Crisp clean edges, fully transparent background. Simple eyes like the reference with one clear white highlight at the upper left. Smallest details at least 10 px wide.",
+        "placement": {
+          "canvas": [
+            512,
+            512
+          ],
+          "visible_box": [
+            62,
+            40,
+            387,
+            380
+          ],
+          "anchor": [
+            256,
+            420
+          ],
+          "color_processing": "none; generated RGB preserved; only background/interior alpha cleanup, canvas size/position and team-pixel separation"
+        }
+      },
+      {
+        "file": "village.png",
+        "source": "exec-7c099918-a2de-4dc9-a015-e52cf49a21a5.png",
+        "prompt": "Use case: stylized-concept. Draw ONE flat 2D board-game building sprite from the FRONT, like an illustrated cardboard standee. Genuine transparent PNG square canvas512x512, object inside x60..452,y40..420, bottom contact middle (256,420). Keep broad simple readable silhouette at 48px height. No isometric view, no top-down view, no 3D miniature/diorama, no thick rocky plinth or floor base, no external cast shadow, no outlines or sticker border. Two or three big FLAT color shapes per material, no fine triangulation or texture. Fully opaque artwork, smooth antialiased 1–2px silhouette, no alpha holes or matte residue. CREAM STONE is warm yellow-cream with warm ochre shadows (not gray), wood is warm brown. IMPORTANT for team-color separation: ONLY roofs and fabric flag are NEUTRAL GRAYSCALE, white/light gray/base gray/dark gray, RGB gray without blue or purple tint. No other gray anywhere: make flagpole GOLD or BROWN, not metal gray. Paw emblem is warm cream, distinct from gray flag. Gray roofs/flag are not a changed design: code will tint them teal/gold/blue/red/purple later. No words, numbers, UI, people, glow or magical effects. Subject: a small VILLAGE HOUSE, exactly ONE little warm cream cottage with a chunky neutral-gray gable roof, brown rectangular door, ONE dark window and one small neutral-gray pennant on a gold pole. Viewed absolutely STRAIGHT FROM FRONT: roof is a simple wide triangle with no visible side roof plane or side house wall; flat cream rectangular facade. No visible top surface or oblique perspective. The two gray roof tones are broad simple diagonal graphic shapes, not extruded beams. A single warm ochre shadow strip down right wall is enough. Cute compact sturdy house silhouette, clearly much simpler and smaller than a castle. No turrets, chimney smoke, stone platform, garden or decorative props. Clean indie flat vector illustration matching the style reference warrior exactly: angular faceted planes with straight hard edges, like folded paper or cut gems, two to four tones per material, single light source from the upper left. Bold dramatic silhouette, same body proportions and exaggeration as the reference. No rounded blobby shapes, no gradients, no texture, no grain, no noise, no glow, no blur, no black outlines. Crisp clean edges, fully transparent background. Simple eyes like the reference with one clear white highlight at the upper left. Smallest details at least 10 px wide.",
+        "placement": {
+          "canvas": [
+            512,
+            512
+          ],
+          "visible_box": [
+            132,
+            140,
+            248,
+            280
+          ],
+          "anchor": [
+            256,
+            420
+          ],
+          "color_processing": "none; generated RGB preserved; only background/interior alpha cleanup, canvas size/position and team-pixel separation"
+        }
+      }
+    ],
+    "inspection": "전체·48px·4배 확인. 코드로 그림의 색이나 모양을 고치지 않음. 생성본의 미세한 면 안 색 변화는 일부 남아 있음.",
+    "attempts": []
   }
 }
