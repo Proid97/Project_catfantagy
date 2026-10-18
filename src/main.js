@@ -1,5 +1,5 @@
 import './style.css';
-import { mapScreen, loadTileArt } from './map-screen.js';
+import { mapScreen, loadMapArt } from './map-screen.js';
 import { animateTitle, syncIntroVisibility } from './title-intro.js';
 import layout from './generated/title-layout.json';
 
@@ -152,8 +152,8 @@ start.addEventListener('click', () => {
   state('started');
   stage.hidden = true;
   showModes(false);
-  // 고르는 동안 바닥 타일을 미리 받는다. 실패하면 지도 화면이 다시 시도한다.
-  loadTileArt().catch(() => {});
+  // 고르는 동안 지도 그림(바닥 타일·지형 오브젝트·성)을 미리 받는다. 실패하면 지도 화면이 다시 시도한다.
+  loadMapArt().catch(() => {});
   window.dispatchEvent(new CustomEvent('title:start'));
 });
 modes.addEventListener('click', event => {

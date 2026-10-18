@@ -1,11 +1,11 @@
 import './map.css';
 import { MODES, TERRAIN, createBoard, hexToPixel, pixelToHex, hexCorners } from './board.js';
-import revisions from './generated/map-tiles.json';
+import { files, objectBox } from './generated/map-art.json';
 
 const TILE = 100; // 칸 중심에서 꼭짓점까지(월드 단위)
 const MAX_ZOOM = 1.4; // 칸 너비 280 CSS px
 const FIT = 0.96; // 판 상자 전체를 볼 때 양쪽에 2%씩 여백
-const DETAIL = 22; // 칸 반지름이 이 CSS px보다 작으면(전체 보기) 숫자 패와 표시를 숨긴다
+const DETAIL = 22; // 칸 반지름이 이 CSS px보다 작으면(전체 보기) 숫자 패를 숨긴다
 const NUMBER_FONT = '700 30px "Catfantagy UI", sans-serif';
 // 타일 그림(원본 1024px): 윗면은 (511.5, 477.5)가 중심이고 반지름 481px인 정육각형, 그 아래 두께 66px.
 // 윗면이 월드 칸과 딱 맞게 원본 1px을 TILE / 481로 줄여 그린다. 줄인 그림(600px 등)도 같은 자리에 그린다.
@@ -15,14 +15,21 @@ const SPRITE_X = 511.5 * UNIT;
 const SPRITE_Y = 477.5 * UNIT;
 const DEPTH = 66 * UNIT;
 const REACH = 115; // 칸 중심에서 그림 끝까지(위 99, 아래 114)보다 조금 넉넉히. 화면 밖 칸을 거를 때 쓴다.
-const ART = ['grass-1', 'grass-2', 'grass-3', 'barren'];
+const GROUNDS = ['grass-1', 'grass-2', 'grass-3', 'barren', 'lake'];
 const ON_BARREN = new Set(['gold', 'crystal', 'rock']); // 임시: 거친 땅은 흙빛 바탕에 둔다
+// 지형 오브젝트(칸 종류 → 그림). 타일과 같은 캔버스에서 잘라 낸 상자(objectBox: x, y, 너비, 높이)라 그 자리에 그린다.
+const OBJECTS = { forest: 'forest', gold: 'gold-mine', crystal: 'crystal', rock: 'rock' };
+const OBJECT_X = (objectBox[0] - 511.5) * UNIT;
+const OBJECT_Y = (objectBox[1] - 477.5) * UNIT;
+const OBJECT_W = objectBox[2] * UNIT;
+const OBJECT_H = objectBox[3] * UNIT;
 const TYPES = Object.keys(TERRAIN);
-const MARKED = ['forest', 'gold', 'crystal', 'rock']; // 오브젝트 그림이 오기 전 임시 표시
 const DISC_Y = 0.40 * TILE; // 숫자 패: 칸 아래쪽 가운데. 오브젝트 그림은 위쪽을 쓴다.
 const DISC_R = 0.26 * TILE;
-const CASTLE = 30; // 성 표시 반폭(월드 단위)
-const CASTLE_MIN = 9; // 멀리서도 성이 이 CSS px 반폭보다 작아지지 않게 한다
+// 성 그림(원본 512px)을 그리는 크기(월드 단위). 보이는 성의 폭은 약 60으로 칸 폭의 30%.
+const CASTLE = 88;
+const CASTLE_MIN = 34; // 멀리서도 성 그림이 이 CSS px보다 작아지지 않게 한다(보이는 성 폭 약 23px). 플레이어 색이 지붕뿐이라 예전 색 블록(18px)보다 키웠다
+const CASTLE_FOOT = 420 / 512; // 땅에 닿는 점(원본 256, 420)을 꼭짓점에 둔다
 const FOAM = 26; // 해안 거품 굵기. 절반은 육지 그림에 덮인다
 const CLASS_NAMES = { warrior: '냥전사', mage: '냥법사', assassin: '냥살자' };
 // 임시: 나와 봇. 인원수만큼 앞에서부터 쓴다. 판의 starts 순서와 같다(팀전은 0·1번이 한 팀).
@@ -32,7 +39,7 @@ const PLAYERS = [
   { name: '봇 2', classId: 'assassin' },
   { name: '봇 3', classId: 'warrior' },
 ];
-// 임시 색. 지형 색은 미니맵, 전체 보기, 타일 그림이 오기 전 대체 그림에 쓴다.
+// 임시 색. 지형 색은 미니맵과 그림이 오기 전(또는 실패한 뒤)의 대체 그림에 쓴다.
 const PALETTE = {
   grass: '#a5bf76',
   forest: '#4f9a48',
@@ -40,8 +47,6 @@ const PALETTE = {
   gold: '#f0c24f',
   crystal: '#b496f0',
   rock: '#9a958b',
-  ink: { forest: '#24502a', gold: '#7a5512', crystal: '#4d3a8c', rock: '#4a4740', lake: '#17668f' },
-  lakeEdge: '#e4f6fd',
   foam: 'rgba(255, 255, 255, .6)',
   disc: '#fff6df',
   discEdge: 'rgba(70, 48, 20, .35)',
@@ -50,26 +55,12 @@ const PALETTE = {
   castleEdge: '#2b2014',
   select: '#ffda63',
   selectEdge: 'rgba(40, 28, 8, .55)',
-  players: ['#f2b33d', '#3f7fe0', '#e0524a', '#9a5ad6'], // 나(따뜻한 금색), 파랑, 빨강, 보라
+  players: ['#f2b33d', '#3f7fe0', '#e0524a', '#9a5ad6'], // 나(따뜻한 금색), 파랑, 빨강, 보라. 성 지붕·깃발에 곱한다
 };
-// 자원 표시(지름 40 상자 안의 다각형). 재화 아이콘과 지도 위 임시 표시가 같은 모양을 쓴다.
-const GLYPHS = {
-  gold: [[[-17, 9], [-12, -7], [0, -13], [14, -7], [17, 9]]],
-  crystal: [[[-4, -18], [5, -4], [-4, 17], [-13, -4]], [[10, -8], [17, 3], [10, 14], [4, 3]]],
-  forest: [[[0, -18], [16, 8], [-16, 8]], [[-4, 8], [4, 8], [4, 17], [-4, 17]]],
-  lake: [[[-18, 0], [-3, -10], [10, 0], [-3, 10]], [[8, 0], [18, -9], [18, 9]]],
-  rock: [[[-18, 14], [-6, -14], [1, -3], [8, -12], [18, 14]]],
-};
-const RESOURCES = [['gold', '금'], ['crystal', '수정'], ['forest', '나무'], ['lake', '생선']];
-// 지도 위 표시는 1.5배로 키워 칸 윗부분에 둔다.
-const MARKS = Object.fromEntries(MARKED.map(type => [type, GLYPHS[type].map(points => points.map(([x, y]) => [x * 1.5, y * 1.5 - 42]))]));
+const RESOURCES = [['gold', '금'], ['crystal', '수정'], ['wood', '나무'], ['fish', '생선']];
 const CORNERS = hexCorners(0, 0, TILE);
-const LAKE = hexCorners(0, 0, TILE * 0.66);
-const BLOB = hexCorners(0, 0, TILE * 0.5);
 // 꼭짓점 i와 i+1 사이 변 너머의 이웃
 const EDGE_DIRS = [[1, 0], [0, 1], [-1, 1], [-1, 0], [0, -1], [1, -1]];
-// 임시 성 모양(반폭 1). 위에 성가퀴 셋.
-const CASTLE_PATH = new Path2D('M-1 1V-.45H-.6V-.9H-.2V-.45H.2V-.9H.6V-.45H1V1Z');
 
 const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
 
@@ -85,44 +76,87 @@ function grassOf(q, r) {
   return ((h ^ (h >>> 16)) >>> 0) % 3;
 }
 
-// 타일 그림마다 [원본 600, 300, 150, 75, 38px]. 크게 줄여 그리면 느리고 거칠어서, 판에 필요한 크기 이상인 가장 작은 단계를 쓴다.
+// 내용 해시를 붙인 주소. 그림이 바뀌면 주소도 바뀌어 예전 그림이 캐시에 남지 않는다.
+const source = path => `${import.meta.env.BASE_URL}${path}.webp?v=${files[path]}`;
+
+async function decode(path) {
+  const image = new Image();
+  image.src = source(path);
+  await image.decode();
+  return image;
+}
+
+// 그림마다 원본과 절반씩 줄인 4단계(타일은 600, 300, 150, 75, 38px). 크게 줄여 그리면 느리고 거칠어서, 판에 필요한 크기 이상인 가장 작은 단계를 쓴다.
+function mips(image) {
+  const levels = [image];
+  for (let i = 0; i < 4; i++) {
+    const last = levels.at(-1);
+    const level = document.createElement('canvas');
+    level.width = Math.round(last.width / 2);
+    level.height = Math.round(last.height / 2);
+    const g = level.getContext('2d');
+    g.imageSmoothingQuality = 'high';
+    g.drawImage(last, 0, 0, level.width, level.height);
+    levels.push(level);
+  }
+  return levels;
+}
+
+// 너비가 size(기기 px) 이상인 가장 작은 단계
+function levelOf(levels, size) {
+  let level = 0;
+  while (level < levels.length - 1 && levels[level + 1].width >= size) level++;
+  return level;
+}
+
+// 플레이어 성: 회색 마스크(지붕·깃발)에 플레이어 색을 곱하고 마스크 모양만 남긴 뒤, 그 아래에 기본 성을 깐다.
+function tintCastle(castle, team, color) {
+  const canvas = document.createElement('canvas');
+  canvas.width = castle.width;
+  canvas.height = castle.height;
+  const g = canvas.getContext('2d');
+  g.drawImage(team, 0, 0);
+  g.globalCompositeOperation = 'multiply';
+  g.fillStyle = color;
+  g.fillRect(0, 0, canvas.width, canvas.height);
+  g.globalCompositeOperation = 'destination-in';
+  g.drawImage(team, 0, 0);
+  g.globalCompositeOperation = 'destination-over';
+  g.drawImage(castle, 0, 0);
+  return mips(canvas);
+}
+
+// 바닥 타일·호수·지형 오브젝트·성을 한 번에 받는다. 하나라도 실패하면 지형 색 칸으로 그리고, 다시 부르면 처음부터 받는다.
 let art = null;
 let artLoad = null;
-export function loadTileArt() {
-  artLoad ??= Promise.all(ART.map(async name => {
-    const image = new Image();
-    image.src = `${import.meta.env.BASE_URL}map/${name}.webp?v=${revisions[name]}`;
-    await image.decode();
-    const levels = [image];
-    for (let size = 300; size >= 38; size = Math.round(size / 2)) {
-      const level = document.createElement('canvas');
-      level.width = level.height = size;
-      const g = level.getContext('2d');
-      g.imageSmoothingQuality = 'high';
-      g.drawImage(levels.at(-1), 0, 0, size, size);
-      levels.push(level);
-    }
-    return levels;
-  })).then(levels => { art = levels; }, error => { artLoad = null; throw error; });
+export function loadMapArt() {
+  const names = [...GROUNDS, ...Object.values(OBJECTS)];
+  artLoad ??= Promise.all([...names.map(name => `map/${name}`), 'game/castle', 'game/castle-team'].map(decode)).then(images => {
+    const [castle, team] = images.splice(-2);
+    art = {
+      sprites: Object.fromEntries(names.map((name, i) => [name, mips(images[i])])),
+      castles: PALETTE.players.map(color => tintCastle(castle, team, color)),
+    };
+  }, error => { artLoad = null; throw error; });
   return artLoad;
 }
 
-const icon = type => `<svg viewBox="-20 -20 40 40" aria-hidden="true" fill="${PALETTE[type]}" stroke="${PALETTE.ink[type]}" stroke-width="2.5" stroke-linejoin="round">${GLYPHS[type].map(points => `<polygon points="${points.join(' ')}"/>`).join('')}</svg>`;
 const avatar = (player, index) => `<span class="avatar ${player.classId}" style="--player: ${PALETTE.players[index]}" aria-hidden="true">${CLASS_NAMES[player.classId][1]}</span>`;
 const playerItem = (player, index) => `<li class="player">${avatar(player, index)}<span>${player.name}</span><span class="sr-only">${CLASS_NAMES[player.classId]}</span></li>`;
 
 export function mapScreen(root, onModes) {
+  // HUD 그림은 loading="lazy"라 지도 화면이 보일 때 받는다. 타이틀 첫 로딩과 겹치지 않는다.
   root.innerHTML = `
     <h2 id="map-title" class="sr-only" tabindex="-1">냥국 지도</h2>
     <canvas class="map-canvas"></canvas>
     <p class="sr-only" role="status"></p>
     <div class="hud">
       <div class="hud-panel hud-players"></div>
-      <ul class="hud-panel hud-resources" aria-label="보유 자원">${RESOURCES.map(([type, name]) => `<li>${icon(type)}<span class="sr-only">${name}</span><span>0</span></li>`).join('')}</ul>
+      <ul class="hud-panel hud-resources" aria-label="보유 자원">${RESOURCES.map(([type, name]) => `<li><img src="${source(`game/icon-${type}`)}" alt="" loading="lazy"><span class="sr-only">${name}</span><span>0</span></li>`).join('')}</ul>
       <button class="minimap" aria-label="미니맵 크게 보기"><canvas></canvas><span class="minimap-view"></span></button>
       <button class="mode-change"><small>임시</small>모드 바꾸기</button>
-      <div class="hand" role="img" aria-label="내 카드 3장"><span></span><span></span><span></span></div>
-      <button class="map-retry" hidden>바닥 그림 다시 불러오기</button>
+      <div class="hand" role="img" aria-label="내 카드 3장">${`<img src="${source('game/card-back')}" alt="" loading="lazy">`.repeat(3)}</div>
+      <button class="map-retry" hidden>지도 그림 다시 불러오기</button>
     </div>
     <dialog class="minimap-dialog" aria-label="전체 지도"><canvas></canvas><span class="minimap-view"></span></dialog>`;
   const heading = root.querySelector('h2');
@@ -143,23 +177,18 @@ export function mapScreen(root, onModes) {
   // 판이 바뀔 때 한 번만 경로와 그리는 순서를 만든다. 그릴 때는 종류별로 한 번씩 채우기만 한다.
   function prepare(board) {
     const land = new Set(board.tiles.map(({ q, r }) => `${q},${r}`));
-    paths = { coast: new Path2D(), water: new Path2D(), disc: new Path2D() };
-    for (const type of TYPES) paths[type] = { hex: new Path2D(), mark: new Path2D(), blob: new Path2D() };
+    paths = { coast: new Path2D(), disc: new Path2D() };
+    for (const type of TYPES) paths[type] = new Path2D();
     tiles = new Map();
     sprites = [];
     numbers = [];
     for (const tile of board.tiles) {
       const { x, y } = hexToPixel(tile.q, tile.r, TILE);
-      const item = { ...tile, x, y, text: String(tile.number), art: ON_BARREN.has(tile.type) ? 3 : grassOf(tile.q, tile.r) };
-      const path = paths[tile.type];
+      const ground = tile.type === 'lake' ? 'lake' : ON_BARREN.has(tile.type) ? 'barren' : GROUNDS[grassOf(tile.q, tile.r)];
+      const item = { ...tile, x, y, text: String(tile.number), ground, object: OBJECTS[tile.type] };
       tiles.set(`${tile.q},${tile.r}`, item);
       sprites.push(item);
-      polygon(path.hex, x, y, CORNERS);
-      if (tile.type === 'lake') polygon(paths.water, x, y, LAKE);
-      if (MARKS[tile.type]) {
-        for (const points of MARKS[tile.type]) polygon(path.mark, x, y, points);
-        polygon(path.blob, x, y, BLOB);
-      }
+      polygon(paths[tile.type], x, y, CORNERS);
       // 바다와 닿은 변. 아래쪽 두께까지 감싸도록 살짝 내려 그린다.
       EDGE_DIRS.forEach(([dq, dr], i) => {
         if (land.has(`${tile.q + dq},${tile.r + dr}`)) return;
@@ -173,7 +202,7 @@ export function mapScreen(root, onModes) {
       paths.disc.arc(x, y + DISC_Y, DISC_R, 0, Math.PI * 2);
       numbers.push(item);
     }
-    // 위쪽 줄부터 그려 아랫줄 타일이 윗줄의 두께를 덮게 한다.
+    // 위쪽 줄부터 그려 아랫줄 타일이 윗줄의 두께를 덮게 한다. 오브젝트는 제 칸 윗면 안에만 있어 칸 바로 뒤에 그려도 된다.
     sprites.sort((a, b) => a.y - b.y || a.x - b.x);
     // 성은 세 칸이 만나는 꼭짓점, 곧 세 칸 중심의 평균에 놓는다.
     castles = board.starts.map(({ player, hexes }) => {
@@ -202,18 +231,23 @@ export function mapScreen(root, onModes) {
     g.setTransform(view.dpr * t.s, 0, 0, view.dpr * t.s, view.dpr * t.ox, view.dpr * t.oy);
     for (const type of TYPES) {
       g.fillStyle = PALETTE[type];
-      g.fill(paths[type].hex);
+      g.fill(paths[type]);
     }
-    g.lineWidth = 1.5 / t.s;
+    castleDots(g, 4 / t.s);
+    return t;
+  }
+
+  // 성 자리를 플레이어 색 점으로 찍는다. 미니맵과, 그림이 없을 때의 판에 쓴다.
+  function castleDots(g, radius) {
+    g.lineWidth = radius * 0.375;
     g.strokeStyle = PALETTE.castleEdge;
     for (const { player, x, y } of castles) {
       g.beginPath();
-      g.arc(x, y, 4 / t.s, 0, Math.PI * 2);
+      g.arc(x, y, radius, 0, Math.PI * 2);
       g.fillStyle = PALETTE.players[player];
       g.fill();
       g.stroke();
     }
-    return t;
   }
 
   // 미니맵 위 시야 사각형은 캔버스를 다시 그리지 않고 위치와 크기만 바꾼다.
@@ -248,40 +282,26 @@ export function mapScreen(root, onModes) {
     const reachX = w / 2 / zoom + REACH;
     const reachY = h / 2 / zoom + REACH;
     let drawn = 0;
+    let objects = 0;
     if (art) {
-      let level = 0;
-      while (level < art[0].length - 1 && art[0][level + 1].width >= SPRITE * k) level++;
+      // 오브젝트는 타일과 같은 비율로 줄인 그림이라 같은 단계를 쓴다. 전체 보기에서도 그대로 그린다.
+      const level = levelOf(art.sprites['grass-1'], SPRITE * k);
       for (const tile of sprites) {
         if (Math.abs(tile.x - cx) > reachX || Math.abs(tile.y - cy) > reachY) continue;
-        ctx.drawImage(art[tile.art][level], tile.x - SPRITE_X, tile.y - SPRITE_Y, SPRITE, SPRITE);
+        ctx.drawImage(art.sprites[tile.ground][level], tile.x - SPRITE_X, tile.y - SPRITE_Y, SPRITE, SPRITE);
         drawn++;
+        if (!tile.object) continue;
+        ctx.drawImage(art.sprites[tile.object][level], tile.x + OBJECT_X, tile.y + OBJECT_Y, OBJECT_W, OBJECT_H);
+        objects++;
       }
     } else {
       // 그림이 오기 전(또는 실패)에는 지형 색 칸으로 대신 그린다. 판이 비어 보이는 일이 없다.
       for (const type of TYPES) {
         ctx.fillStyle = PALETTE[type];
-        ctx.fill(paths[type].hex);
+        ctx.fill(paths[type]);
       }
     }
-    ctx.fillStyle = PALETTE.lake;
-    ctx.fill(paths.water);
-    ctx.lineWidth = 4;
-    ctx.strokeStyle = PALETTE.lakeEdge;
-    ctx.stroke(paths.water);
-    if (TILE * zoom < DETAIL) {
-      // 전체 보기: 작은 표시와 숫자 대신 지형 색만 남긴다.
-      for (const type of MARKED) {
-        ctx.fillStyle = PALETTE[type];
-        ctx.fill(paths[type].blob);
-      }
-    } else {
-      ctx.lineWidth = 3;
-      for (const type of MARKED) {
-        ctx.fillStyle = PALETTE[type];
-        ctx.fill(paths[type].mark);
-        ctx.strokeStyle = PALETTE.ink[type];
-        ctx.stroke(paths[type].mark);
-      }
+    if (TILE * zoom >= DETAIL) {
       ctx.fillStyle = PALETTE.disc;
       ctx.fill(paths.disc);
       ctx.lineWidth = 2;
@@ -306,18 +326,16 @@ export function mapScreen(root, onModes) {
       ctx.strokeStyle = PALETTE.select;
       ctx.stroke(selected);
     }
-    // 성은 멀리서도 보이게 화면에서 일정 크기 아래로 줄지 않는다.
-    const size = Math.max(CASTLE, CASTLE_MIN / zoom) * k;
-    ctx.lineWidth = 0.16;
-    ctx.strokeStyle = PALETTE.castleEdge;
-    for (const { player, x, y } of castles) {
-      ctx.setTransform(size, 0, 0, size, ox + x * k, oy + y * k);
-      ctx.fillStyle = PALETTE.players[player];
-      ctx.fill(CASTLE_PATH);
-      ctx.stroke(CASTLE_PATH);
-    }
+    // 성은 멀리서도 보이게 화면에서 일정 크기 아래로 줄지 않는다. 커져도 땅에 닿는 점은 꼭짓점에 그대로 있다.
+    const size = Math.max(CASTLE, CASTLE_MIN / zoom);
+    if (art) {
+      // 전체 보기에서는 지붕 색만으로 찾기 어려워 성 아래에 플레이어 색 받침을 깐다.
+      if (TILE * zoom < DETAIL) castleDots(ctx, 9 / zoom);
+      const level = levelOf(art.castles[0], size * k);
+      for (const { player, x, y } of castles) ctx.drawImage(art.castles[player][level], x - size / 2, y - size * CASTLE_FOOT, size, size);
+    } else castleDots(ctx, size * 0.2);
     placeView(miniView, mini);
-    performance.measure('map-render', { start, detail: drawn });
+    performance.measure('map-render', { start, detail: { tiles: drawn, objects } });
     if (++renders % 120 === 0) performance.clearMeasures('map-render');
   }
 
@@ -364,13 +382,13 @@ export function mapScreen(root, onModes) {
     retry.hidden = true;
     root.dataset.art = art ? 'ready' : 'loading';
     if (art) return;
-    loadTileArt().then(() => {
+    loadMapArt().then(() => {
       root.dataset.art = 'ready';
       requestRender();
     }, error => {
       root.dataset.art = 'error';
       retry.hidden = false;
-      console.error('바닥 타일 로딩 실패', error);
+      console.error('지도 그림 로딩 실패', error);
     });
   }
 

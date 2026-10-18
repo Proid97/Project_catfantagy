@@ -5,7 +5,7 @@ const HUD = ['.hud-players', '.hud-resources', '.minimap', '.mode-change', '.han
 const view = page => page.locator('.minimap .minimap-view');
 const box = locator => locator.boundingBox();
 const overlaps = (a, b) => a.x < b.x + b.width && b.x < a.x + a.width && a.y < b.y + b.height && b.y < a.y + a.height;
-// 타일 그림과 글꼴이 온 뒤 다시 그린 것까지 끝나기를 기다린다.
+// 지도 그림과 글꼴이 온 뒤 다시 그린 것까지 끝나기를 기다린다.
 async function settled(page) {
   await expect(page.locator('#map')).toHaveAttribute('data-art', 'ready');
   await page.evaluate(async () => {
@@ -68,6 +68,9 @@ for (const [width, height, hash, players, name] of [
       for (const [b, second] of boxes.slice(i + 1)) expect(overlaps(first, second), `${a}와 ${b}가 겹침`).toBe(false);
     }
     await expect(page.getByRole('img', { name: '내 카드 3장' })).toBeVisible();
+    // 재화 아이콘(이름은 화면 읽기용 글자)과 카드 뒷면 그림이 다 왔다.
+    await expect(page.getByRole('list', { name: '보유 자원' }).getByRole('listitem')).toHaveText(['금0', '수정0', '나무0', '생선0']);
+    await expect.poll(() => page.locator('.hud img').evaluateAll(images => images.filter(image => image.complete && image.naturalWidth > 0).length)).toBe(7);
     for (const name of ['미니맵 크게 보기', '임시 모드 바꾸기']) expect((await box(page.getByRole('button', { name }))).height).toBeGreaterThanOrEqual(44);
     await page.screenshot({ path: test.info().outputPath(`map-${name}-${width}x${height}.png`) });
     expect(errors).toEqual([]);
@@ -188,11 +191,11 @@ test('두 손가락으로 벌리면 확대', async ({ browser, browserName }) =>
   await context.close();
 });
 
-test('바닥 그림을 못 받아도 판이 보이고 다시 불러올 수 있음', async ({ page }) => {
-  await page.route('**/map/barren.webp*', route => route.abort());
+for (const file of ['map/barren.webp', 'game/castle-team.webp']) test(`지도 그림(${file})을 못 받아도 판이 보이고 다시 불러올 수 있음`, async ({ page }) => {
+  await page.route(`**/${file}*`, route => route.abort());
   await page.goto('/#map');
   await expect(page.locator('#map')).toHaveAttribute('data-art', 'error');
-  const retry = page.getByRole('button', { name: '바닥 그림 다시 불러오기' });
+  const retry = page.getByRole('button', { name: '지도 그림 다시 불러오기' });
   await expect(retry).toBeVisible();
   // 대신 그린 지형 색 칸이 있어 판이 비어 있지 않다(불투명한 점이 많다).
   expect(await page.locator('.map-canvas').evaluate(canvas => {
@@ -201,7 +204,7 @@ test('바닥 그림을 못 받아도 판이 보이고 다시 불러올 수 있�
     for (let i = 3; i < data.length; i += 4) if (data[i] === 255) solid++;
     return solid;
   })).toBeGreaterThan(20000);
-  await page.unroute('**/map/barren.webp*');
+  await page.unroute(`**/${file}*`);
   await retry.click();
   await settled(page);
   await expect(retry).toBeHidden();
@@ -215,7 +218,7 @@ test('그리기 비용(4인 판, CPU 6배 느리게)', async ({ browser, browser
   await context.addInitScript(() => {
     window.renders = [];
     new PerformanceObserver(list => {
-      for (const entry of list.getEntries()) if (entry.name === 'map-render') window.renders.push([entry.duration, entry.detail]);
+      for (const entry of list.getEntries()) if (entry.name === 'map-render') window.renders.push([entry.duration, entry.detail.tiles, entry.detail.objects]);
     }).observe({ entryTypes: ['measure'] });
   });
   const page = await context.newPage();
@@ -236,18 +239,67 @@ test('그리기 비용(4인 판, CPU 6배 느리게)', async ({ browser, browser
     const list = await page.evaluate(() => window.renders);
     const times = list.map(([time]) => time);
     const average = times.reduce((sum, time) => sum + time, 0) / times.length;
-    return { count: times.length, average, max: Math.max(...times), tiles: Math.max(...list.map(([, tiles]) => tiles)) };
+    return { count: times.length, average, max: Math.max(...times), tiles: Math.max(...list.map(([, tiles]) => tiles)), objects: Math.max(...list.map(([, , objects]) => objects)) };
   }
   const results = { fit: await drags() };
   for (let i = 0; i < 8; i++) await page.mouse.wheel(0, -400);
   results.zoomed = await drags();
   await cdp.send('Emulation.setCPUThrottlingRate', { rate: 1 });
   for (const [label, result] of Object.entries(results)) {
-    console.log(`지도 그리기(${label}) ${result.count}회: 평균 ${result.average.toFixed(2)}ms, 최대 ${result.max.toFixed(2)}ms, 그린 타일 ${result.tiles}개`);
+    console.log(`지도 그리기(${label}) ${result.count}회: 평균 ${result.average.toFixed(2)}ms, 최대 ${result.max.toFixed(2)}ms, 그린 타일 ${result.tiles}개, 오브젝트 ${result.objects}개`);
     expect(result.count).toBeGreaterThan(3);
     expect(result.average).toBeLessThan(8);
   }
   expect(results.zoomed.tiles).toBeLessThan(results.fit.tiles / 4);
+  // 전체 보기에서도 오브젝트를 그린다(예전의 색 점 대신). 육지의 약 41%가 오브젝트 칸이다.
+  expect(results.fit.objects).toBeGreaterThan(results.fit.tiles * 0.25);
+  await context.close();
+});
+
+// iPad 2배 화면. 큰 미니맵에서 내 성 점(나의 색)을 눌러 그 꼭짓점으로 간 뒤 끝까지 확대한다.
+test('지형 그림과 성: 2배 화면 전체 보기와 내 성 가까이', async ({ browser }) => {
+  const context = await browser.newContext({ viewport: { width: 768, height: 1024 }, deviceScaleFactor: 2 });
+  const page = await context.newPage();
+  const errors = watchErrors(page);
+  await page.goto('http://127.0.0.1:4173/#map');
+  await settled(page);
+  await page.screenshot({ path: test.info().outputPath('map-ipad-duel-fit-2x.png') });
+  await page.getByRole('button', { name: '미니맵 크게 보기' }).click();
+  const big = page.locator('.minimap-dialog canvas');
+  const dot = await big.evaluate(canvas => {
+    const { data } = canvas.getContext('2d').getImageData(0, 0, canvas.width, canvas.height);
+    let x = 0, y = 0, count = 0;
+    for (let i = 0; i < data.length; i += 4) {
+      if (data[i] !== 242 || data[i + 1] !== 179 || data[i + 2] !== 61) continue;
+      x += i / 4 % canvas.width;
+      y += Math.floor(i / 4 / canvas.width);
+      count++;
+    }
+    const scale = canvas.width / canvas.clientWidth;
+    return { x: x / count / scale, y: y / count / scale };
+  });
+  await big.click({ position: dot });
+  await expect(page.locator('.minimap-dialog')).toBeHidden();
+  const [x, y] = await center(page);
+  await page.mouse.move(x, y);
+  for (let i = 0; i < 8; i++) await page.mouse.wheel(0, -400);
+  await settled(page);
+  await page.screenshot({ path: test.info().outputPath('map-ipad-duel-castle-2x.png') });
+  // 내 색을 곱한 지붕·깃발(마스크의 두 회색 202, 155 × #f2b33d)은 다른 그림에 없는 색이다.
+  // 땅에 닿는 점이 화면 가운데(꼭짓점)에 있으면 지붕은 꼭짓점보다 31~87 CSS px 위에만 있다.
+  const roof = await page.locator('.map-canvas').evaluate(canvas => {
+    const { data } = canvas.getContext('2d').getImageData(canvas.width / 2 - 140, canvas.height / 2 - 240, 280, 360);
+    const count = { above: 0, near: 0 };
+    for (let i = 0; i < data.length; i += 4) {
+      if (![[192, 142, 48], [147, 109, 37]].some(([r, g, b]) => Math.abs(data[i] - r) <= 6 && Math.abs(data[i + 1] - g) <= 6 && Math.abs(data[i + 2] - b) <= 6)) continue;
+      // 가운데에서 20 CSS px 위보다 높으면 위, 그 아래(가운데 아래 60px까지)는 가까이
+      count[Math.floor(i / 4 / 280) < 200 ? 'above' : 'near']++;
+    }
+    return count;
+  });
+  expect(roof.above).toBeGreaterThan(500);
+  expect(roof.near).toBe(0);
+  expect(errors).toEqual([]);
   await context.close();
 });
 

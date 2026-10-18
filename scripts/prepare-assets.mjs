@@ -92,26 +92,47 @@ for (const layer of layout.layers) {
 await writeFile(new URL('title-layout.json', generated), JSON.stringify(layout));
 console.log(`타이틀 이미지 ${(originalBytes / 1e6).toFixed(2)} MB → ${(outputBytes / 1e6).toFixed(2)} MB (${Math.round((1 - outputBytes / originalBytes) * 100)}% 감소)`);
 
-// 바닥 타일은 이미 깨끗한 색면 그림이라 얼룩 정리 없이 600px로만 줄인다. 가장 크게 확대한 2배 화면에서 칸 하나가 약 600px.
-const mapSource = new URL('../assets/map/', import.meta.url);
-const mapOutput = new URL('../public/map/', import.meta.url);
-await mkdir(mapOutput, { recursive: true });
-const tiles = {};
-let tileBytes = 0;
-for (const name of ['grass-1', 'grass-2', 'grass-3', 'barren']) {
-  const input = new URL(`${name}.png`, mapSource);
-  const destination = new URL(`${name}.webp`, mapOutput);
-  if (await stale(destination, Math.max((await stat(input)).mtimeMs, changedAt))) {
-    const temporary = new URL(`${name}.tmp.webp`, mapOutput);
-    await sharp(await readFile(input)).resize(600, 600).webp({ quality: 90, alphaQuality: 100, smartSubsample: true, effort: 6 }).toFile(fileURLToPath(temporary));
+// 지도 화면 그림. 이미 깨끗한 색면 그림이라 얼룩 정리 없이 줄이기만 한다. 크기는 2배 화면에서 가장 크게 보일 때 기준.
+// 지형 오브젝트는 타일과 같은 1024px 캔버스다. 같은 비율로 줄이되, 네 장을 모두 담는 상자만 잘라 디코드 메모리를 줄인다.
+const OBJECTS = ['forest', 'gold-mine', 'crystal', 'rock'];
+const objectFiles = OBJECTS.map(name => new URL(`../assets/map/${name}.png`, import.meta.url));
+const boxes = await Promise.all(objectFiles.map(async file => bounds(await readFile(file))));
+const left = Math.min(...boxes.map(box => box[0]));
+const top = Math.min(...boxes.map(box => box[1]));
+const width = Math.max(...boxes.map(box => box[2])) - left;
+const height = Math.max(...boxes.map(box => box[3])) - top;
+// 한 장이 바뀌면 상자가 바뀔 수 있어 네 장을 함께 다시 만든다.
+const objectsChangedAt = Math.max(...await Promise.all(objectFiles.map(async file => (await stat(file)).mtimeMs)));
+const mapArt = [
+  // 바닥 타일·호수: 가장 크게 확대하면 칸 그림 하나가 약 600px.
+  ...['grass-1', 'grass-2', 'grass-3', 'barren', 'lake'].map(name => [`map/${name}`, image => image.resize(600, 600)]),
+  ...OBJECTS.map(name => [`map/${name}`, image => image.extract({ left, top, width, height }).resize(Math.round(width * 600 / 1024)), objectsChangedAt]),
+  // 성(원본 512px)은 판에서 88 단위로 그린다. 최대 확대 1.4배 × 2배 화면 = 246px → 원본의 절반인 256px.
+  ['game/castle', image => image.resize(256)],
+  ['game/castle-team', image => image.resize(256)],
+  // 재화 아이콘은 24 CSS px, 카드 뒷면은 64 CSS px 너비로 보인다.
+  ...['gold', 'crystal', 'wood', 'fish'].map(name => [`game/icon-${name}`, image => image.resize(48)]),
+  // 카드 뒷면은 둘레의 투명한 여백을 잘라 카드 칸을 꽉 채운다.
+  ['game/card-back', image => image.trim().resize(128)],
+];
+const files = {};
+let mapBytes = 0;
+for (const [path, resize, changed = 0] of mapArt) {
+  const input = new URL(`../assets/${path}.png`, import.meta.url);
+  const destination = new URL(`../public/${path}.webp`, import.meta.url);
+  await mkdir(new URL('.', destination), { recursive: true });
+  if (await stale(destination, Math.max((await stat(input)).mtimeMs, changedAt, changed))) {
+    const temporary = new URL(`../public/${path}.tmp.webp`, import.meta.url);
+    await resize(sharp(await readFile(input))).webp({ quality: 90, alphaQuality: 100, smartSubsample: true, effort: 6 }).toFile(fileURLToPath(temporary));
     await rename(temporary, destination);
   }
   const bytes = await readFile(destination);
-  tiles[name] = createHash('sha256').update(bytes).digest('hex').slice(0, 12);
-  tileBytes += bytes.length;
+  files[path] = createHash('sha256').update(bytes).digest('hex').slice(0, 12);
+  mapBytes += bytes.length;
 }
-await writeFile(new URL('map-tiles.json', generated), JSON.stringify(tiles));
-console.log(`바닥 타일 4종 ${(tileBytes / 1000).toFixed(1)} KB`);
+// 지도 화면은 상자 자리(원본 1024px 기준 x, y, 너비, 높이)로 오브젝트를 타일과 같은 곳에 그린다.
+await writeFile(new URL('map-art.json', generated), JSON.stringify({ files, objectBox: [left, top, width, height] }));
+console.log(`지도 그림 ${mapArt.length}종 ${(mapBytes / 1000).toFixed(1)} KB`);
 
 // 모든 화면의 소스에서 필요한 글자를 모아 부분 글꼴을 만든다.
 const { createFont, woff2 } = await import('fonteditor-core');
