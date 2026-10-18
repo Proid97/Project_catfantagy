@@ -1,0 +1,210 @@
+{
+  "canvas": {
+    "width": 1536,
+    "height": 2048
+  },
+  "safeArea": {
+    "x": 0,
+    "y": 0,
+    "w": 1536,
+    "h": 2048
+  },
+  "note": "새 세로 타이틀의 실제 PNG 조립 배치. sourceBounds는 [왼쪽, 위, 오른쪽, 아래]. fit이 stretch면 상자를 채우고, 없으면 비율을 지켜 가운데 맞춥니다. 좌우 뒤집기는 없습니다. 시작 문구는 미리보기에만 Pretendard 700으로 표시합니다.",
+  "layers": [
+    {
+      "name": "sky-tall",
+      "file": "sky-tall.png",
+      "sourceBounds": [
+        0,
+        650,
+        1536,
+        2698
+      ],
+      "x": 0,
+      "y": 0,
+      "w": 1536,
+      "h": 2048,
+      "z": 0,
+      "fit": "stretch"
+    },
+    {
+      "name": "peaks",
+      "file": "peaks.png",
+      "sourceBounds": [
+        0,
+        200,
+        2000,
+        950
+      ],
+      "x": -70,
+      "y": 390,
+      "w": 1676,
+      "h": 630,
+      "z": 5,
+      "fit": "stretch"
+    },
+    {
+      "name": "hills-tall",
+      "file": "hills-tall.png",
+      "sourceBounds": [
+        0,
+        410,
+        2000,
+        1250
+      ],
+      "x": -80,
+      "y": 850,
+      "w": 1696,
+      "h": 1150,
+      "z": 10,
+      "fit": "stretch"
+    },
+    {
+      "name": "castle-hill",
+      "file": "castle-hill.png",
+      "sourceBounds": [
+        9,
+        14,
+        1600,
+        1700
+      ],
+      "x": 160,
+      "y": 510,
+      "w": 730,
+      "h": 775,
+      "z": 15
+    },
+    {
+      "name": "ground-tall",
+      "file": "ground-tall.png",
+      "sourceBounds": [
+        0,
+        810,
+        1536,
+        1158
+      ],
+      "x": 0,
+      "y": 1645,
+      "w": 1536,
+      "h": 403,
+      "z": 20,
+      "fit": "stretch"
+    },
+    {
+      "name": "assassin",
+      "file": "assassin.png",
+      "x": 10,
+      "y": 780,
+      "w": 880,
+      "h": 600,
+      "z": 30,
+      "sourceBounds": [
+        18,
+        29,
+        1655,
+        919
+      ]
+    },
+    {
+      "name": "mage",
+      "file": "mage.png",
+      "x": 738,
+      "y": 770,
+      "w": 782,
+      "h": 660,
+      "z": 30,
+      "sourceBounds": [
+        66,
+        29,
+        1287,
+        995
+      ]
+    },
+    {
+      "name": "warrior-front",
+      "file": "warrior-front.png",
+      "sourceBounds": [
+        50,
+        472,
+        1486,
+        1950
+      ],
+      "x": 210,
+      "y": 655,
+      "w": 1116,
+      "h": 1147,
+      "z": 40
+    },
+    {
+      "name": "logo",
+      "file": "logo.png",
+      "x": 368,
+      "y": 34,
+      "w": 800,
+      "h": 450,
+      "z": 50,
+      "sourceBounds": [
+        26,
+        12,
+        1660,
+        935
+      ]
+    }
+  ],
+  "phone": {
+    "width": 1179,
+    "height": 2556,
+    "mode": "keep-width-and-extend",
+    "coreOffsetY": 641,
+    "virtualCanvas": {
+      "width": 1536,
+      "height": 3330
+    },
+    "skyExtraTop": 650,
+    "groundExtraBottom": 650,
+    "note": "3:4의 모든 중요 요소를 지키며 위 하늘과 아래 땅을 더 보여 줍니다. sky-tall 전체를 y=-9에 놓고, ground-tall의 [0,810,1536,1700]을 1536×1044로 그려 y=2286에 놓습니다. 나머지 층과 시작 문구는 y에 641을 더합니다.",
+    "layerOverrides": [
+      {
+        "name": "sky-tall",
+        "file": "sky-tall.png",
+        "sourceBounds": [
+          0,
+          0,
+          1536,
+          2700
+        ],
+        "x": 0,
+        "y": -9,
+        "w": 1536,
+        "h": 2700,
+        "z": 0,
+        "fit": "stretch"
+      },
+      {
+        "name": "ground-tall",
+        "file": "ground-tall.png",
+        "sourceBounds": [
+          0,
+          810,
+          1536,
+          1700
+        ],
+        "x": 0,
+        "y": 2286,
+        "w": 1536,
+        "h": 1044,
+        "z": 20,
+        "fit": "stretch"
+      }
+    ]
+  },
+  "startPrompt": {
+    "text": "TOUCH TO START",
+    "font": "Pretendard",
+    "weight": 700,
+    "size": 54,
+    "centerX": 768,
+    "y": 1925,
+    "bakedIntoAssets": false
+  }
+}
