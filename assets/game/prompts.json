@@ -226,5 +226,154 @@
         "floor-reference.png"
       ]
     }
-  ]
+  ],
+  "rawRestore": {
+    "method": "남아 있는 생성 원본 RGB 복원. 색·명암·노이즈를 코드로 고치지 않음. 빈 배경 제거와 안쪽 알파 채우기만 허용하며 부드러운 원본 경계 유지. 캔버스 크기와 그림 상자는 기존 규격에 맞춤.",
+    "files": [
+      {
+        "file": "assets/game/cloud-1.png",
+        "source": "/workspace/scratch/238a3695bcb8/generated_images/exec-fc4a741d-8a36-404b-aa09-cb74b75d2a17.png",
+        "canvas": [
+          1600,
+          900
+        ],
+        "method": "원본 RGB 유지, 빈 배경 제거와 기존 그림 상자에 맞춘 크기·자리만 적용",
+        "rgb_editing": "none; original colors preserved, no vectorization or quantization"
+      },
+      {
+        "file": "assets/game/cloud-2.png",
+        "source": "/workspace/scratch/238a3695bcb8/generated_images/exec-5d44e7f7-9ac4-4325-b873-31fab5e3b9d8.png",
+        "canvas": [
+          1600,
+          1000
+        ],
+        "method": "원본 RGB 유지, 빈 배경 제거와 기존 그림 상자에 맞춘 크기·자리만 적용",
+        "rgb_editing": "none; original colors preserved, no vectorization or quantization"
+      },
+      {
+        "file": "assets/game/cloud-3.png",
+        "source": "/workspace/scratch/238a3695bcb8/generated_images/exec-bd8e7129-deb5-4cf5-95ee-1b96c407077d.png",
+        "canvas": [
+          1600,
+          760
+        ],
+        "method": "원본 RGB 유지, 빈 배경 제거와 기존 그림 상자에 맞춘 크기·자리만 적용",
+        "rgb_editing": "none; original colors preserved, no vectorization or quantization"
+      },
+      {
+        "file": "assets/game/icon-gold.png",
+        "source": "/workspace/scratch/238a3695bcb8/generated_images/exec-0c01219d-775e-4d27-93b8-90a3f3e169c4.png",
+        "canvas": [
+          256,
+          256
+        ],
+        "method": "원본 RGB 유지, 빈 배경 제거와 기존 그림 상자에 맞춘 크기·자리만 적용",
+        "rgb_editing": "none; original colors preserved, no vectorization or quantization"
+      },
+      {
+        "file": "assets/game/icon-crystal.png",
+        "source": "/workspace/scratch/238a3695bcb8/generated_images/exec-baa80c07-d284-4246-86bb-ff7604cfe88e.png",
+        "canvas": [
+          256,
+          256
+        ],
+        "method": "원본 RGB 유지, 빈 배경 제거와 기존 그림 상자에 맞춘 크기·자리만 적용",
+        "rgb_editing": "none; original colors preserved, no vectorization or quantization"
+      },
+      {
+        "file": "assets/game/icon-wood.png",
+        "source": "/workspace/scratch/238a3695bcb8/generated_images/exec-dc5ffd1f-3944-4031-9ce7-4ff9a27c1fd9.png",
+        "canvas": [
+          256,
+          256
+        ],
+        "method": "원본 RGB 유지, 빈 배경 제거와 기존 그림 상자에 맞춘 크기·자리만 적용",
+        "rgb_editing": "none; original colors preserved, no vectorization or quantization"
+      },
+      {
+        "file": "assets/game/icon-fish.png",
+        "source": "/workspace/scratch/238a3695bcb8/generated_images/exec-34e52003-ca7e-43f1-bde9-56d6afdb2822.png",
+        "canvas": [
+          256,
+          256
+        ],
+        "method": "원본 RGB 유지, 빈 배경 제거와 기존 그림 상자에 맞춘 크기·자리만 적용",
+        "rgb_editing": "none; original colors preserved, no vectorization or quantization"
+      },
+      {
+        "file": "assets/game/dice-1.png",
+        "source": "/workspace/scratch/238a3695bcb8/generated_images/exec-5620a481-eed4-4541-bc35-314724e24caf.png",
+        "canvas": [
+          256,
+          256
+        ],
+        "method": "원본 RGB 유지, 빈 배경 제거와 기존 그림 상자에 맞춘 크기·자리만 적용",
+        "rgb_editing": "none; original colors preserved, no vectorization or quantization"
+      },
+      {
+        "file": "assets/game/dice-2.png",
+        "source": "/workspace/scratch/238a3695bcb8/generated_images/exec-e2a4bbea-47b1-4e1a-a449-730719ff9fa4.png",
+        "canvas": [
+          256,
+          256
+        ],
+        "method": "원본 RGB 유지, 빈 배경 제거와 기존 그림 상자에 맞춘 크기·자리만 적용",
+        "rgb_editing": "none; original colors preserved, no vectorization or quantization"
+      },
+      {
+        "file": "assets/game/dice-3.png",
+        "source": "/workspace/scratch/238a3695bcb8/generated_images/exec-d00e3fa1-29e5-4dc0-982a-57e737693a43.png",
+        "canvas": [
+          256,
+          256
+        ],
+        "method": "원본 RGB 유지, 빈 배경 제거와 기존 그림 상자에 맞춘 크기·자리만 적용",
+        "rgb_editing": "none; original colors preserved, no vectorization or quantization"
+      },
+      {
+        "file": "assets/game/dice-4.png",
+        "source": "/workspace/scratch/238a3695bcb8/generated_images/exec-74de4798-2090-4792-b2cb-b4822d38350e.png",
+        "canvas": [
+          256,
+          256
+        ],
+        "method": "원본 RGB 유지, 빈 배경 제거와 기존 그림 상자에 맞춘 크기·자리만 적용",
+        "rgb_editing": "none; original colors preserved, no vectorization or quantization"
+      },
+      {
+        "file": "assets/game/dice-5.png",
+        "source": "/workspace/scratch/238a3695bcb8/generated_images/exec-96a9eddf-9e0e-4048-ae1c-aa353c931524.png",
+        "canvas": [
+          256,
+          256
+        ],
+        "method": "원본 RGB 유지, 빈 배경 제거와 기존 그림 상자에 맞춘 크기·자리만 적용",
+        "rgb_editing": "none; original colors preserved, no vectorization or quantization"
+      },
+      {
+        "file": "assets/game/dice-6.png",
+        "source": "/workspace/scratch/238a3695bcb8/generated_images/exec-d7a9e204-114e-4dce-ae2a-06b6b9f33966.png",
+        "canvas": [
+          256,
+          256
+        ],
+        "method": "원본 RGB 유지, 빈 배경 제거와 기존 그림 상자에 맞춘 크기·자리만 적용",
+        "rgb_editing": "none; original colors preserved, no vectorization or quantization"
+      },
+      {
+        "file": "assets/game/card-back.png",
+        "source": "/workspace/scratch/238a3695bcb8/generated_images/exec-9621f9e5-76fc-4b0f-a229-1c1ffa4bed27.png",
+        "canvas": [
+          600,
+          840
+        ],
+        "method": "원본 RGB 유지, 빈 배경 제거와 기존 그림 상자에 맞춘 크기·자리만 적용",
+        "rgb_editing": "none; original colors preserved, no vectorization or quantization"
+      }
+    ],
+    "not_restored": {
+      "castle.png, village.png": "원본은 팀 마스크 추출을 위해 분홍 지붕으로 생성한 판뿐. 중립색 본 그림 원본 없음. 요청 4의 새 2D 원본으로 교체 예정.",
+      "castle-team.png, village-team.png": "생성 그림이 아니라 이전 색 변환으로 만든 마스크라 독립 생성 원본 없음. 새 2D 제작에서 맞춤."
+    }
+  }
 }

@@ -356,5 +356,54 @@
       "preview": "7×5 같은 배치: 위는 흰 숫자 패 검사 원, 아래는 윗면 폭 48px 실제 크기. 바다색 #3d9fcb."
     },
     "scope": "타이틀·코드·기존 바닥 원본은 변경하지 않음"
+  },
+  "rawRestore": {
+    "method": "남아 있는 생성 원본 RGB 복원. 색·명암·노이즈를 코드로 고치지 않음. 빈 배경 제거와 안쪽 알파 채우기만 허용하며 부드러운 원본 경계 유지. 캔버스 크기와 그림 상자는 기존 규격에 맞춤.",
+    "files": [
+      {
+        "file": "assets/map/forest.png",
+        "source": "/workspace/scratch/238a3695bcb8/generated_images/exec-0a056ec2-9ecc-4cf1-b05d-b0a4b289c9e9.png",
+        "canvas": [
+          1024,
+          1024
+        ],
+        "method": "원본 RGB 유지, 빈 배경과 안쪽 알파만 정리, 기존 상자 아래에 맞춤",
+        "rgb_editing": "none; original colors preserved, no vectorization or quantization"
+      },
+      {
+        "file": "assets/map/gold-mine.png",
+        "source": "/workspace/scratch/238a3695bcb8/generated_images/exec-684693aa-95fe-4281-9dbf-0a74a0ec5699.png",
+        "canvas": [
+          1024,
+          1024
+        ],
+        "method": "원본 RGB 유지, 빈 배경과 안쪽 알파만 정리, 기존 상자 아래에 맞춤",
+        "rgb_editing": "none; original colors preserved, no vectorization or quantization"
+      },
+      {
+        "file": "assets/map/crystal.png",
+        "source": "/workspace/scratch/238a3695bcb8/generated_images/exec-8051253e-6383-4ad0-80a3-f7af97c0ab43.png",
+        "canvas": [
+          1024,
+          1024
+        ],
+        "method": "원본 RGB 유지, 빈 배경과 안쪽 알파만 정리, 기존 상자 아래에 맞춤",
+        "rgb_editing": "none; original colors preserved, no vectorization or quantization"
+      },
+      {
+        "file": "assets/map/rock.png",
+        "source": "/workspace/scratch/238a3695bcb8/generated_images/exec-8ed05f0c-0421-44ba-b851-de03ee3e0752.png",
+        "canvas": [
+          1024,
+          1024
+        ],
+        "method": "원본 RGB 유지, 빈 배경과 안쪽 알파만 정리, 기존 상자 아래에 맞춤",
+        "rgb_editing": "none; original colors preserved, no vectorization or quantization"
+      }
+    ],
+    "not_restored": {
+      "grass-1.png, grass-2.png, grass-3.png, barren.png": "현재 정육각형 규격의 전체 생성 원본이 없음. 남은 원본은 비정규 육각형이어서 원본 RGB·테두리를 유지한 단순 클리핑으로 현 규격을 만들 수 없음. 새 규칙상 내부 변형을 하지 않고 유지.",
+      "lake.png, fog.png": "표면 생성 원본만 남음. 현재 규격의 테두리·옆면까지 포함한 전체 미처리 원본 없음."
+    }
   }
 }

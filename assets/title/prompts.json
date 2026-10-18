@@ -755,5 +755,60 @@
         "transparent_generation": false
       }
     ]
+  },
+  "rawRestore": {
+    "method": "남아 있는 생성 원본 RGB 복원. 색·명암·노이즈를 코드로 고치지 않음. 빈 배경 제거와 안쪽 알파 채우기만 허용하며 부드러운 원본 경계 유지. 캔버스 크기와 그림 상자는 기존 규격에 맞춤.",
+    "files": [
+      {
+        "file": "assets/title/castle-hill.png",
+        "source": "/workspace/scratch/238a3695bcb8/generated_images/exec-465c5c8f-9ead-4ec5-bcfb-b82efb03fd9f.png",
+        "canvas": [
+          1600,
+          1700
+        ],
+        "method": "원본 전체 캔버스 크기만 기존 규격에 맞춤; 투명 배경과 안쪽 알파만 정리",
+        "rgb_editing": "none; original colors preserved, no vectorization or quantization"
+      },
+      {
+        "file": "assets/title/sky-tall.png",
+        "source": "/workspace/scratch/238a3695bcb8/generated_images/exec-f875174e-0e71-41ff-afe5-a42c6acd78fa.png",
+        "canvas": [
+          1536,
+          2700
+        ],
+        "method": "원본 전체 캔버스 크기만 기존 규격에 맞춤; 투명 배경과 안쪽 알파만 정리",
+        "rgb_editing": "none; original colors preserved, no vectorization or quantization"
+      },
+      {
+        "file": "assets/title/peaks.png",
+        "source": "/workspace/scratch/238a3695bcb8/generated_images/exec-7589c37a-1b98-4ecd-b6a0-902184b5f606.png",
+        "canvas": [
+          2000,
+          1100
+        ],
+        "method": "원본 전체 캔버스 크기만 기존 규격에 맞춤; 투명 배경과 안쪽 알파만 정리",
+        "rgb_editing": "none; original colors preserved, no vectorization or quantization"
+      },
+      {
+        "file": "assets/title/hills-tall.png",
+        "source": "/workspace/scratch/238a3695bcb8/generated_images/exec-510e560b-f6f1-45fd-9910-adfeabce99bd.png",
+        "canvas": [
+          2000,
+          1250
+        ],
+        "method": "원본 전체 캔버스 크기만 기존 규격에 맞춤; 투명 배경과 안쪽 알파만 정리",
+        "rgb_editing": "none; original colors preserved, no vectorization or quantization"
+      },
+      {
+        "file": "assets/title/ground-tall.png",
+        "source": "/workspace/scratch/238a3695bcb8/generated_images/exec-cf99d86c-5b4f-45c8-83fe-9616f0bce919.png",
+        "canvas": [
+          1536,
+          1700
+        ],
+        "method": "원본 전체 캔버스 크기만 기존 규격에 맞춤; 투명 배경과 안쪽 알파만 정리",
+        "rgb_editing": "none; original colors preserved, no vectorization or quantization"
+      }
+    ]
   }
 }
