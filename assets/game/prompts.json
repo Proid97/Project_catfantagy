@@ -1,0 +1,230 @@
+{
+  "style_reference": "assets/concepts/style-reference-warrior.png",
+  "generation_method": "imagegen",
+  "processing": {
+    "alpha": "0 or 255; remove matte and detached pixels, flatten angular color regions",
+    "buildings": "contact anchor (256,420); grayscale roof/flag copied to aligned -team mask",
+    "icons": "24px readability checked",
+    "dice": "front pips 1–6; empty top and side"
+  },
+  "assets": [
+    {
+      "file": "assets/game/cloud-1.png",
+      "size": [
+        1600,
+        900
+      ],
+      "prompt": "Use case: stylized-concept. ONE large cloud overlay for the in-game map-reveal animation, not a title scene. Wide horizontal opaque cloud shape with clear angular silhouette, white upper-left planes and pale sky-blue shadow planes only, 3 colors. Large chunky connected masses, like folded paper. NO tiny pieces, no round cotton-ball texture, no rain, sky, ground, stars, symbols, eyes, text or numerals. No drop shadow or glow. The whole body is opaque so it can conceal the map when scaled/overlapped. Keep transparent margins around its silhouette in the final PNG.\nFor reliable cutout, draw this working source on SOLID PURE MAGENTA #FF00FF background; no magenta inside the cloud. Code removes background. Input1 style only; input2 floor colors; input3 angular fog cloud planes, simplified into one big connected cloud.\nVariant 1: broad horizontal bank with a high left-center mass and long low point to the right, intended 1600×900. Source width around1600, fill most of width with small safe margin.\nClean indie flat vector illustration matching the style reference warrior exactly: angular faceted planes with straight hard edges, like folded paper or cut gems, two to four tones per material, single light source from the upper left. Bold dramatic silhouette, same body proportions and exaggeration as the reference. No rounded blobby shapes, no gradients, no texture, no grain, no noise, no glow, no blur, no black outlines. Crisp clean edges, fully transparent background. Simple eyes like the reference with one clear white highlight at the upper left. Smallest details at least 10 px wide.",
+      "transparent_generation": false,
+      "references": [
+        "style-reference-warrior.png",
+        "floor-reference.png",
+        "exec-6c8e9894-4fcb-497f-8b9f-479058cfd03f.png"
+      ]
+    },
+    {
+      "file": "assets/game/cloud-2.png",
+      "size": [
+        1600,
+        1000
+      ],
+      "prompt": "Use case: stylized-concept. ONE large cloud overlay for the in-game map-reveal animation, not a title scene. Wide horizontal opaque cloud shape with clear angular silhouette, white upper-left planes and pale sky-blue shadow planes only, 3 colors. Large chunky connected masses, like folded paper. NO tiny pieces, no round cotton-ball texture, no rain, sky, ground, stars, symbols, eyes, text or numerals. No drop shadow or glow. The whole body is opaque so it can conceal the map when scaled/overlapped. Keep transparent margins around its silhouette in the final PNG.\nFor reliable cutout, draw this working source on SOLID PURE MAGENTA #FF00FF background; no magenta inside the cloud. Code removes background. Input1 style only; input2 floor colors; input3 angular fog cloud planes, simplified into one big connected cloud.\nVariant 2: large diagonal cloud bank high on the right, deeper hanging angular underside on the left, intended 1600×1000. Source width around1600, fill most of width with small safe margin.\nClean indie flat vector illustration matching the style reference warrior exactly: angular faceted planes with straight hard edges, like folded paper or cut gems, two to four tones per material, single light source from the upper left. Bold dramatic silhouette, same body proportions and exaggeration as the reference. No rounded blobby shapes, no gradients, no texture, no grain, no noise, no glow, no blur, no black outlines. Crisp clean edges, fully transparent background. Simple eyes like the reference with one clear white highlight at the upper left. Smallest details at least 10 px wide.",
+      "transparent_generation": false,
+      "references": [
+        "style-reference-warrior.png",
+        "floor-reference.png",
+        "exec-6c8e9894-4fcb-497f-8b9f-479058cfd03f.png"
+      ]
+    },
+    {
+      "file": "assets/game/cloud-3.png",
+      "size": [
+        1600,
+        760
+      ],
+      "prompt": "Use case: stylized-concept. ONE large cloud overlay for the in-game map-reveal animation, not a title scene. Wide horizontal opaque cloud shape with clear angular silhouette, white upper-left planes and pale sky-blue shadow planes only, 3 colors. Large chunky connected masses, like folded paper. NO tiny pieces, no round cotton-ball texture, no rain, sky, ground, stars, symbols, eyes, text or numerals. No drop shadow or glow. The whole body is opaque so it can conceal the map when scaled/overlapped. Keep transparent margins around its silhouette in the final PNG.\nUse REAL transparent background around cloud, not a drawn checkerboard or colored matte. No gray pattern. Cloud body fully opaque. Input1 style only; input2 floor colors; input3 angular fog cloud planes, simplified into one big connected cloud.\nVariant 3: long low sweeping cloud ribbon, a few broad overlapping angular lobes with stretched left/right ends, intended 1600×760. Source width around1600, fill most of width with small safe margin.\nClean indie flat vector illustration matching the style reference warrior exactly: angular faceted planes with straight hard edges, like folded paper or cut gems, two to four tones per material, single light source from the upper left. Bold dramatic silhouette, same body proportions and exaggeration as the reference. No rounded blobby shapes, no gradients, no texture, no grain, no noise, no glow, no blur, no black outlines. Crisp clean edges, fully transparent background. Simple eyes like the reference with one clear white highlight at the upper left. Smallest details at least 10 px wide.",
+      "transparent_generation": true,
+      "references": [
+        "style-reference-warrior.png",
+        "floor-reference.png",
+        "exec-6c8e9894-4fcb-497f-8b9f-479058cfd03f.png"
+      ]
+    },
+    {
+      "file": "assets/game/castle.png",
+      "size": [
+        512,
+        512
+      ],
+      "prompt": "Use case: stylized-concept. Gameplay building token to be placed at a shared HEX VERTEX. This is a standalone building, not a hex tile and not a round token disc. Design as simplified version of input3 castle, matching input1 angular indie style and input2 floor art. Slightly above-front view, show roof and front wall. Full building visible with broad straight edges. One small cream CAT KINGDOM CASTLE token: one chunky main tower, two short side towers, big central wooden arched gate, exactly THREE broad simple triangular roofs and ONE large flag with a simple cream paw emblem. Reduce masonry and windows drastically; 2–3 broad planes per material. Roofs and flag cloth are the TEAM-COLOR material: render ONLY those areas in saturated MAGENTA/PINK (2–3 flat shades), to be separated into an aligned grayscale tint mask by code. Cream paw emblem remains cream and is NOT part of tint mask. Other materials cream stone, brown gate, gray flagpole, no colored gems. Neutral finished token silhouette must read as a castle at tiny size. No ground shadow, platform, grass, surrounding landscape, text or numerals.\nFinal canvas 512×512, ground-contact center (256,420). Art must fit x60–452,y40–470, code will align the bottom center to (256,420). Leave generous blank margins. DO NOT draw anchor marks. To allow team-mask extraction, working source uses SOLID PURE LIME GREEN #00FF00 background, NOT transparent. NO green inside building. Entire building opaque, including roof and flag. No outside shadow or border.\nClean indie flat vector illustration matching the style reference warrior exactly: angular faceted planes with straight hard edges, like folded paper or cut gems, two to four tones per material, single light source from the upper left. Bold dramatic silhouette, same body proportions and exaggeration as the reference. No rounded blobby shapes, no gradients, no texture, no grain, no noise, no glow, no blur, no black outlines. Crisp clean edges, fully transparent background. Simple eyes like the reference with one clear white highlight at the upper left. Smallest details at least 10 px wide.",
+      "transparent_generation": false,
+      "references": [
+        "style-reference-warrior.png",
+        "floor-reference.png",
+        "castle.png"
+      ]
+    },
+    {
+      "file": "assets/game/village.png",
+      "size": [
+        512,
+        512
+      ],
+      "prompt": "Use case: stylized-concept. Gameplay building token to be placed at a shared HEX VERTEX. This is a standalone building, not a hex tile and not a round token disc. Design as simplified version of input3 castle, matching input1 angular indie style and input2 floor art. Slightly above-front view, show roof and front wall. Full building visible with broad straight edges. One SMALL HOUSE village token, clearly simpler and smaller than castle: one squat cream house with one chunky pitched roof, one dark brown door, at most ONE small window and one little triangular owner flag. The roof and flag cloth ONLY are TEAM-COLOR material: render saturated MAGENTA/PINK in 2–3 flat shades for an aligned grayscale tint mask made in code. Cream walls, brown door, gray flagpole. No chimney smoke, garden, fence, stone pavement, grass, ground shadow or platform. No text, numbers or faces.\nFinal canvas 512×512, ground-contact center (256,420). Art must fit x60–452,y40–470, code will align the bottom center to (256,420). Leave generous blank margins. DO NOT draw anchor marks. To allow team-mask extraction, working source uses SOLID PURE LIME GREEN #00FF00 background, NOT transparent. NO green inside building. Entire building opaque, including roof and flag. No outside shadow or border.\nClean indie flat vector illustration matching the style reference warrior exactly: angular faceted planes with straight hard edges, like folded paper or cut gems, two to four tones per material, single light source from the upper left. Bold dramatic silhouette, same body proportions and exaggeration as the reference. No rounded blobby shapes, no gradients, no texture, no grain, no noise, no glow, no blur, no black outlines. Crisp clean edges, fully transparent background. Simple eyes like the reference with one clear white highlight at the upper left. Smallest details at least 10 px wide.",
+      "transparent_generation": false,
+      "references": [
+        "style-reference-warrior.png",
+        "floor-reference.png",
+        "castle.png"
+      ]
+    },
+    {
+      "file": "assets/game/icon-gold.png",
+      "size": [
+        256,
+        256
+      ],
+      "prompt": "Use case: stylized-concept. ONE resource HUD icon for this game, final256×256 PNG, readable at ACTUAL24px. Subject: one chunky warm GOLD coin at a slight three-quarter angle, simple broad bevel and 3 golden planes, no numeral, emblem, engraving or letters; gold/yellow silhouette. Entire object isolated, centered, fills about80% canvas, bold compact silhouette, two to four SOLID angular color planes, matching references. No container, scene, ground shadow, text, numeral, label, black outline or white sticker border. True transparent outside, entirely opaque inside. Do not add extra objects or facial details except stated fish eye.\nClean indie flat vector illustration matching the style reference warrior exactly: angular faceted planes with straight hard edges, like folded paper or cut gems, two to four tones per material, single light source from the upper left. Bold dramatic silhouette, same body proportions and exaggeration as the reference. No rounded blobby shapes, no gradients, no texture, no grain, no noise, no glow, no blur, no black outlines. Crisp clean edges, fully transparent background. Simple eyes like the reference with one clear white highlight at the upper left. Smallest details at least 10 px wide.",
+      "transparent_generation": true,
+      "references": [
+        "style-reference-warrior.png",
+        "floor-reference.png"
+      ]
+    },
+    {
+      "file": "assets/game/icon-crystal.png",
+      "size": [
+        256,
+        256
+      ],
+      "prompt": "Use case: stylized-concept. ONE resource HUD icon for this game, final256×256 PNG, readable at ACTUAL24px. Subject: one bold PURPLE crystal prism, broad pointed top and 3 clean planes, no glow/sparkles/rock base; very clear purple silhouette. Entire object isolated, centered, fills about80% canvas, bold compact silhouette, two to four SOLID angular color planes, matching references. No container, scene, ground shadow, text, numeral, label, black outline or white sticker border. True transparent outside, entirely opaque inside. Do not add extra objects or facial details except stated fish eye.\nClean indie flat vector illustration matching the style reference warrior exactly: angular faceted planes with straight hard edges, like folded paper or cut gems, two to four tones per material, single light source from the upper left. Bold dramatic silhouette, same body proportions and exaggeration as the reference. No rounded blobby shapes, no gradients, no texture, no grain, no noise, no glow, no blur, no black outlines. Crisp clean edges, fully transparent background. Simple eyes like the reference with one clear white highlight at the upper left. Smallest details at least 10 px wide.",
+      "transparent_generation": true,
+      "references": [
+        "style-reference-warrior.png",
+        "floor-reference.png"
+      ]
+    },
+    {
+      "file": "assets/game/icon-wood.png",
+      "size": [
+        256,
+        256
+      ],
+      "prompt": "Use case: stylized-concept. ONE resource HUD icon for this game, final256×256 PNG, readable at ACTUAL24px. Subject: TWO thick brown cut LOGS bundled diagonally as one compact icon, chunky end faces and simple straight bark plane, no fine wood-grain rings or leaves, no ties thin enough to disappear. Entire object isolated, centered, fills about80% canvas, bold compact silhouette, two to four SOLID angular color planes, matching references. No container, scene, ground shadow, text, numeral, label, black outline or white sticker border. True transparent outside, entirely opaque inside. Do not add extra objects or facial details except stated fish eye.\nClean indie flat vector illustration matching the style reference warrior exactly: angular faceted planes with straight hard edges, like folded paper or cut gems, two to four tones per material, single light source from the upper left. Bold dramatic silhouette, same body proportions and exaggeration as the reference. No rounded blobby shapes, no gradients, no texture, no grain, no noise, no glow, no blur, no black outlines. Crisp clean edges, fully transparent background. Simple eyes like the reference with one clear white highlight at the upper left. Smallest details at least 10 px wide.",
+      "transparent_generation": true,
+      "references": [
+        "style-reference-warrior.png",
+        "floor-reference.png"
+      ]
+    },
+    {
+      "file": "assets/game/icon-fish.png",
+      "size": [
+        256,
+        256
+      ],
+      "prompt": "Use case: stylized-concept. ONE resource HUD icon for this game, final256×256 PNG, readable at ACTUAL24px. Subject: ONE bright BLUE FISH in side view with a broad oval body, huge triangular tail, a single simple top fin and one large dark dot eye; 3 blue planes, no scales/gills/bubbles/water, no smiling cartoon face. Entire object isolated, centered, fills about80% canvas, bold compact silhouette, two to four SOLID angular color planes, matching references. No container, scene, ground shadow, text, numeral, label, black outline or white sticker border. True transparent outside, entirely opaque inside. Do not add extra objects or facial details except stated fish eye.\nClean indie flat vector illustration matching the style reference warrior exactly: angular faceted planes with straight hard edges, like folded paper or cut gems, two to four tones per material, single light source from the upper left. Bold dramatic silhouette, same body proportions and exaggeration as the reference. No rounded blobby shapes, no gradients, no texture, no grain, no noise, no glow, no blur, no black outlines. Crisp clean edges, fully transparent background. Simple eyes like the reference with one clear white highlight at the upper left. Smallest details at least 10 px wide.",
+      "transparent_generation": true,
+      "references": [
+        "style-reference-warrior.png",
+        "floor-reference.png"
+      ]
+    },
+    {
+      "file": "assets/game/dice-1.png",
+      "size": [
+        256,
+        256
+      ],
+      "prompt": "Use case: stylized-concept. ONE single game DIE displaying the 1-pip face. Final256×256 transparent PNG. Cream chunky cube with the FRONT square face dominant and top face only slightly visible; mild consistent oblique angle, not an extreme isometric diamond. Crisp simple 3-tone cream planes, small clean bevels, no black outline. Only FRONT face has pips: EXACTLY ONE pip at center. Pips are large round dark INK BLUE #142a35, flat circles, same size, generous spacing. TOP and SIDE faces entirely BLANK cream with no pips. Never add written digits or any text. No floor/drop shadow, motion lines, glow, paw motif, letters or board. All corners visible with about10% transparent margin. Other dice in set must use this same camera, scale and lighting. No eyes or characters.\nClean indie flat vector illustration matching the style reference warrior exactly: angular faceted planes with straight hard edges, like folded paper or cut gems, two to four tones per material, single light source from the upper left. Bold dramatic silhouette, same body proportions and exaggeration as the reference. No rounded blobby shapes, no gradients, no texture, no grain, no noise, no glow, no blur, no black outlines. Crisp clean edges, fully transparent background. Simple eyes like the reference with one clear white highlight at the upper left. Smallest details at least 10 px wide.",
+      "transparent_generation": true,
+      "references": [
+        "style-reference-warrior.png",
+        "floor-reference.png"
+      ]
+    },
+    {
+      "file": "assets/game/dice-2.png",
+      "size": [
+        256,
+        256
+      ],
+      "prompt": "Match reference 1's exact cream cube silhouette, camera angle, bevel and cream face colors; only change the number of dark front-face pips as specified. Pips are plain solid dark teal dots, without white glints. Use case: stylized-concept. ONE single game DIE displaying the 2-pip face. Final256×256 transparent PNG. Cream chunky cube with the FRONT square face dominant and top face only slightly visible; mild consistent oblique angle, not an extreme isometric diamond. Crisp simple 3-tone cream planes, small clean bevels, no black outline. Only FRONT face has pips: EXACTLY TWO pips diagonally: upper-left and lower-right. Pips are large round dark INK BLUE #142a35, flat circles, same size, generous spacing. TOP and SIDE faces entirely BLANK cream with no pips. Never add written digits or any text. No floor/drop shadow, motion lines, glow, paw motif, letters or board. All corners visible with about10% transparent margin. Other dice in set must use this same camera, scale and lighting. No eyes or characters.\nClean indie flat vector illustration matching the style reference warrior exactly: angular faceted planes with straight hard edges, like folded paper or cut gems, two to four tones per material, single light source from the upper left. Bold dramatic silhouette, same body proportions and exaggeration as the reference. No rounded blobby shapes, no gradients, no texture, no grain, no noise, no glow, no blur, no black outlines. Crisp clean edges, fully transparent background. Simple eyes like the reference with one clear white highlight at the upper left. Smallest details at least 10 px wide.",
+      "transparent_generation": true,
+      "references": [
+        "exec-5620a481-eed4-4541-bc35-314724e24caf.png",
+        "style-reference-warrior.png",
+        "floor-reference.png"
+      ]
+    },
+    {
+      "file": "assets/game/dice-3.png",
+      "size": [
+        256,
+        256
+      ],
+      "prompt": "Match reference 1's exact cream cube silhouette, camera angle, bevel and cream face colors; only change the number of dark front-face pips as specified. Pips are plain solid dark teal dots, without white glints. Use case: stylized-concept. ONE single game DIE displaying the 3-pip face. Final256×256 transparent PNG. Cream chunky cube with the FRONT square face dominant and top face only slightly visible; mild consistent oblique angle, not an extreme isometric diamond. Crisp simple 3-tone cream planes, small clean bevels, no black outline. Only FRONT face has pips: EXACTLY THREE pips diagonally: upper-left, center, lower-right. Pips are large round dark INK BLUE #142a35, flat circles, same size, generous spacing. TOP and SIDE faces entirely BLANK cream with no pips. Never add written digits or any text. No floor/drop shadow, motion lines, glow, paw motif, letters or board. All corners visible with about10% transparent margin. Other dice in set must use this same camera, scale and lighting. No eyes or characters.\nClean indie flat vector illustration matching the style reference warrior exactly: angular faceted planes with straight hard edges, like folded paper or cut gems, two to four tones per material, single light source from the upper left. Bold dramatic silhouette, same body proportions and exaggeration as the reference. No rounded blobby shapes, no gradients, no texture, no grain, no noise, no glow, no blur, no black outlines. Crisp clean edges, fully transparent background. Simple eyes like the reference with one clear white highlight at the upper left. Smallest details at least 10 px wide.",
+      "transparent_generation": true,
+      "references": [
+        "exec-5620a481-eed4-4541-bc35-314724e24caf.png",
+        "style-reference-warrior.png",
+        "floor-reference.png"
+      ]
+    },
+    {
+      "file": "assets/game/dice-4.png",
+      "size": [
+        256,
+        256
+      ],
+      "prompt": "Match reference 1's exact cream cube silhouette, camera angle, bevel and cream face colors; only change the number of dark front-face pips as specified. Pips are plain solid dark teal dots, without white glints. Use case: stylized-concept. ONE single game DIE displaying the 4-pip face. Final256×256 transparent PNG. Cream chunky cube with the FRONT square face dominant and top face only slightly visible; mild consistent oblique angle, not an extreme isometric diamond. Crisp simple 3-tone cream planes, small clean bevels, no black outline. Only FRONT face has pips: EXACTLY FOUR pips: one at each corner. Pips are large round dark INK BLUE #142a35, flat circles, same size, generous spacing. TOP and SIDE faces entirely BLANK cream with no pips. Never add written digits or any text. No floor/drop shadow, motion lines, glow, paw motif, letters or board. All corners visible with about10% transparent margin. Other dice in set must use this same camera, scale and lighting. No eyes or characters.\nClean indie flat vector illustration matching the style reference warrior exactly: angular faceted planes with straight hard edges, like folded paper or cut gems, two to four tones per material, single light source from the upper left. Bold dramatic silhouette, same body proportions and exaggeration as the reference. No rounded blobby shapes, no gradients, no texture, no grain, no noise, no glow, no blur, no black outlines. Crisp clean edges, fully transparent background. Simple eyes like the reference with one clear white highlight at the upper left. Smallest details at least 10 px wide.",
+      "transparent_generation": true,
+      "references": [
+        "exec-5620a481-eed4-4541-bc35-314724e24caf.png",
+        "style-reference-warrior.png",
+        "floor-reference.png"
+      ]
+    },
+    {
+      "file": "assets/game/dice-5.png",
+      "size": [
+        256,
+        256
+      ],
+      "prompt": "Match reference 1's exact cream cube silhouette, camera angle, bevel and cream face colors; only change the number of dark front-face pips as specified. Pips are plain solid dark teal dots, without white glints. Use case: stylized-concept. ONE single game DIE displaying the 5-pip face. Final256×256 transparent PNG. Cream chunky cube with the FRONT square face dominant and top face only slightly visible; mild consistent oblique angle, not an extreme isometric diamond. Crisp simple 3-tone cream planes, small clean bevels, no black outline. Only FRONT face has pips: EXACTLY FIVE pips: four corners and center. Pips are large round dark INK BLUE #142a35, flat circles, same size, generous spacing. TOP and SIDE faces entirely BLANK cream with no pips. Never add written digits or any text. No floor/drop shadow, motion lines, glow, paw motif, letters or board. All corners visible with about10% transparent margin. Other dice in set must use this same camera, scale and lighting. No eyes or characters.\nClean indie flat vector illustration matching the style reference warrior exactly: angular faceted planes with straight hard edges, like folded paper or cut gems, two to four tones per material, single light source from the upper left. Bold dramatic silhouette, same body proportions and exaggeration as the reference. No rounded blobby shapes, no gradients, no texture, no grain, no noise, no glow, no blur, no black outlines. Crisp clean edges, fully transparent background. Simple eyes like the reference with one clear white highlight at the upper left. Smallest details at least 10 px wide.",
+      "transparent_generation": true,
+      "references": [
+        "exec-5620a481-eed4-4541-bc35-314724e24caf.png",
+        "style-reference-warrior.png",
+        "floor-reference.png"
+      ]
+    },
+    {
+      "file": "assets/game/dice-6.png",
+      "size": [
+        256,
+        256
+      ],
+      "prompt": "Match reference 1's exact cream cube silhouette, camera angle, bevel and cream face colors; only change the number of dark front-face pips as specified. Pips are plain solid dark teal dots, without white glints. Use case: stylized-concept. ONE single game DIE displaying the 6-pip face. Final256×256 transparent PNG. Cream chunky cube with the FRONT square face dominant and top face only slightly visible; mild consistent oblique angle, not an extreme isometric diamond. Crisp simple 3-tone cream planes, small clean bevels, no black outline. Only FRONT face has pips: EXACTLY SIX pips: TWO vertical columns of THREE pips. Pips are large round dark INK BLUE #142a35, flat circles, same size, generous spacing. TOP and SIDE faces entirely BLANK cream with no pips. Never add written digits or any text. No floor/drop shadow, motion lines, glow, paw motif, letters or board. All corners visible with about10% transparent margin. Other dice in set must use this same camera, scale and lighting. No eyes or characters.\nClean indie flat vector illustration matching the style reference warrior exactly: angular faceted planes with straight hard edges, like folded paper or cut gems, two to four tones per material, single light source from the upper left. Bold dramatic silhouette, same body proportions and exaggeration as the reference. No rounded blobby shapes, no gradients, no texture, no grain, no noise, no glow, no blur, no black outlines. Crisp clean edges, fully transparent background. Simple eyes like the reference with one clear white highlight at the upper left. Smallest details at least 10 px wide.",
+      "transparent_generation": true,
+      "references": [
+        "exec-5620a481-eed4-4541-bc35-314724e24caf.png",
+        "style-reference-warrior.png",
+        "floor-reference.png"
+      ]
+    },
+    {
+      "file": "assets/game/card-back.png",
+      "size": [
+        600,
+        840
+      ],
+      "prompt": "Use case: stylized-concept. ONE playing card BACK for this game, tall portrait ratio5:7, final600×840. Straight upright rectangular card with gently rounded corners, centered, no perspective/tilt. OPAQUE DARK TEAL #07585a card face, one thin warm GOLD inset frame and one LARGE GOLD DIAMOND (rhombus) motif in the center. Gold motif made of 2–3 bold angular flat gold planes, minimal and recognizable when card is small; not intricate filigree. Broad uninterrupted dark teal between border and diamond. No text, letters, numbers, cat faces, crest, glow, sparkle or outside shadow. No green or magenta in the artwork. For reliable cutout, render this working source with SOLID PURE MAGENTA #FF00FF outside the rectangle; code removes it and fits the card to final canvas. Card interior fully opaque, no transparent hole.\nClean indie flat vector illustration matching the style reference warrior exactly: angular faceted planes with straight hard edges, like folded paper or cut gems, two to four tones per material, single light source from the upper left. Bold dramatic silhouette, same body proportions and exaggeration as the reference. No rounded blobby shapes, no gradients, no texture, no grain, no noise, no glow, no blur, no black outlines. Crisp clean edges, fully transparent background. Simple eyes like the reference with one clear white highlight at the upper left. Smallest details at least 10 px wide.",
+      "transparent_generation": false,
+      "references": [
+        "style-reference-warrior.png",
+        "floor-reference.png"
+      ]
+    }
+  ]
+}
