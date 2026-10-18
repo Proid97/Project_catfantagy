@@ -27,11 +27,19 @@ const TYPES = Object.keys(TERRAIN);
 const DISC_Y = 0.40 * TILE; // 숫자 패: 칸 아래쪽 가운데. 오브젝트 그림은 위쪽을 쓴다.
 const DISC_R = 0.26 * TILE;
 // 성 그림(원본 512px)을 그리는 크기(월드 단위). 보이는 성의 폭은 약 82로 칸 폭의 41%.
-// 임시: 이웃 꼭짓점(100 떨어짐, 길이 지날 자리)을 가리지 않는 가장 큰 크기. 테두리까지 잰 실루엣이 가장 가까운 이웃(오른쪽 위, 깃발 쪽)과 약 10 떨어진다.
+// 임시: 이웃 꼭짓점(100 떨어짐, 길이 지날 자리)을 가리지 않는 가장 큰 크기. 테두리까지 잰 실루엣이 가장 가까운 이웃(오른쪽 위, 깃발 쪽)과 약 9 떨어진다.
 // 이웃 칸 숫자 패 가장자리를 약 10% 덮지만, 숫자 패를 성보다 나중에 그려 숫자는 가려지지 않는다.
 const CASTLE = 120;
-const CASTLE_MIN = 46; // 멀리서도 성 그림이 이 CSS px보다 작아지지 않게 한다(보이는 성 폭 약 32px). 확대 0.38배 아래에서 커진다
+// 임시: 멀리 볼수록 성을 땅보다 크게 그린다(castleSize). 기본 배율 NATURAL 이상에서는 CASTLE 그대로,
+// 판 전체를 볼 때는 화면에서 CASTLE_FAR CSS px(4인 판 iPad 세로에서 칸 폭 35px의 약 2배).
+// 휴대폰처럼 칸이 작게 보이면 그때 칸 폭의 CASTLE_FAR_TILES배까지만 키워 판을 덮지 않게 한다(4인 판 휴대폰 세로 약 44px).
+const NATURAL = 0.7; // 칸 폭 140 CSS px. 플레이어를 눌러 왕성으로 갈 때 전체 보기였다면 이 배율로 확대한다
+const CASTLE_FAR = 72; // 기본 배율의 성(120 × 0.7 = 84px)보다 크면 확대할 때 성이 줄어 보이므로 그보다 작게 둔다
+const CASTLE_FAR_TILES = 2.5;
+const CASTLE_ABOVE = 2; // 성이 제 크기의 2배를 넘으면(숫자 글자 약 9 CSS px 이하) 숫자 패 위에 그린다
+const CASTLE_BASE = 0.26; // 전체 보기에서 성 아래 플레이어 색 받침의 반지름(성 그림 크기에 대한 비율)
 const CASTLE_FOOT = 420 / 512; // 땅에 닿는 점(원본 256, 420)을 꼭짓점에 둔다
+const GLIDE = 300; // 왕성으로 가는 시점 이동 시간(ms)
 const FOAM = 26; // 해안 거품 굵기. 절반은 육지 그림에 덮인다
 const CLASS_NAMES = { warrior: '냥전사', mage: '냥법사', assassin: '냥살자' };
 // 임시: 나와 봇. 인원수만큼 앞에서부터 쓴다. 판의 starts 순서와 같다(팀전은 0·1번이 한 팀).
@@ -65,6 +73,19 @@ const CORNERS = hexCorners(0, 0, TILE);
 const EDGE_DIRS = [[1, 0], [0, 1], [-1, 1], [-1, 0], [0, -1], [1, -1]];
 
 const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
+const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)');
+// ponytail: 지금은 모든 왕성 자리를 안다. 안개가 생기면 본 적 있는 왕성만 참이 되게 여기만 바꾼다.
+const castleKnown = player => true;
+
+// 성 크기(월드 단위). 화면 크기는 전체 보기 far px에서 기본 배율 CASTLE × NATURAL px까지 log 배율의 세제곱으로 늘고,
+// 그 뒤로는 땅과 함께 커진다. 확대할수록 화면 크기가 줄지 않고, 세제곱이라 기본 배율에서 꺾이는 느낌이 smoothstep보다 작다.
+// 화면 크기와 판 전체 배율(minZoom)만으로 정해져 화면을 몇 번 돌려도 같은 크기로 돌아온다.
+function castleSize(zoom, minZoom) {
+  if (zoom >= NATURAL) return CASTLE;
+  const far = Math.min(CASTLE_FAR, CASTLE_FAR_TILES * 2 * TILE * minZoom);
+  const t = Math.max(Math.log(zoom / minZoom) / Math.log(NATURAL / minZoom), 0);
+  return Math.max(CASTLE, far * (CASTLE * NATURAL / far) ** (t ** 3) / zoom);
+}
 
 function polygon(path, x, y, points) {
   points.forEach(([px, py], i) => (i ? path.lineTo(x + px, y + py) : path.moveTo(x + px, y + py)));
@@ -144,7 +165,8 @@ export function loadMapArt() {
 }
 
 const avatar = (player, index) => `<span class="avatar ${player.classId}" style="--player: ${PALETTE.players[index]}" aria-hidden="true">${CLASS_NAMES[player.classId][1]}</span>`;
-const playerItem = (player, index) => `<li class="player">${avatar(player, index)}<span>${player.name}</span><span class="sr-only">${CLASS_NAMES[player.classId]}</span></li>`;
+// 누르면 그 플레이어의 왕성으로 시점이 간다. 종족 이름은 버튼 밖에 둬 버튼 이름은 할 일만 말한다.
+const playerButton = (player, index, tag = 'span') => `<button class="player" data-player="${index}" aria-label="${index ? `${player.name}의` : '내'} 왕성으로 이동">${avatar(player, index)}<${tag}>${player.name}</${tag}></button><span class="sr-only">${CLASS_NAMES[player.classId]}</span>`;
 
 export function mapScreen(root, onModes) {
   // HUD 그림은 loading="lazy"라 지도 화면이 보일 때 받는다. 타이틀 첫 로딩과 겹치지 않는다.
@@ -172,7 +194,7 @@ export function mapScreen(root, onModes) {
   const retry = root.querySelector('.map-retry');
   const view = { w: 0, h: 0, left: 0, top: 0, dpr: 1 };
   const pointers = new Map();
-  let camera, bounds, paths, sprites, numbers, castles, tiles, selected, minZoom, mini, big, tap;
+  let camera, bounds, paths, sprites, numbers, castles, tiles, selected, minZoom, mini, big, tap, glide;
   let frame = 0;
   let renders = 0;
 
@@ -268,6 +290,18 @@ export function mapScreen(root, onModes) {
   function render() {
     frame = 0;
     const start = performance.now();
+    if (glide) {
+      // 끝에서 부드럽게 멈춘다(ease-out). 배율은 비율로 섞고, 목표점은 화면에서 곧게 가운데로 온다.
+      const t = Math.min((start - glide.start) / GLIDE, 1);
+      const eased = 1 - (1 - t) ** 3;
+      const { from, to } = glide;
+      camera.zoom = clamp(from.zoom * (to.zoom / from.zoom) ** eased, minZoom, MAX_ZOOM);
+      const rest = (1 - eased) * from.zoom / camera.zoom;
+      camera.x = to.x - (to.x - from.x) * rest;
+      camera.y = to.y - (to.y - from.y) * rest;
+      if (t < 1) requestRender();
+      else glide = null;
+    }
     const { dpr, w, h } = view;
     const { x: cx, y: cy, zoom } = camera;
     const k = dpr * zoom;
@@ -313,15 +347,11 @@ export function mapScreen(root, onModes) {
       ctx.strokeStyle = PALETTE.select;
       ctx.stroke(selected);
     }
-    // 성은 멀리서도 보이게 화면에서 일정 크기 아래로 줄지 않는다. 커져도 땅에 닿는 점은 꼭짓점에 그대로 있다.
-    const size = Math.max(CASTLE, CASTLE_MIN / zoom);
-    if (art) {
-      // 전체 보기에서는 지붕 색만으로 찾기 어려워 성 아래에 플레이어 색 받침을 깐다.
-      if (TILE * zoom < DETAIL) castleDots(ctx, 12 / zoom);
-      const level = levelOf(art.castles[0], size * k);
-      for (const { player, x, y } of castles) ctx.drawImage(art.castles[player][level], x - size / 2, y - size * CASTLE_FOOT, size, size);
-    } else castleDots(ctx, size * 0.2);
-    // 숫자 패는 성 다음에 그린다. 성 가장자리가 이웃 칸 숫자 패에 걸쳐도 숫자는 늘 보인다.
+    // 제 크기 가까이에서는 숫자 패를 성 다음에 그린다. 성 가장자리가 이웃 칸 숫자 패에 걸쳐도 숫자는 늘 보인다.
+    // 멀리서 크게 키운 성은 숫자 패(이때는 아주 작다) 위에 그린다.
+    const size = castleSize(zoom, minZoom);
+    const above = size > CASTLE * CASTLE_ABOVE;
+    if (!above) drawCastles(size, k);
     if (TILE * zoom >= DETAIL) {
       ctx.fillStyle = PALETTE.disc;
       ctx.fill(paths.disc);
@@ -337,9 +367,32 @@ export function mapScreen(root, onModes) {
         ctx.fillText(tile.text, tile.x, tile.y + DISC_Y + 1);
       }
     }
+    if (above) drawCastles(size, k);
     placeView(miniView, mini);
     performance.measure('map-render', { start, detail: { tiles: drawn, objects } });
     if (++renders % 120 === 0) performance.clearMeasures('map-render');
+  }
+
+  // 성은 땅에 닿는 점을 꼭짓점에 두고 위로 커진다. size는 월드 단위, k는 월드 1단위의 기기 px.
+  function drawCastles(size, k) {
+    if (!art) return castleDots(ctx, size * 0.2);
+    // 전체 보기에서는 지붕 색만으로 찾기 어려워 성 아래에 플레이어 색 받침을 깐다.
+    if (TILE * camera.zoom < DETAIL) castleDots(ctx, size * CASTLE_BASE);
+    const level = levelOf(art.castles[0], size * k);
+    for (const { player, x, y } of castles) ctx.drawImage(art.castles[player][level], x - size / 2, y - size * CASTLE_FOOT, size, size);
+  }
+
+  // 전체 보기(기본 배율보다 멀리)였다면 기본 배율까지 확대하고, 아니면 배율을 그대로 둔다. 판을 만지면 멈춘다(lookAt, pointerdown).
+  function goToCastle(player) {
+    const castle = castles.find(item => item.player === player);
+    if (!castle || !castleKnown(player)) return;
+    const zoom = Math.max(camera.zoom, NATURAL);
+    if (!reduceMotion.matches) {
+      glide = { from: { ...camera }, to: { x: castle.x, y: castle.y, zoom }, start: performance.now() };
+      return requestRender();
+    }
+    camera.zoom = zoom;
+    lookAt(castle.x, castle.y);
   }
 
   function resize() {
@@ -367,6 +420,7 @@ export function mapScreen(root, onModes) {
 
   // 판을 잃어버리지 않게 화면 가운데는 판 상자 안에만 둔다.
   function lookAt(x, y) {
+    glide = null;
     camera.x = clamp(x, bounds.minX, bounds.maxX);
     camera.y = clamp(y, bounds.minY, bounds.maxY);
     requestRender();
@@ -397,6 +451,7 @@ export function mapScreen(root, onModes) {
 
   const point = event => ({ x: event.clientX - view.left, y: event.clientY - view.top });
   canvas.addEventListener('pointerdown', event => {
+    glide = null;
     if (event.button !== 0) return;
     canvas.setPointerCapture(event.pointerId);
     const at = point(event);
@@ -444,6 +499,10 @@ export function mapScreen(root, onModes) {
     dialog.close();
   });
   dialog.addEventListener('close', () => minimap.focus());
+  root.querySelector('.hud-players').addEventListener('click', event => {
+    const button = event.target.closest('[data-player]');
+    if (button) goToCastle(Number(button.dataset.player));
+  });
   retry.addEventListener('click', showArt);
   root.querySelector('.mode-change').addEventListener('click', () => {
     root.hidden = true;
@@ -459,12 +518,13 @@ export function mapScreen(root, onModes) {
     // 팀전은 0·1번이 한 팀이라 같은 팀(봇 1)을 먼저 보인다.
     const groups = mode === 'team' ? [['같은 팀', others.slice(0, 1)], ['상대 팀', others.slice(1)]] : [['상대', others]];
     root.querySelector('.hud-players').innerHTML = `
-      <p class="player me">${avatar(me, 0)}<strong>${me.name}</strong><span class="sr-only">${CLASS_NAMES[me.classId]}</span></p>
-      ${groups.map(([label, list]) => `<p class="group-label" aria-hidden="true">${label}</p><ul class="opponents" aria-label="${label}">${list.map(player => playerItem(player, PLAYERS.indexOf(player))).join('')}</ul>`).join('')}`;
+      ${playerButton(me, 0, 'strong')}
+      ${groups.map(([label, list]) => `<p class="group-label" aria-hidden="true">${label}</p><ul class="opponents" aria-label="${label}">${list.map(player => `<li>${playerButton(player, PLAYERS.indexOf(player))}</li>`).join('')}</ul>`).join('')}`;
     heading.textContent = `냥국 지도 · ${MODES[mode].name}`;
     root.dataset.mode = mode;
     root.style.setProperty('--board-ratio', bounds.w / bounds.h);
     selected = null;
+    glide = null;
     status.textContent = '';
     root.hidden = false;
     // zoom 0은 resize가 판 전체가 보이는 배율로 올린다.

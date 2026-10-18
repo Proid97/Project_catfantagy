@@ -6,14 +6,18 @@
 .hud > * { position: absolute; margin: 0; }
 .hud-panel { border-radius: 16px; background: var(--hud-panel); box-shadow: var(--hud-shadow); }
 .hud-players { top: 0; left: 0; max-width: calc(50% - 6px); padding: 8px 14px 8px 8px; }
-.player { display: flex; align-items: center; gap: 8px; margin: 0; font-size: 16px; white-space: nowrap; }
+/* 플레이어를 누르면 그 왕성으로 간다. 줄마다 누르는 판정이 44px이고 서로 겹치지 않는다.
+   상대 그림(32px)은 위아래 6px를 판정으로 덧대고, 목록 바깥 여백을 그만큼 당겨 첫 줄과 끝 줄 자리는 그대로 둔다.
+   그래서 상대 줄 사이 간격만 4px에서 12px로 넓어졌다(36px 간격으로는 겹치지 않는 44px 판정을 둘 수 없다). */
+.player { display: flex; align-items: center; gap: 8px; width: 100%; min-height: 44px; margin: 0; padding: 0; border: 0; border-radius: 22px; background: none; color: inherit; font-size: 16px; text-align: start; white-space: nowrap; pointer-events: auto; touch-action: manipulation; }
+.player:focus-visible { outline-color: var(--hud-ink); outline-offset: 2px; }
 /* 테두리는 판 위 성과 같은 플레이어 색, 안쪽은 종족 색 */
 .avatar { display: grid; place-items: center; flex: none; width: 44px; height: 44px; border: 3px solid var(--player); border-radius: 50%; background: var(--tint); color: var(--ink); font-size: 19px; }
 .warrior { --tint: #fbdfaa; --ink: #6e3423; }
 .mage { --tint: #e4dbfc; --ink: #513b7e; }
 .assassin { --tint: #c9ede0; --ink: #1c5957; }
 .group-label { margin: 8px 0 0; padding-top: 6px; border-top: 1px solid var(--hud-line); color: var(--hud-soft); font-size: 11px; }
-.opponents { display: grid; gap: 4px; margin: 4px 0 0; padding: 0 0 0 6px; list-style: none; }
+.opponents { display: grid; margin: -2px 0 -6px; padding: 0 0 0 6px; list-style: none; }
 .opponents .player { font-size: 13px; }
 .opponents .avatar { width: 32px; height: 32px; border-width: 3px; font-size: 14px; }
 .hud-resources { top: 0; right: 0; display: flex; gap: 2px; padding: 4px 8px; list-style: none; }

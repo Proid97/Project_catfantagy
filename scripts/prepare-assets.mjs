@@ -68,7 +68,7 @@ console.log(`타이틀 이미지 ${(originalBytes / 1e6).toFixed(2)} MB → ${(o
 
 // 임시 · 스티커 테두리: 그림 둘레에 크림색 띠, 그 바깥에 얇은 짙은 선을 빌드 때 굽는다. 그릴 때 드는 비용이 없다.
 // band·line은 결과 그림의 px. 그림(알파 128 이상)에서 떨어진 거리로 칠해 모서리가 둥글고 바깥 1px이 부드럽다.
-// 캔버스 크기는 그대로라 둘레에 band + line + 1px 넘게 빈 곳이 있어야 한다. 성·재화 아이콘에 쓰고, 마을·길·다른 건물도 이걸로 두른다.
+// 캔버스 크기는 그대로라 둘레에 band + line + 0.5px 넘게 빈 곳이 있어야 한다. 성·재화 아이콘에 쓰고, 마을·길·다른 건물도 이걸로 두른다.
 const OUTLINE = { band: [255, 246, 223], line: [43, 32, 20] }; // 지도 화면의 숫자 패(#fff6df)·성 테두리(#2b2014)와 같은 색
 async function sticker(image, band, line) {
   const { data, info: { width, height } } = await image.ensureAlpha().raw().toBuffer({ resolveWithObject: true });
@@ -109,11 +109,13 @@ const mapArt = [
   ...['grass-1', 'grass-2', 'grass-3', 'barren', 'lake'].map(name => [`map/${name}`, image => image.resize(600, 600)]),
   ...OBJECTS.map(name => [`map/${name}`, image => image.extract({ left, top, width, height }).resize(Math.round(width * 600 / 1024)), objectsChangedAt]),
   // 성(원본 512px)은 판에서 120 단위로 그린다. 최대 확대 1.4배 × 2배 화면 = 336px.
-  // 지붕·깃발 마스크는 테두리 없이 같은 크기로 둬 성 그림과 픽셀이 맞는다. 테두리는 화면에서 약 2~3.5 CSS px(확대 1~1.4배).
-  ['game/castle', image => sticker(image.resize(336), 5, 2)],
+  // 지붕·깃발 마스크는 테두리 없이 같은 크기로 둬 성 그림과 픽셀이 맞는다. 테두리(9.8px)는 화면에서 약 3.5~4.9 CSS px(확대 1~1.4배).
+  // 원본 둘레에 투명한 곳이 40px(줄이면 26px) 넘게 있어 캔버스를 넓히지 않는다.
+  ['game/castle', image => sticker(image.resize(336), 7, 2.8)],
   ['game/castle-team', image => image.resize(336)],
-  // 재화 아이콘은 24 CSS px(2배 화면 48px)로 보인다. 테두리(약 2.3 CSS px)가 들어갈 자리를 위해 44px로 줄이고 둘레를 2px 넓힌다.
-  ...['gold', 'crystal', 'wood', 'fish'].map(name => [`game/icon-${name}`, image => sticker(image.resize(44).extend({ top: 2, bottom: 2, left: 2, right: 2, background: '#0000' }), 3, 1.5)]),
+  // 재화 아이콘은 24 CSS px(2배 화면 48px)로 보인다. 둘레의 투명한 곳을 잘라 그림을 34px 안에 맞추고,
+  // 테두리(6.3px, 약 3.2 CSS px)가 들어갈 자리로 둘레를 7px 넓혀 48px로 만든다.
+  ...['gold', 'crystal', 'wood', 'fish'].map(name => [`game/icon-${name}`, image => sticker(image.trim().resize(34, 34, { fit: 'contain', background: '#0000' }).extend({ top: 7, bottom: 7, left: 7, right: 7, background: '#0000' }), 4.2, 2.1)]),
   // 카드 뒷면은 64 CSS px 너비로 보인다. 둘레의 투명한 여백을 잘라 카드 칸을 꽉 채운다.
   ['game/card-back', image => image.trim().resize(128)],
 ];

@@ -32,6 +32,55 @@ async function tapLand(page) {
   }
   throw new Error('육지 칸을 찾지 못함');
 }
+// 시점 이동(300ms)이 끝나고 다시 그리기도 멈출 때까지 기다린다.
+async function glided(page) {
+  await page.waitForTimeout(400);
+  await settled(page);
+}
+// src/map-screen.js의 기본 배율 NATURAL과 같은 값. 이 배율부터 성은 120 월드 단위다.
+const NATURAL = 0.7;
+// 지도 그림판의 마지막 한 번 그리기에서 그림과 숫자를 그린 순서(drawOrder)와 그림 크기(drawSizes: [높이(월드 단위), 월드 1단위의 기기 px]).
+function recordDraws() {
+  const proto = CanvasRenderingContext2D.prototype;
+  window.drawOrder = [];
+  window.drawSizes = [];
+  for (const name of ['clearRect', 'drawImage', 'fillText']) {
+    const original = proto[name];
+    proto[name] = function (...args) {
+      if (this.canvas.classList?.contains('map-canvas')) {
+        if (name === 'clearRect') {
+          window.drawOrder = [];
+          window.drawSizes = [];
+        } else window.drawOrder.push(name);
+        if (name === 'drawImage') window.drawSizes.push([args[4], this.getTransform().a]);
+      }
+      return original.apply(this, args);
+    };
+  }
+}
+// 성은 판에서 마지막으로 그리는 그림 count장이다(숫자 패는 그림이 아니다). [배율, 화면 높이(CSS px), 월드 높이]
+async function castleDraws(page, count) {
+  const [sizes, dpr] = await page.evaluate(() => [window.drawSizes, devicePixelRatio]);
+  return sizes.slice(-count).map(([height, scale]) => [scale / dpr, height * scale / dpr, height]);
+}
+// 미니맵에서 플레이어 색 점(그 플레이어의 성 자리)의 가운데와, 시야 사각형(화면 가운데)의 가운데(페이지 좌표)
+async function miniCenters(page, rgb) {
+  const canvas = page.locator('.minimap canvas');
+  const [area, rect] = await Promise.all([box(canvas), box(view(page))]);
+  const dot = await canvas.evaluate((canvas, [r, g, b]) => {
+    const { data } = canvas.getContext('2d').getImageData(0, 0, canvas.width, canvas.height);
+    let x = 0, y = 0, count = 0;
+    for (let i = 0; i < data.length; i += 4) {
+      if (data[i] !== r || data[i + 1] !== g || data[i + 2] !== b) continue;
+      x += i / 4 % canvas.width + .5;
+      y += Math.floor(i / 4 / canvas.width) + .5;
+      count++;
+    }
+    const scale = canvas.width / canvas.clientWidth;
+    return { x: x / count / scale, y: y / count / scale };
+  }, rgb);
+  return { dot: { x: area.x + dot.x, y: area.y + dot.y }, view: { x: rect.x + rect.width / 2, y: rect.y + rect.height / 2 } };
+}
 function watchErrors(page) {
   const errors = [];
   page.on('pageerror', error => errors.push(error.message));
@@ -72,6 +121,13 @@ for (const [width, height, hash, players, name] of [
     await expect(page.getByRole('list', { name: '보유 자원' }).getByRole('listitem')).toHaveText(['금0', '수정0', '나무0', '생선0']);
     await expect.poll(() => page.locator('.hud img').evaluateAll(images => images.filter(image => image.complete && image.naturalWidth > 0).length)).toBe(7);
     for (const name of ['미니맵 크게 보기', '임시 모드 바꾸기']) expect((await box(page.getByRole('button', { name }))).height).toBeGreaterThanOrEqual(44);
+    // 플레이어 줄(왕성으로 가는 버튼)은 누르는 판정이 가로세로 44px 이상이고 서로 겹치지 않는다.
+    const rows = await page.locator('.hud-players button').evaluateAll(buttons => buttons.map(button => button.getBoundingClientRect().toJSON()));
+    expect(rows).toHaveLength(players);
+    for (const [i, row] of rows.entries()) {
+      expect(Math.min(row.width, row.height)).toBeGreaterThanOrEqual(44);
+      for (const other of rows.slice(i + 1)) expect(overlaps(row, other)).toBe(false);
+    }
     await page.screenshot({ path: test.info().outputPath(`map-${name}-${width}x${height}.png`) });
     expect(errors).toEqual([]);
   });
@@ -95,6 +151,56 @@ test('가만히 있으면 다시 그리지 않음', async ({ page }) => {
   const before = await page.evaluate(() => window.rafCalls);
   await page.waitForTimeout(1000);
   expect(await page.evaluate(() => window.rafCalls)).toBe(before);
+});
+
+test('플레이어를 누르면 그 왕성으로 시점이 감', async ({ page }) => {
+  await page.setViewportSize({ width: 768, height: 1024 });
+  await page.addInitScript(() => {
+    window.rafCalls = 0;
+    const request = window.requestAnimationFrame.bind(window);
+    window.requestAnimationFrame = callback => { window.rafCalls++; return request(callback); };
+  });
+  await page.addInitScript(recordDraws);
+  await open(page, '#map-team');
+  const zoom = async () => (await castleDraws(page, 1))[0][0];
+  const expectAt = async rgb => {
+    const { dot, view } = await miniCenters(page, rgb);
+    expect(Math.abs(dot.x - view.x)).toBeLessThan(1.5);
+    expect(Math.abs(dot.y - view.y)).toBeLessThan(1.5);
+  };
+  // 전체 보기에서 누르면 기본 배율까지 확대하며 봇 2의 성으로 간다. 끝나면 다시 그리지 않는다.
+  const bot2 = page.getByRole('button', { name: '봇 2의 왕성으로 이동' });
+  await expect(bot2).toBeVisible();
+  await bot2.click();
+  await glided(page);
+  await expectAt([224, 82, 74]);
+  expect(await zoom()).toBeCloseTo(NATURAL, 3);
+  const before = await page.evaluate(() => window.rafCalls);
+  await page.waitForTimeout(1000);
+  expect(await page.evaluate(() => window.rafCalls)).toBe(before);
+  // 기본 배율보다 가까이 보고 있었다면 배율은 그대로 두고 옮기기만 한다.
+  const [x, y] = await center(page);
+  await page.mouse.move(x, y);
+  await page.mouse.wheel(0, -100);
+  await settled(page);
+  const closer = await zoom();
+  expect(closer).toBeGreaterThan(NATURAL + 0.05);
+  await page.getByRole('button', { name: '봇 3의 왕성으로 이동' }).click();
+  await glided(page);
+  await expectAt([154, 90, 214]);
+  expect(await zoom()).toBeCloseTo(closer, 3);
+  // 판을 만지면(휠) 이동이 바로 멈춘다. 같은 순간에 눌러 첫 화면도 그리기 전에 멈추므로 시점이 그대로다.
+  await page.evaluate(([x, y]) => {
+    document.querySelector('[data-player="0"]').click();
+    document.querySelector('.map-canvas').dispatchEvent(new WheelEvent('wheel', { clientX: x, clientY: y, cancelable: true }));
+  }, [x, y]);
+  await glided(page);
+  await expectAt([154, 90, 214]);
+  // 동작 줄이기: 미끄러지지 않고 바로 옮긴다.
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.getByRole('button', { name: '내 왕성으로 이동' }).click();
+  await settled(page);
+  await expectAt([242, 179, 61]);
 });
 
 test('끌면 이동, 휠을 올리면 확대', async ({ page }) => {
@@ -260,26 +366,28 @@ test('그리기 비용(4인 판, CPU 6배 느리게)', async ({ browser, browser
 test('지형 그림과 성: 2배 화면 전체 보기와 내 성 가까이', async ({ browser }) => {
   test.setTimeout(40000);
   const context = await browser.newContext({ viewport: { width: 768, height: 1024 }, deviceScaleFactor: 2 });
-  // 지도 그림판의 마지막 한 번 그리기에서 그림과 숫자를 그린 순서
-  await context.addInitScript(() => {
-    const proto = CanvasRenderingContext2D.prototype;
-    window.drawOrder = [];
-    for (const name of ['clearRect', 'drawImage', 'fillText']) {
-      const original = proto[name];
-      proto[name] = function (...args) {
-        if (this.canvas.classList?.contains('map-canvas')) {
-          if (name === 'clearRect') window.drawOrder = [];
-          else window.drawOrder.push(name);
-        }
-        return original.apply(this, args);
-      };
-    }
-  });
+  await context.addInitScript(recordDraws);
   const page = await context.newPage();
   const errors = watchErrors(page);
   await page.goto('http://127.0.0.1:4173/#map');
   await settled(page);
   await page.screenshot({ path: test.info().outputPath('map-ipad-duel-fit-2x.png') });
+  // 1대1 전체 보기(숫자 글자 약 7 CSS px): 크게 키운 성을 숫자 패 위에 그린다. 마지막 두 그림이 두 성이다.
+  let order = await page.evaluate(() => window.drawOrder);
+  expect(order).toContain('fillText');
+  expect(order.lastIndexOf('fillText')).toBeLessThan(order.length - 2);
+  expect(order.slice(-2)).toEqual(['drawImage', 'drawImage']);
+  // 내 줄을 누르면 기본 배율로 내 성에 간다. 제 크기에서는 숫자 패를 성 다음에 그린다.
+  await page.getByRole('button', { name: '내 왕성으로 이동' }).click();
+  await glided(page);
+  order = await page.evaluate(() => window.drawOrder);
+  expect(order.lastIndexOf('drawImage')).toBeLessThan(order.indexOf('fillText'));
+  await page.screenshot({ path: test.info().outputPath('map-ipad-duel-natural-2x.png') });
+  const [x, y] = await center(page);
+  await page.mouse.move(x, y);
+  await page.mouse.wheel(0, 400);
+  await settled(page);
+  await page.screenshot({ path: test.info().outputPath('map-ipad-duel-middle-2x.png') });
   await page.getByRole('button', { name: '미니맵 크게 보기' }).click();
   const big = page.locator('.minimap-dialog canvas');
   const dot = await big.evaluate(canvas => {
@@ -296,7 +404,6 @@ test('지형 그림과 성: 2배 화면 전체 보기와 내 성 가까이', asy
   });
   await big.click({ position: dot });
   await expect(page.locator('.minimap-dialog')).toBeHidden();
-  const [x, y] = await center(page);
   await page.mouse.move(x, y);
   for (let i = 0; i < 8; i++) await page.mouse.wheel(0, -400);
   await settled(page);
@@ -316,7 +423,7 @@ test('지형 그림과 성: 2배 화면 전체 보기와 내 성 가까이', asy
   expect(roof.above).toBeGreaterThan(2000);
   expect(roof.near).toBe(0);
   // 숫자 패는 성보다 나중에 그려 성에 가려지지 않는다.
-  const order = await page.evaluate(() => window.drawOrder);
+  order = await page.evaluate(() => window.drawOrder);
   expect(order).toContain('fillText');
   expect(order.lastIndexOf('drawImage')).toBeLessThan(order.indexOf('fillText'));
   await page.locator('.hud-resources').screenshot({ path: test.info().outputPath('map-hud-resources-2x.png') });
@@ -339,6 +446,41 @@ test('지형 그림과 성: 2배 화면 전체 보기와 내 성 가까이', asy
   for (const count of discs) expect(count).toBeGreaterThan(300);
   expect(errors).toEqual([]);
   await context.close();
+});
+
+// 4인 판 iPad 세로. 전체 보기에서 최대 확대까지 조금씩 확대하며 성의 화면 크기를 잰다.
+test('성 크기: 멀리 볼수록 크게, 확대해도 화면에서 줄지 않음', async ({ page }) => {
+  await page.setViewportSize({ width: 768, height: 1024 });
+  await page.addInitScript(recordDraws);
+  await open(page, '#map-team');
+  const [x, y] = await center(page);
+  const fit = await castleDraws(page, 4);
+  // 전체 보기: 네 성이 모두 화면에서 72 CSS px(칸 폭 약 35px의 2배)
+  for (const [, height] of fit) expect(height).toBeCloseTo(72, 1);
+  // 화면을 돌렸다 돌아와도 같은 크기
+  await page.setViewportSize({ width: 1024, height: 768 });
+  await settled(page);
+  await page.setViewportSize({ width: 768, height: 1024 });
+  await settled(page);
+  expect((await castleDraws(page, 1))[0][1]).toBeCloseTo(fit[0][1], 3);
+  const sweep = [fit[0]];
+  await page.mouse.move(x, y);
+  for (let step = 0; step < 60 && sweep.at(-1)[0] < 1.4 - 1e-6; step++) {
+    await page.mouse.wheel(0, -40);
+    await settled(page);
+    sweep.push((await castleDraws(page, 1))[0]);
+  }
+  expect(sweep.at(-1)[0]).toBeCloseTo(1.4, 3);
+  expect(sweep.filter(([zoom]) => zoom < NATURAL).length).toBeGreaterThan(8);
+  for (const [i, [zoom, height, world]] of sweep.entries()) {
+    if (i) {
+      expect(zoom).toBeGreaterThan(sweep[i - 1][0]);
+      expect(height, `배율 ${zoom.toFixed(3)}에서 성이 화면에서 줄어듦`).toBeGreaterThanOrEqual(sweep[i - 1][1] - 1e-6);
+    }
+    // 기본 배율부터는 제 크기(120), 그보다 멀면 더 크게
+    if (zoom >= NATURAL) expect(world).toBeCloseTo(120, 6);
+    else expect(world).toBeGreaterThan(120);
+  }
 });
 
 test('타이틀에서 대전 방식을 골라 판 보기, 모드 바꾸기로 돌아오기', async ({ page }) => {
