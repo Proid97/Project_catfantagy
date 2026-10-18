@@ -275,5 +275,86 @@
     ],
     "review": "실제 PNG 25장으로 조립. 내부 빈틈과 중앙 투명 구멍 없음. 면 무늬 반복은 보이지만 대비가 낮음. 장식은 가장자리에만 있고 중앙에는 없음."
   },
-  "unverified": "게임에 얹었을 때의 객체 크기·입력·iPad 실기기 성능은 확인하지 않았습니다."
+  "unverified": "게임에 얹었을 때의 객체 크기·입력·iPad 실기기 성능은 확인하지 않았습니다.",
+  "terrain": {
+    "reference_commit": "dfa5f1eef504a2f9dcddbb08648550836d3c35a4",
+    "mode": "ChatGPT built-in image_gen",
+    "common_suffix": "Clean indie flat vector illustration matching the style reference warrior exactly: angular faceted planes with straight hard edges, like folded paper or cut gems, two to four tones per material, single light source from the upper left. Bold dramatic silhouette, same body proportions and exaggeration as the reference. No rounded blobby shapes, no gradients, no texture, no grain, no noise, no glow, no blur, no black outlines. Crisp clean edges, fully transparent background. Simple eyes like the reference with one clear white highlight at the upper left. Smallest details at least 10 px wide.",
+    "assets": [
+      {
+        "file": "forest.png",
+        "prompt": "Use case: stylized-concept. Asset for a top-down hex strategy game's FIELD, not the title screen.\nRender ONE simple inanimate terrain object only, no hex tile, no grass/dirt island base. Transparent outside the object. Huge clear silhouette in 2–4 flat angular color planes per material, so identifiable when the entire tile is only 48 px wide. No tiny details, letters, numbers, eyes, characters or labels. One small attached flat contact shadow underneath only, no blurred or detached shadow. No perspective grid.\nSquare source canvas, object centered with comfortable margins, to be resized and placed into x300–724,y190–530 of a 1024×1024 tile by code. Don't draw placement guides or reserved circles. The final lower number-disc space and corners will remain transparent.\nImage 1 is the stylistic warrior reference ONLY; do not draw cats. Image 2 contains the existing subdued floor tiles for matching color planes.\nSubject: EXACTLY FOUR chunky evergreen trees together as ONE triangular forest cluster. Dark teal-green family like image3 title trees, visible large angular canopy tiers, a few short warm brown trunks. One tall central tree and three shorter overlapping trees, stepped pointed silhouette, no branches/needles, no individual leaves. Group dense and compact, much simpler than title forest. Green mass dominates, no gray rocks, flowers, ore or snow.\nClean indie flat vector illustration matching the style reference warrior exactly: angular faceted planes with straight hard edges, like folded paper or cut gems, two to four tones per material, single light source from the upper left. Bold dramatic silhouette, same body proportions and exaggeration as the reference. No rounded blobby shapes, no gradients, no texture, no grain, no noise, no glow, no blur, no black outlines. Crisp clean edges, fully transparent background. Simple eyes like the reference with one clear white highlight at the upper left. Smallest details at least 10 px wide.",
+        "transparent_generation": true,
+        "selected_source": "exec-0a056ec2-9ecc-4cf1-b05d-b0a4b289c9e9.png"
+      },
+      {
+        "file": "gold-mine.png",
+        "prompt": "Use case: stylized-concept. Asset for a top-down hex strategy game's FIELD, not the title screen.\nRender ONE simple inanimate terrain object only, no hex tile, no grass/dirt island base. Transparent outside the object. Huge clear silhouette in 2–4 flat angular color planes per material, so identifiable when the entire tile is only 48 px wide. No tiny details, letters, numbers, eyes, characters or labels. One small attached flat contact shadow underneath only, no blurred or detached shadow. No perspective grid.\nSquare source canvas, object centered with comfortable margins, to be resized and placed into x300–724,y190–530 of a 1024×1024 tile by code. Don't draw placement guides or reserved circles. The final lower number-disc space and corners will remain transparent.\nImage 1 is the stylistic warrior reference ONLY; do not draw cats. Image 2 contains the existing subdued floor tiles for matching color planes.\nSubject: a LOW BROAD gray rock mound with a huge simple dark mine entrance in a thick warm wooden frame, and two or three LARGE saturated GOLD chunks visibly placed at the entrance. Low trapezoid silhouette, not tall mountain peaks. Gold occupies about one quarter of the object for 48px readability; doorway dark opening another quarter. Inspired by image3 title mine but remove cart, wheels, rails and all small details. No grass island, no green colors, no long paths. One shallow contact shadow.\nClean indie flat vector illustration matching the style reference warrior exactly: angular faceted planes with straight hard edges, like folded paper or cut gems, two to four tones per material, single light source from the upper left. Bold dramatic silhouette, same body proportions and exaggeration as the reference. No rounded blobby shapes, no gradients, no texture, no grain, no noise, no glow, no blur, no black outlines. Crisp clean edges, fully transparent background. Simple eyes like the reference with one clear white highlight at the upper left. Smallest details at least 10 px wide.",
+        "transparent_generation": true,
+        "selected_source": "exec-684693aa-95fe-4281-9dbf-0a74a0ec5699.png"
+      },
+      {
+        "file": "crystal.png",
+        "prompt": "Use case: stylized-concept. Asset for a top-down hex strategy game's FIELD, not the title screen.\nRender ONE simple inanimate terrain object only, no hex tile, no grass/dirt island base. Transparent outside the object. Huge clear silhouette in 2–4 flat angular color planes per material, so identifiable when the entire tile is only 48 px wide. No tiny details, letters, numbers, eyes, characters or labels. One small attached flat contact shadow underneath only, no blurred or detached shadow. No perspective grid.\nSquare source canvas, object centered with comfortable margins, to be resized and placed into x300–724,y190–530 of a 1024×1024 tile by code. Don't draw placement guides or reserved circles. The final lower number-disc space and corners will remain transparent.\nImage 1 is the stylistic warrior reference ONLY; do not draw cats. Image 2 contains the existing subdued floor tiles for matching color planes.\nSubject: THREE chunky large crystals on ONE very low small flat gray rock foot: two PURPLE amethyst crystals and one bright TEAL crystal. Central purple crystal tallest, other two shorter angled out. Clean prism facets 3 tones, no bevel microfacets. Use title crystals image3 as identity but much simpler and include teal. Purple and teal dominate, rock foot less than 15% total height. No glow, sparkles, grass or gold.\nClean indie flat vector illustration matching the style reference warrior exactly: angular faceted planes with straight hard edges, like folded paper or cut gems, two to four tones per material, single light source from the upper left. Bold dramatic silhouette, same body proportions and exaggeration as the reference. No rounded blobby shapes, no gradients, no texture, no grain, no noise, no glow, no blur, no black outlines. Crisp clean edges, fully transparent background. Simple eyes like the reference with one clear white highlight at the upper left. Smallest details at least 10 px wide.",
+        "transparent_generation": true,
+        "selected_source": "exec-8051253e-6383-4ad0-80a3-f7af97c0ab43.png"
+      },
+      {
+        "file": "rock.png",
+        "prompt": "Use case: stylized-concept. Asset for a top-down hex strategy game's FIELD, not the title screen.\nRender ONE simple inanimate terrain object only, no hex tile, no grass/dirt island base. Transparent outside the object. Huge clear silhouette in 2–4 flat angular color planes per material, so identifiable when the entire tile is only 48 px wide. No tiny details, letters, numbers, eyes, characters or labels. One small attached flat contact shadow underneath only, no blurred or detached shadow. No perspective grid.\nSquare source canvas, object centered with comfortable margins, to be resized and placed into x300–724,y190–530 of a 1024×1024 tile by code. Don't draw placement guides or reserved circles. The final lower number-disc space and corners will remain transparent.\nImage 1 is the stylistic warrior reference ONLY; do not draw cats. Image 2 contains the existing subdued floor tiles for matching color planes.\nSubject: EXACTLY THREE TALL SHARP GRAY mountain-rock peaks clustered on a shallow gray foot. Strong jagged pointy silhouette, blue-gray light planes, slate gray shadows, no snow. Very different from the low gold mine: no gold/yellow/orange, no doorway/opening, no timber, no green trees. Three broad angular rock shapes only, 3 gray tones, no cracks or gravel texture.\nClean indie flat vector illustration matching the style reference warrior exactly: angular faceted planes with straight hard edges, like folded paper or cut gems, two to four tones per material, single light source from the upper left. Bold dramatic silhouette, same body proportions and exaggeration as the reference. No rounded blobby shapes, no gradients, no texture, no grain, no noise, no glow, no blur, no black outlines. Crisp clean edges, fully transparent background. Simple eyes like the reference with one clear white highlight at the upper left. Smallest details at least 10 px wide.",
+        "transparent_generation": true,
+        "selected_source": "exec-8ed05f0c-0421-44ba-b851-de03ee3e0752.png"
+      },
+      {
+        "file": "lake.png",
+        "prompt": "Use case: stylized-concept. OPAQUE working surface art to be clipped by code into the EXACT existing hex tile. Square canvas 1024×1024, no text.\nImage1 style warrior, image2 existing floors. Fill the ENTIRE square with continuous bright LIGHT TURQUOISE WATER, noticeably brighter/greener than ocean #3d9fcb. Flat water base near #64d3cc, single darker flat angular turquoise plane and one light plane only. Top-down, no perspective horizon. Put just TWO small angular ripple marks or simple dark teal fish dorsal-fin shapes near the UPPER CENTER around (440,270) and (625,350). They must read as lake at tiny scale. Lower center circle (512,670), radius125 is plain still water with NO details. Draw only a few tiny green grass wedges close to left/right outer hex edge positions around (130,470),(875,470),(500,840), not near any corner. No fish eyes, bubbles, glitter, outlines, shoreline rock, full grass border or shadows.\nThis is the top-face illustration only: NO hex border, NO earth sides, NO tile frame. Outside clipping will be done by code using the original tile, so this working source must be fully opaque, no holes.\nClean indie flat vector illustration matching the style reference warrior exactly: angular faceted planes with straight hard edges, like folded paper or cut gems, two to four tones per material, single light source from the upper left. Bold dramatic silhouette, same body proportions and exaggeration as the reference. No rounded blobby shapes, no gradients, no texture, no grain, no noise, no glow, no blur, no black outlines. Crisp clean edges, fully transparent background. Simple eyes like the reference with one clear white highlight at the upper left. Smallest details at least 10 px wide.",
+        "transparent_generation": false,
+        "selected_source": "exec-95a69fdc-a4ac-4da1-8808-78e4fe43fc32.png"
+      },
+      {
+        "file": "fog.png",
+        "prompt": "Use case: stylized-concept. OPAQUE working surface art to be clipped by code into the EXACT existing hex tile. Square canvas 1024×1024, no text.\nImage1 style warrior, image2 existing floors. Fill ENTIRE square with a dense seamless covering of WHITE and PALE LAVENDER angular cloud masses. Only 3 solid colors (#fffdf3,#dedff2,#bcbad9), hard straight-edged folded-paper cloud silhouettes, broad chunky polygons. Strong pale lavender shadows let this fog tile read clearly against light green earth. No soft/round airbrush cloud shading. Absolutely no transparency gaps between clouds and NO land, mountains, water or anything visible below. No eyes/face, no rays/glow, no sparkles, letters, numbers, question marks or mystery icons. This is TOP FACE ART only, no border, no sides. Code will clip it to floor silhouette. Working image must be OPAQUE everywhere.\nClean indie flat vector illustration matching the style reference warrior exactly: angular faceted planes with straight hard edges, like folded paper or cut gems, two to four tones per material, single light source from the upper left. Bold dramatic silhouette, same body proportions and exaggeration as the reference. No rounded blobby shapes, no gradients, no texture, no grain, no noise, no glow, no blur, no black outlines. Crisp clean edges, fully transparent background. Simple eyes like the reference with one clear white highlight at the upper left. Smallest details at least 10 px wide.",
+        "transparent_generation": false,
+        "selected_source": "exec-6c8e9894-4fcb-497f-8b9f-479058cfd03f.png"
+      }
+    ],
+    "corrections": [
+      {
+        "file": "lake.png",
+        "prompt": "Use case: precise-object-edit. Keep the attached lake top-face working art, turquoise water, two fins near upper center, 3 broad angular tones. Move ALL green grass decorations away from hex corners: remove current left/right edge grass and bottom grass. Instead add just TWO tiny grass wedges at x=25%,y=30% and x=75%,y=30%. Lower 45–100% of image is ONLY calm turquoise water, with no grass, rocks or fins. The circular area centered (512,670) radius125 on final 1024 canvas must be plain water. No drawn guides. Full square opaque working source, no tile border or earth side, code clips it to existing tile. No new details, no text. Match the existing style.\nClean indie flat vector illustration matching the style reference warrior exactly: angular faceted planes with straight hard edges, like folded paper or cut gems, two to four tones per material, single light source from the upper left. Bold dramatic silhouette, same body proportions and exaggeration as the reference. No rounded blobby shapes, no gradients, no texture, no grain, no noise, no glow, no blur, no black outlines. Crisp clean edges, fully transparent background. Simple eyes like the reference with one clear white highlight at the upper left. Smallest details at least 10 px wide.",
+        "reason": "풀이 꼭짓점 보호 영역에 오지 않도록 윗부분 안쪽으로 이동"
+      }
+    ],
+    "export": {
+      "canvas": [
+        1024,
+        1024
+      ],
+      "object_box": [
+        300,
+        190,
+        724,
+        530
+      ],
+      "number_disc": {
+        "center": [
+          512,
+          670
+        ],
+        "radius": 125
+      },
+      "vertices_clear_radius": 120,
+      "full_tile": "lake와 fog는 main 바닥의 알파·크림 테두리·흙 옆면을 그대로 재사용하고 윗면만 교체",
+      "alpha": "0 또는 255",
+      "cleanup": "vtracer Polygon + 재질별 2~4색 팔레트, 내부 그림자 한 면 포함",
+      "vtracer": {
+        "colorPrecision": 6,
+        "layerDifference": 10,
+        "filterSpeckle": 16,
+        "cornerThreshold": 60
+      },
+      "preview": "7×5 같은 배치: 위는 흰 숫자 패 검사 원, 아래는 윗면 폭 48px 실제 크기. 바다색 #3d9fcb."
+    },
+    "scope": "타이틀·코드·기존 바닥 원본은 변경하지 않음"
+  }
 }
