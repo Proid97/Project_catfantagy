@@ -1,6 +1,7 @@
 import './style.css';
 import { mapScreen, loadMapArt } from './map-screen.js';
 import { animateTitle, syncIntroVisibility } from './title-intro.js';
+import { systemReducedMotion, motionChoice, useReducedMotion, rememberMotion } from './motion.js';
 import layout from './generated/title-layout.json';
 
 const app = document.querySelector('#app');
@@ -17,12 +18,9 @@ const modes = document.querySelector('#modes');
 const modeBack = modes.querySelector('.mode-back');
 const [modeFirst, modeFour] = modes.querySelectorAll('.mode-list');
 const openMap = mapScreen(document.querySelector('#map'), () => showModes(false));
-const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
 const assetRoot = `${import.meta.env.BASE_URL}title/`;
 let animations = [];
 let loading = false;
-let motionPreference;
-try { motionPreference = localStorage.getItem('title-motion'); } catch { /* 저장이 막혀도 재생은 가능하다. */ }
 
 // iOS 홈 화면 앱은 CSS 화면 높이를 상태 표시줄만큼 짧게 줄 때가 있다(iPad mini 5 실측: 768 중 736).
 // 앱이 화면 폭을 다 쓸 때만 실제 화면 높이와 비교해 모자란 만큼 채운다. WebKit이 고쳐지면 차이가 0이 된다.
@@ -37,15 +35,6 @@ function fillScreen() {
   document.documentElement.style.setProperty('--viewport-gap', `${Math.max(gap, 0)}px`);
 }
 
-function useReducedMotion() {
-  return motionPreference === 'reduced' || (motionPreference !== 'full' && reducedMotion.matches);
-}
-
-function rememberMotion(value) {
-  motionPreference = value;
-  try { localStorage.setItem('title-motion', value); } catch { /* 현재 화면에만 적용한다. */ }
-}
-
 function state(value) {
   stage.dataset.state = value;
   stage.setAttribute('aria-busy', String(value === 'loading'));
@@ -56,7 +45,7 @@ function state(value) {
   motionToggle.textContent = `움직임: ${stage.dataset.motion === 'reduced' ? '줄임' : '전체'}`;
   motionToggle.setAttribute('aria-pressed', String(stage.dataset.motion === 'full'));
   motionNote.hidden = value !== 'ready' || stage.dataset.motion !== 'reduced';
-  motionNote.textContent = motionPreference === 'reduced' ? '선택한 설정: 움직임 줄임' : '기기 설정: 동작 줄이기';
+  motionNote.textContent = motionChoice() === 'reduced' ? '선택한 설정: 움직임 줄임' : '기기 설정: 동작 줄이기';
 }
 
 function cancelAnimations() {
@@ -189,7 +178,7 @@ document.addEventListener('keydown', event => {
   if (stage.dataset.state === 'intro') ready();
   else if (stage.dataset.state === 'ready') start.click();
 });
-reducedMotion.addEventListener('change', () => {
+systemReducedMotion.addEventListener('change', () => {
   if (stage.dataset.state === 'ready' || (useReducedMotion() && stage.dataset.state === 'intro')) ready();
 });
 addEventListener('resize', fillScreen);

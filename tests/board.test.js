@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { hexToPixel, pixelToHex, hexCorners, hexDistance, createRng, MODES, TERRAIN, createBoard } from '../src/board.js';
+import { hexToPixel, pixelToHex, hexCorners, hexDistance, createRng, MODES, TERRAIN, PORT_PAIRS, createBoard, portSpots } from '../src/board.js';
 
 const near = (a, b) => Math.abs(a - b) < 1e-9;
 const DIRS = [[1, 0], [1, -1], [0, -1], [-1, 0], [-1, 1], [0, 1]];
@@ -190,6 +190,59 @@ for (const [mode, { cols, rows, land: target, players }] of Object.entries(MODES
         const around = [t, ...DIRS.map(([dq, dr]) => byKey.get(key({ q: t.q + dq, r: t.r + dr })))];
         const count = around.filter(o => o && TERRAIN[o.type].resource).length;
         assert.ok(count <= 4, `${mode} 시드 ${seed}: ${key(t)} 둘레 자원 ${count}칸`);
+      }
+    }
+  });
+}
+
+// 임시 교환소 간격(src/board.js의 PORT_GAP과 같은 값)
+const PORT_GAP = { duel: 6, ffa: 8, team: 8 };
+const RESOURCES = new Set(Object.values(TERRAIN).map(t => t.resource).filter(Boolean));
+
+test('교환 짝은 자원 네 가지로 만드는 여섯 짝이 한 번씩', () => {
+  const pairs = PORT_PAIRS.map(pair => [...pair].sort().join('-'));
+  assert.equal(new Set(pairs).size, 6);
+  for (const [a, b] of PORT_PAIRS) assert.ok(a !== b && RESOURCES.has(a) && RESOURCES.has(b));
+});
+
+test('교환소 자리: 교환소 변의 두 끝 꼭짓점(교환소 칸·바다 칸과 옆 칸 하나씩)', () => {
+  const size = 1;
+  for (let side = 0; side < 6; side++) {
+    const port = { q: 2, r: -1, side };
+    const sea = { q: 2 + DIRS[side][0], r: -1 + DIRS[side][1] };
+    const spots = portSpots(port);
+    assert.equal(spots.length, 2);
+    const center = hexToPixel(2, -1, size);
+    const far = hexToPixel(sea.q, sea.r, size);
+    const points = spots.map(hexes => {
+      // 세 칸이 서로 이웃하고, 교환소 칸과 바다 칸을 모두 품는다.
+      assert.equal(hexes.length, 3);
+      assert.ok(hexes.some(h => key(h) === '2,-1') && hexes.some(h => key(h) === key(sea)));
+      for (const a of hexes) for (const b of hexes) if (a !== b) assert.equal(hexDistance(a, b), 1);
+      const ps = hexes.map(h => hexToPixel(h.q, h.r, size));
+      return { x: mean(ps.map(p => p.x)), y: mean(ps.map(p => p.y)) };
+    });
+    // 두 꼭짓점은 칸 중심에서 size만큼, 서로 size만큼 떨어지고, 그 가운데는 두 칸 중심의 가운데(변 가운데)다.
+    for (const p of points) assert.ok(near(Math.hypot(p.x - center.x, p.y - center.y), size));
+    assert.ok(near(Math.hypot(points[0].x - points[1].x, points[0].y - points[1].y), size));
+    assert.ok(near((points[0].x + points[1].x) / 2, (center.x + far.x) / 2));
+    assert.ok(near((points[0].y + points[1].y) / 2, (center.y + far.y) / 2));
+  }
+});
+
+for (const mode of Object.keys(MODES)) {
+  test(`${MODES[mode].name}: 교환소 여섯 곳이 짝마다 하나씩, 해안 변에, ${PORT_GAP[mode]}칸 이상 떨어져 놓임(200개 시드)`, () => {
+    for (const { seed, tiles, ports } of boardsOf(mode)) {
+      const why = `${mode} 시드 ${seed}`;
+      const land = new Set(tiles.map(key));
+      assert.equal(ports.length, 6, why);
+      assert.deepEqual(ports.map(p => p.pair.join('-')).sort(), PORT_PAIRS.map(p => p.join('-')).sort(), why);
+      for (const port of ports) {
+        assert.ok(land.has(key(port)), `${why}: 교환소가 육지가 아님`);
+        assert.ok(Number.isInteger(port.side) && port.side >= 0 && port.side < 6, why);
+        const [dq, dr] = DIRS[port.side];
+        assert.ok(!land.has(key({ q: port.q + dq, r: port.r + dr })), `${why}: 변 너머가 바다가 아님`);
+        for (const other of ports) if (other !== port) assert.ok(hexDistance(port, other) >= PORT_GAP[mode], `${why}: 교환소 거리 ${hexDistance(port, other)}`);
       }
     }
   });

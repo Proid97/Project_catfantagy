@@ -1,6 +1,10 @@
 import { test, expect } from '@playwright/test';
+import { TERRAIN, createBoard, hexToPixel, hexDistance, portSpots } from '../src/board.js';
+import { UNKNOWN, vision } from '../src/vision.js';
 
 const names = ['풀밭', '숲', '호수', '금광', '수정산', '바위산'];
+const COLORS = { me: [242, 179, 61], blue: [63, 127, 224], red: [224, 82, 74], purple: [154, 90, 214] }; // 플레이어 색(나, 봇 1~3)
+const RESOURCE_NAMES = { gold: '금', crystal: '수정', wood: '나무', fish: '생선' };
 const HUD = ['.hud-players', '.hud-resources', '.minimap', '.mode-change', '.hand'];
 const view = page => page.locator('.minimap .minimap-view');
 const box = locator => locator.boundingBox();
@@ -32,6 +36,34 @@ async function tapLand(page) {
   }
   throw new Error('육지 칸을 찾지 못함');
 }
+// 지금 화면의 판을 같은 시드로 다시 만들고 나(0번)의 시야를 계산한다. 화면과 같은 규칙 모듈을 쓴다.
+async function boardOf(page) {
+  const [mode, seed] = await page.locator('#map').evaluate(root => [root.dataset.mode, Number(root.dataset.seed)]);
+  const board = createBoard({ mode, seed });
+  return { board, state: vision(board).state };
+}
+const lastRender = page => page.evaluate(() => performance.getEntriesByName('map-render').at(-1).detail);
+// src/map-screen.js와 같은 값: 칸 반지름 TILE, 전체 보기 여백 FIT. 전체 보기에서 월드 점(TILE 단위 좌표)의 화면 위치.
+const TILE = 100;
+const FIT = 0.96;
+async function fitPoint(page, board, { x, y }) {
+  const area = await box(page.locator('.map-canvas'));
+  const ratio = await page.locator('#map').evaluate(root => Number(root.style.getPropertyValue('--board-ratio')));
+  const w = (board.cols - 1) * 1.5 * TILE + 2 * TILE;
+  const h = w / ratio;
+  const s = Math.min(area.width * FIT / w, area.height * FIT / h);
+  return { x: area.x + area.width / 2 + (x + TILE - w / 2) * s, y: area.y + area.height / 2 + (y + TILE * Math.sqrt(3) / 2 - h / 2) * s };
+}
+const tilePoint = (page, board, { q, r }) => fitPoint(page, board, hexToPixel(q, r, TILE));
+// 그 화면 점을 누르면 지도에 닿는지(HUD에 가려지지 않는지)
+const onMap = (page, { x, y }) => page.evaluate(([x, y]) => document.elementFromPoint(x, y)?.classList.contains('map-canvas'), [x, y]);
+// 그림판에서 플레이어 색과 똑같은 점의 수
+const colorCount = (locator, rgb) => locator.evaluate((canvas, [r, g, b]) => {
+  const { data } = canvas.getContext('2d').getImageData(0, 0, canvas.width, canvas.height);
+  let count = 0;
+  for (let i = 0; i < data.length; i += 4) if (data[i] === r && data[i + 1] === g && data[i + 2] === b) count++;
+  return count;
+}, rgb);
 // 시점 이동(300ms)이 끝나고 다시 그리기도 멈출 때까지 기다린다.
 async function glided(page) {
   await page.waitForTimeout(400);
@@ -153,7 +185,7 @@ test('가만히 있으면 다시 그리지 않음', async ({ page }) => {
   expect(await page.evaluate(() => window.rafCalls)).toBe(before);
 });
 
-test('플레이어를 누르면 그 왕성으로 시점이 감', async ({ page }) => {
+test('플레이어를 누르면 그 왕성으로 시점이 감(안개 속 상대 왕성으로는 가지 않음)', async ({ page }) => {
   await page.setViewportSize({ width: 768, height: 1024 });
   await page.addInitScript(() => {
     window.rafCalls = 0;
@@ -168,12 +200,18 @@ test('플레이어를 누르면 그 왕성으로 시점이 감', async ({ page }
     expect(Math.abs(dot.x - view.x)).toBeLessThan(1.5);
     expect(Math.abs(dot.y - view.y)).toBeLessThan(1.5);
   };
-  // 전체 보기에서 누르면 기본 배율까지 확대하며 봇 2의 성으로 간다. 끝나면 다시 그리지 않는다.
+  // 상대 팀(봇 2)의 왕성은 아직 안개 속이라 시점이 그대로이고, 그렇다고 알려 준다.
+  const fitted = await box(view(page));
   const bot2 = page.getByRole('button', { name: '봇 2의 왕성으로 이동' });
   await expect(bot2).toBeVisible();
   await bot2.click();
+  await expect(page.locator('#map [role="status"]')).toHaveText('봇 2의 왕성은 아직 안개 속에 있어요');
   await glided(page);
-  await expectAt([224, 82, 74]);
+  expect(await box(view(page))).toEqual(fitted);
+  // 전체 보기에서 팀원(봇 1)을 누르면 기본 배율까지 확대하며 그 성으로 간다. 끝나면 다시 그리지 않는다.
+  await page.getByRole('button', { name: '봇 1의 왕성으로 이동' }).click();
+  await glided(page);
+  await expectAt(COLORS.blue);
   expect(await zoom()).toBeCloseTo(NATURAL, 3);
   const before = await page.evaluate(() => window.rafCalls);
   await page.waitForTimeout(1000);
@@ -185,22 +223,35 @@ test('플레이어를 누르면 그 왕성으로 시점이 감', async ({ page }
   await settled(page);
   const closer = await zoom();
   expect(closer).toBeGreaterThan(NATURAL + 0.05);
-  await page.getByRole('button', { name: '봇 3의 왕성으로 이동' }).click();
+  await page.getByRole('button', { name: '내 왕성으로 이동' }).click();
   await glided(page);
-  await expectAt([154, 90, 214]);
+  await expectAt(COLORS.me);
   expect(await zoom()).toBeCloseTo(closer, 3);
   // 판을 만지면(휠) 이동이 바로 멈춘다. 같은 순간에 눌러 첫 화면도 그리기 전에 멈추므로 시점이 그대로다.
   await page.evaluate(([x, y]) => {
-    document.querySelector('[data-player="0"]').click();
+    document.querySelector('[data-player="1"]').click();
     document.querySelector('.map-canvas').dispatchEvent(new WheelEvent('wheel', { clientX: x, clientY: y, cancelable: true }));
   }, [x, y]);
   await glided(page);
-  await expectAt([154, 90, 214]);
+  await expectAt(COLORS.me);
   // 동작 줄이기: 미끄러지지 않고 바로 옮긴다.
   await page.emulateMedia({ reducedMotion: 'reduce' });
-  await page.getByRole('button', { name: '내 왕성으로 이동' }).click();
+  await page.getByRole('button', { name: '봇 1의 왕성으로 이동' }).click();
   await settled(page);
-  await expectAt([242, 179, 61]);
+  await expectAt(COLORS.blue);
+});
+
+test('타이틀에서 고른 "움직임 줄임"이 지도의 시점 이동에도 적용됨', async ({ page }) => {
+  await page.addInitScript(() => localStorage.setItem('title-motion', 'reduced'));
+  await open(page);
+  const fitted = await box(view(page));
+  await page.getByRole('button', { name: '내 왕성으로 이동' }).click();
+  // 미끄러지면 300ms가 걸린다. 두 프레임 안에 이미 옮겨졌다.
+  await settled(page);
+  const moved = await box(view(page));
+  expect(moved.width).toBeLessThan(fitted.width * 0.9);
+  await page.waitForTimeout(400);
+  expect(await box(view(page))).toEqual(moved);
 });
 
 test('끌면 이동, 휠을 올리면 확대', async ({ page }) => {
@@ -225,7 +276,32 @@ test('끌면 이동, 휠을 올리면 확대', async ({ page }) => {
 test('칸을 누르면 선택을 알려 줌', async ({ page }) => {
   await open(page);
   const text = await tapLand(page);
-  expect(names.some(name => text.startsWith(`선택: ${name}`))).toBe(true);
+  expect(['안개 속 ', ...names].some(name => text.startsWith(`선택: ${name}`))).toBe(true);
+});
+
+test('안개 속 칸은 바닥만, 아는 칸은 지형과 숫자까지 알려 줌', async ({ page }) => {
+  await page.setViewportSize({ width: 768, height: 1024 });
+  await open(page);
+  const { board, state } = await boardOf(page);
+  const status = page.locator('#map [role="status"]');
+  // 교환소 표지와 HUD에서 떨어진, 판 가운데에 가까운 칸부터 고른다.
+  const middle = { q: board.cols >> 1, r: (board.rows >> 1) - (board.cols >> 2) };
+  const tiles = board.tiles.filter(t => board.ports.every(p => hexDistance(p, t) >= 3)).sort((a, b) => hexDistance(a, middle) - hexDistance(b, middle));
+  async function tapFirst(list) {
+    for (const tile of list) {
+      const point = await tilePoint(page, board, tile);
+      if (!await onMap(page, point)) continue;
+      await page.mouse.click(point.x, point.y);
+      return tile;
+    }
+    throw new Error('누를 칸이 없음');
+  }
+  const ground = { grass: '풀밭', forest: '풀밭', lake: '호수', gold: '빈 땅', crystal: '빈 땅', rock: '빈 땅' };
+  // 모르는 숲은 풀밭, 금광·수정산·바위산은 빈 땅으로만 보인다. 숫자도 말하지 않는다.
+  const unknown = await tapFirst(tiles.filter(t => state.get(`${t.q},${t.r}`) === UNKNOWN));
+  await expect(status).toHaveText(`선택: 안개 속 ${ground[unknown.type]}`);
+  const known = await tapFirst(tiles.filter(t => state.get(`${t.q},${t.r}`) !== UNKNOWN));
+  await expect(status).toHaveText(`선택: ${TERRAIN[known.type].name}${known.number === null ? '' : ` ${known.number}`}`);
 });
 
 test('화면을 돌려도 시점과 선택이 그대로', async ({ page }) => {
@@ -324,7 +400,7 @@ test('그리기 비용(4인 판, CPU 6배 느리게)', async ({ browser, browser
   await context.addInitScript(() => {
     window.renders = [];
     new PerformanceObserver(list => {
-      for (const entry of list.getEntries()) if (entry.name === 'map-render') window.renders.push([entry.duration, entry.detail.tiles, entry.detail.objects]);
+      for (const entry of list.getEntries()) if (entry.name === 'map-render') window.renders.push([entry.duration, entry.detail.tiles, entry.detail.objects, entry.detail.fog]);
     }).observe({ entryTypes: ['measure'] });
   });
   const page = await context.newPage();
@@ -345,7 +421,7 @@ test('그리기 비용(4인 판, CPU 6배 느리게)', async ({ browser, browser
     const list = await page.evaluate(() => window.renders);
     const times = list.map(([time]) => time);
     const average = times.reduce((sum, time) => sum + time, 0) / times.length;
-    return { count: times.length, average, max: Math.max(...times), tiles: Math.max(...list.map(([, tiles]) => tiles)), objects: Math.max(...list.map(([, , objects]) => objects)) };
+    return { count: times.length, average, max: Math.max(...times), tiles: Math.max(...list.map(([, tiles]) => tiles)), objects: Math.max(...list.map(([, , objects]) => objects)), fog: [...new Set(list.map(([, , , fog]) => fog))] };
   }
   const results = { fit: await drags() };
   for (let i = 0; i < 8; i++) await page.mouse.wheel(0, -400);
@@ -357,8 +433,9 @@ test('그리기 비용(4인 판, CPU 6배 느리게)', async ({ browser, browser
     expect(result.average).toBeLessThan(8);
   }
   expect(results.zoomed.tiles).toBeLessThan(results.fit.tiles / 4);
-  // 전체 보기에서도 오브젝트를 그린다(예전의 색 점 대신). 육지의 약 41%가 오브젝트 칸이다.
-  expect(results.fit.objects).toBeGreaterThan(results.fit.tiles * 0.25);
+  // 전체 보기에서도 아는 칸의 오브젝트는 그린다. 안개 그림은 판을 열 때 한 번만 만들고, 끌거나 확대해도 다시 만들지 않는다.
+  expect(results.fit.objects).toBeGreaterThan(0);
+  for (const result of Object.values(results)) expect(result.fog).toEqual([1]);
   await context.close();
 });
 
@@ -372,11 +449,12 @@ test('지형 그림과 성: 2배 화면 전체 보기와 내 성 가까이', asy
   await page.goto('http://127.0.0.1:4173/#map');
   await settled(page);
   await page.screenshot({ path: test.info().outputPath('map-ipad-duel-fit-2x.png') });
-  // 1대1 전체 보기(숫자 글자 약 7 CSS px): 크게 키운 성을 숫자 패 위에 그린다. 마지막 두 그림이 두 성이다.
+  // 1대1 전체 보기(숫자 글자 약 7 CSS px): 크게 키운 성을 숫자 패 위에 그린다. 상대 성은 안개 속이라 마지막 그림이 내 성 하나다.
   let order = await page.evaluate(() => window.drawOrder);
   expect(order).toContain('fillText');
-  expect(order.lastIndexOf('fillText')).toBeLessThan(order.length - 2);
-  expect(order.slice(-2)).toEqual(['drawImage', 'drawImage']);
+  expect((await lastRender(page)).castles).toBe(1);
+  expect(order.lastIndexOf('fillText')).toBeLessThan(order.length - 1);
+  expect(order.at(-1)).toBe('drawImage');
   // 내 줄을 누르면 기본 배율로 내 성에 간다. 제 크기에서는 숫자 패를 성 다음에 그린다.
   await page.getByRole('button', { name: '내 왕성으로 이동' }).click();
   await glided(page);
@@ -427,7 +505,7 @@ test('지형 그림과 성: 2배 화면 전체 보기와 내 성 가까이', asy
   expect(order).toContain('fillText');
   expect(order.lastIndexOf('drawImage')).toBeLessThan(order.indexOf('fillText'));
   await page.locator('.hud-resources').screenshot({ path: test.info().outputPath('map-hud-resources-2x.png') });
-  // 팀전 전체 보기: 성 받침(플레이어 색 그대로)이 네 성 모두 보인다.
+  // 팀전 전체 보기: 성 받침(플레이어 색 그대로)이 내 편 두 성(나, 봇 1)에만 보인다. 상대 팀 성은 안개 속이다.
   const team = await context.newPage();
   team.on('pageerror', error => errors.push(error.message));
   await team.goto('http://127.0.0.1:4173/#map-team');
@@ -443,8 +521,89 @@ test('지형 그림과 성: 2배 화면 전체 보기와 내 성 가까이', asy
     }
     return count;
   }, ['#f2b33d', '#3f7fe0', '#e0524a', '#9a5ad6']);
-  for (const count of discs) expect(count).toBeGreaterThan(300);
+  expect(discs[0]).toBeGreaterThan(300);
+  expect(discs[1]).toBeGreaterThan(300);
+  expect(discs.slice(2)).toEqual([0, 0]);
   expect(errors).toEqual([]);
+  await context.close();
+});
+
+// 안개: 같은 시드로 규칙 모듈이 낸 시야와 실제로 그린 수가 같다. 모르는 칸은 바닥만, 상대 왕성은 안 보이면 그리지 않는다.
+test('안개: 모르는 칸의 오브젝트·숫자와 상대 왕성은 그리지 않고, 안개 그림은 시야가 바뀔 때만 만듦', async ({ browser }) => {
+  const context = await browser.newContext({ viewport: { width: 768, height: 1024 }, deviceScaleFactor: 2 });
+  const page = await context.newPage();
+  const errors = watchErrors(page);
+  await page.goto('http://127.0.0.1:4173/#map');
+  await settled(page);
+  const { board, state } = await boardOf(page);
+  const shown = board.tiles.filter(t => state.get(`${t.q},${t.r}`) !== UNKNOWN);
+  const objects = shown.filter(t => ['forest', 'gold', 'crystal', 'rock'].includes(t.type)).length;
+  // 1대1 iPad 전체 보기는 모든 칸과 숫자 패를 그린다. 그중 아는 칸·보이는 칸의 오브젝트와 숫자만 그린다.
+  expect(await lastRender(page)).toEqual({ tiles: board.tiles.length, objects, numbers: shown.filter(t => t.number !== null).length, castles: 1, ports: 6, fog: 1 });
+  expect(board.tiles.filter(t => !['grass', 'lake'].includes(t.type)).length).toBeGreaterThan(objects + 20);
+  // 미니맵에도 내 성만 찍힌다.
+  expect(await colorCount(page.locator('.minimap canvas'), COLORS.me)).toBeGreaterThan(0);
+  expect(await colorCount(page.locator('.minimap canvas'), COLORS.blue)).toBe(0);
+  // 끌고, 확대하고, 화면을 돌려도 안개 그림은 다시 만들지 않는다.
+  const [x, y] = await center(page);
+  await page.mouse.move(x, y);
+  await page.mouse.down();
+  await page.mouse.move(x + 100, y + 60, { steps: 4 });
+  await page.mouse.up();
+  await page.mouse.wheel(0, -300);
+  await page.setViewportSize({ width: 1024, height: 768 });
+  await settled(page);
+  expect((await lastRender(page)).fog).toBe(1);
+
+  // 4인 개인전 전체 보기: 상대 셋의 성은 판과 미니맵 어디에도 없다(성 받침은 300점이 넘는다).
+  const ffa = await context.newPage();
+  ffa.on('pageerror', error => errors.push(error.message));
+  await ffa.goto('http://127.0.0.1:4173/#map-ffa');
+  await settled(ffa);
+  expect((await lastRender(ffa)).castles).toBe(1);
+  expect(await colorCount(ffa.locator('.map-canvas'), COLORS.me)).toBeGreaterThan(300);
+  for (const rgb of [COLORS.blue, COLORS.red, COLORS.purple]) {
+    expect(await colorCount(ffa.locator('.minimap canvas'), rgb)).toBe(0);
+    expect(await colorCount(ffa.locator('.map-canvas'), rgb)).toBeLessThan(20);
+  }
+  await ffa.screenshot({ path: test.info().outputPath('fog-ipad-ffa-fit-2x.png') });
+  expect(errors).toEqual([]);
+  await context.close();
+});
+
+// 교환소는 처음부터 아는 칸이라 안개 위에 보인다. 전체 보기에서 부두가 시작하는 변 가운데를 누르고, 그곳을 크게 확대해 본다.
+test('교환소: 표지나 부두를 누르면 교환 짝을 알리고 칸은 고르지 않음', async ({ browser }) => {
+  const context = await browser.newContext({ viewport: { width: 768, height: 1024 }, deviceScaleFactor: 2 });
+  const page = await context.newPage();
+  await page.goto('http://127.0.0.1:4173/#map');
+  await settled(page);
+  const { board } = await boardOf(page);
+  const status = page.locator('#map [role="status"]');
+  // 교환소 변 가운데 = 두 교환소 자리(꼭짓점)의 가운데 = 두 자리에 붙은 여섯 칸 중심의 평균
+  let found;
+  for (const port of board.ports) {
+    const centers = portSpots(port).flat().map(({ q, r }) => hexToPixel(q, r, TILE));
+    const point = await fitPoint(page, board, { x: centers.reduce((sum, c) => sum + c.x, 0) / 6, y: centers.reduce((sum, c) => sum + c.y, 0) / 6 });
+    if (await onMap(page, point)) { found = { port, point }; break; }
+  }
+  const { port, point } = found;
+  const text = `교환소: ${RESOURCE_NAMES[port.pair[0]]} ⇄ ${RESOURCE_NAMES[port.pair[1]]} (2:1)`;
+  await page.mouse.click(point.x, point.y);
+  await expect(status).toHaveText(text);
+  // 그 점을 중심으로 최대한 확대하고 화면 가운데로 끌어온다.
+  await page.mouse.move(point.x, point.y);
+  for (let i = 0; i < 4; i++) await page.mouse.wheel(0, -400);
+  const [x, y] = await center(page);
+  await page.mouse.down();
+  await page.mouse.move(x, y, { steps: 6 });
+  await page.mouse.up();
+  await settled(page);
+  expect((await lastRender(page)).ports).toBeGreaterThan(0);
+  await page.screenshot({ path: test.info().outputPath('port-closeup-2x.png') });
+  // 다른 칸을 고른 뒤 다시 교환소를 눌러도 교환 짝만 알린다.
+  await tapLand(page);
+  await page.mouse.click(x, y);
+  await expect(status).toHaveText(text);
   await context.close();
 });
 
@@ -454,8 +613,10 @@ test('성 크기: 멀리 볼수록 크게, 확대해도 화면에서 줄지 않�
   await page.addInitScript(recordDraws);
   await open(page, '#map-team');
   const [x, y] = await center(page);
-  const fit = await castleDraws(page, 4);
-  // 전체 보기: 네 성이 모두 화면에서 72 CSS px(칸 폭 약 35px의 2배)
+  // 안개 속 상대 팀 성은 그리지 않아 내 편 두 성(나, 봇 1)을 잰다.
+  expect((await lastRender(page)).castles).toBe(2);
+  const fit = await castleDraws(page, 2);
+  // 전체 보기: 두 성 모두 화면에서 72 CSS px(칸 폭 약 35px의 2배)
   for (const [, height] of fit) expect(height).toBeCloseTo(72, 1);
   // 화면을 돌렸다 돌아와도 같은 크기
   await page.setViewportSize({ width: 1024, height: 768 });

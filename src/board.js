@@ -29,6 +29,12 @@ const NUMBER_BASE = [2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8, 9, 9, 10, 10, 11, 11
 // 이웃 여섯 방향. 이웃한 두 방향은 서로도 이웃이라 꼭짓점 하나를 이룬다.
 const DIRS = [[1, 0], [1, -1], [0, -1], [-1, 0], [-1, 1], [0, 1]];
 
+// 교환소: 자원 네 가지로 만드는 교환 짝 여섯 가지가 판마다 하나씩. 앞 자원부터 읽는다(금 ⇄ 수정).
+export const PORT_PAIRS = [['gold', 'crystal'], ['gold', 'wood'], ['gold', 'fish'], ['crystal', 'wood'], ['crystal', 'fish'], ['wood', 'fish']];
+export const PORT_RATE = 2; // 교환소에서는 내는 자원 2개로 받는 자원 1개
+// 임시: 교환소 칸끼리 최소 거리(칸). 무작위 판 1000개씩에서 배치 실패 0, 다시 뽑기가 판마다 10번 이하인 가장 큰 값.
+const PORT_GAP = { duel: 6, ffa: 8, team: 8 };
+
 // 임시: 대륙 모양. 타원 거리에 더할 잡음 세기. 클수록 해안선이 거칠다.
 const COAST_NOISE = 1.5;
 
@@ -244,6 +250,31 @@ function placeStarts(mode, cands, midX, rng) {
   return null;
 }
 
+// 교환소: 바다와 닿은 육지 칸의 변(칸 번호 i, 바다 쪽 방향 side) 중 무작위로 여섯 곳. 교환소 칸끼리 gap칸 이상 떨어진다.
+// 앞에서 고른 곳 때문에 남은 곳이 없으면 처음부터 다시, 50번 실패하면 null. 짝은 고른 곳에 섞어서 붙인다.
+function placePorts({ hex, ring }, land, gap, rng) {
+  const isLand = new Set(land);
+  const coast = land.flatMap(i => ring[i].flatMap((n, side) => isLand.has(n) ? [] : [{ i, side }]));
+  for (let attempt = 0; attempt < 50; attempt++) {
+    const chosen = [];
+    while (chosen.length < PORT_PAIRS.length) {
+      const pool = coast.filter(e => chosen.every(c => hexDistance(hex[c.i], hex[e.i]) >= gap));
+      if (!pool.length) break;
+      chosen.push(pick(pool, rng));
+    }
+    if (chosen.length < PORT_PAIRS.length) continue;
+    const pairs = shuffle([...PORT_PAIRS], rng);
+    return chosen.map(({ i, side }, k) => ({ pair: [...pairs[k]], ...hex[i], side }));
+  }
+  return null;
+}
+
+// 교환소 자리: 교환소 변의 두 꼭짓점. 꼭짓점마다 붙은 세 칸(교환소 칸, 바다 칸, 옆 칸)으로 나타낸다(시작 자리와 같은 꼴).
+export function portSpots({ q, r, side }) {
+  const at = d => ({ q: q + DIRS[(d + 6) % 6][0], r: r + DIRS[(d + 6) % 6][1] });
+  return [[{ q, r }, at(side), at(side + 1)], [{ q, r }, at(side - 1), at(side)]];
+}
+
 export function createBoard({ mode = 'duel', seed = Math.floor(Math.random() * 2 ** 32) } = {}) {
   if (!Object.hasOwn(MODES, mode)) throw new RangeError('모드는 duel, ffa, team 중 하나여야 해요');
   if (!Number.isInteger(seed)) throw new RangeError('시드는 정수여야 해요');
@@ -260,6 +291,9 @@ export function createBoard({ mode = 'duel', seed = Math.floor(Math.random() * 2
     resource.forEach((i, k) => { number[i] = numbers[k]; });
     const chosen = placeStarts(mode, startVertices(grid, land, kind, number), grid.midX, rng);
     if (!chosen) continue;
+    // 교환소는 시작 자리를 정한 뒤에 놓는다. 시작 왕성이 교환소 자리에 걸리는 것도 운이다.
+    const ports = placePorts(grid, land, PORT_GAP[mode], rng);
+    if (!ports) continue;
     return {
       mode,
       seed,
@@ -267,6 +301,7 @@ export function createBoard({ mode = 'duel', seed = Math.floor(Math.random() * 2
       rows,
       tiles: land.map(i => ({ ...grid.hex[i], type: kind[i], number: number[i] ?? null })),
       starts: chosen.map((v, player) => ({ player, team: mode === 'team' ? player >> 1 : player, hexes: v.hexes.map(h => ({ ...h })) })),
+      ports,
     };
   }
   throw new Error('판을 만들지 못했어요');

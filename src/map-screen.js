@@ -1,5 +1,7 @@
 import './map.css';
-import { MODES, TERRAIN, createBoard, hexToPixel, pixelToHex, hexCorners } from './board.js';
+import { MODES, TERRAIN, PORT_RATE, createBoard, hexToPixel, pixelToHex, hexCorners, portSpots } from './board.js';
+import { UNKNOWN, KNOWN, VISIBLE, vision, pieceSeen } from './vision.js';
+import { useReducedMotion } from './motion.js';
 import { files, objectBox } from './generated/map-art.json';
 
 const TILE = 100; // 칸 중심에서 꼭짓점까지(월드 단위)
@@ -23,7 +25,6 @@ const OBJECT_X = (objectBox[0] - 511.5) * UNIT;
 const OBJECT_Y = (objectBox[1] - 477.5) * UNIT;
 const OBJECT_W = objectBox[2] * UNIT;
 const OBJECT_H = objectBox[3] * UNIT;
-const TYPES = Object.keys(TERRAIN);
 const DISC_Y = 0.40 * TILE; // 숫자 패: 칸 아래쪽 가운데. 오브젝트 그림은 위쪽을 쓴다.
 const DISC_R = 0.26 * TILE;
 // 성 그림(원본 512px)을 그리는 크기(월드 단위). 보이는 성의 폭은 약 82로 칸 폭의 41%.
@@ -41,6 +42,26 @@ const CASTLE_BASE = 0.26; // 전체 보기에서 성 아래 플레이어 색 받
 const CASTLE_FOOT = 420 / 512; // 땅에 닿는 점(원본 256, 420)을 꼭짓점에 둔다
 const GLIDE = 300; // 왕성으로 가는 시점 이동 시간(ms)
 const FOAM = 26; // 해안 거품 굵기. 절반은 육지 그림에 덮인다
+// 임시 · 안개(볼류메트릭): 바닥 질감은 늘 비치고, 모르는 칸은 짙게, 아는 칸은 옅게 덮는다. 보이는 칸은 칸보다 조금 좁게, 부드럽게 걷힌다.
+// 안개 그림은 시야가 바뀔 때만 다시 만들고(buildFog), 매번 그릴 때는 한 장을 판 크기로 늘려 붙이기만 한다.
+const FOG_SCALE = 10; // 안개 그림 1px = 월드 10단위(4인 판 465×362px, 약 0.7MB). 흐린 그림이라 늘려도 거칠지 않다
+const FOG_PUFF = 1.05 * TILE; // 안개 낀 칸마다 이 반지름의 원을 깐다. 칸 안쪽 반지름(0.87)보다 커서 이웃한 보이는 칸으로 조금 번진다
+const FOG_BLUR = 22; // 안개 가장자리가 번지는 정도(가우스 σ, 월드 단위)
+const FOG_MARGIN = 2 * TILE; // 판 상자 가장자리 칸의 안개가 번지는 자리. 없으면 안개가 상자 끝에서 곧게 잘린다
+const FOG_UNKNOWN = 0.5; // 모르는 칸 안개의 불투명도
+const FOG_KNOWN = 0.22; // 아는 칸
+const FOG_THIN = 0.3; // 구름 결: 칸마다 정해진 자리에 안개를 이만큼 옅게 한 둥근 곳(반지름 FOG_THIN_R)을 낸다
+const FOG_THIN_R = 0.55 * TILE;
+// 교환소(임시 그림): 부두 그림이 오기 전까지 코드로 그린다. 변 가운데에서 바다 쪽으로 나무 부두, 그 끝에 두 자원 아이콘과 ⇄ 표지.
+const SIGN = 40; // 표지 높이(월드 단위). 너비는 SIGN_RATIO배
+const SIGN_RATIO = 2.6;
+const SIGN_MIN = 18; // 멀리 볼 때도 표지 높이가 화면에서 이 CSS px보다 작아지지 않게 한다(성과 같은 방식)
+const PIER = 34; // 해안에서 표지까지 보이는 부두 길이(월드 단위)
+const PIER_W = 16; // 부두 폭. 멀리서는 화면 3px보다 가늘어지지 않는다
+const SPOT = 9; // 교환소 자리(변의 두 꼭짓점) 표시 반지름. 숫자 패처럼 가까이 볼 때만 그린다
+const HIT = 8; // 교환소를 누르는 판정 여유(CSS px)
+// ⇄ 화살표(표지 높이 1 기준). 글꼴에 없을 수 있어 선으로 그린다.
+const ARROW = new Path2D('M-.26 -.12H.26M.14 -.24L.26 -.12L.14 0M.26 .12H-.26M-.14 0L-.26 .12L-.14 .24');
 const CLASS_NAMES = { warrior: '냥전사', mage: '냥법사', assassin: '냥살자' };
 // 임시: 나와 봇. 인원수만큼 앞에서부터 쓴다. 판의 starts 순서와 같다(팀전은 0·1번이 한 팀).
 const PLAYERS = [
@@ -57,6 +78,10 @@ const PALETTE = {
   gold: '#f0c24f',
   crystal: '#b496f0',
   rock: '#9a958b',
+  barren: '#cdb487', // 금광·수정산·바위산의 바탕(빈 땅). 안개 속에서는 이 칸들이 바닥 색으로만 보인다
+  mist: '#f6f2ff', // 안개: 흰색에 가까운 연보라. 어둡게 덮지 않는다
+  pier: '#b07a43',
+  plank: '#8a5a2e', // 부두 널빤지 틈
   foam: 'rgba(255, 255, 255, .6)',
   disc: '#fff6df',
   discEdge: 'rgba(70, 48, 20, .35)',
@@ -68,14 +93,31 @@ const PALETTE = {
   players: ['#f2b33d', '#3f7fe0', '#e0524a', '#9a5ad6'], // 나(따뜻한 금색), 파랑, 빨강, 보라. 성 지붕·깃발에 곱한다
 };
 const RESOURCES = [['gold', '금'], ['crystal', '수정'], ['wood', '나무'], ['fish', '생선']];
+const RESOURCE_NAMES = Object.fromEntries(RESOURCES);
+const GROUND_NAMES = { grass: '풀밭', barren: '빈 땅', lake: '호수' }; // 안개 속 칸은 바닥만 알린다
 const CORNERS = hexCorners(0, 0, TILE);
 // 꼭짓점 i와 i+1 사이 변 너머의 이웃
 const EDGE_DIRS = [[1, 0], [0, 1], [-1, 1], [-1, 0], [0, -1], [1, -1]];
 
 const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
-const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)');
-// ponytail: 지금은 모든 왕성 자리를 안다. 안개가 생기면 본 적 있는 왕성만 참이 되게 여기만 바꾼다.
-const castleKnown = player => true;
+
+// 꼭짓점(붙은 세 칸)의 월드 좌표: 세 칸 중심의 평균. 왕성과 교환소 자리에 쓴다.
+function vertexAt(hexes) {
+  const [a, b, c] = hexes.map(({ q, r }) => hexToPixel(q, r, TILE));
+  return { x: (a.x + b.x + c.x) / 3, y: (a.y + b.y + c.y) / 3 };
+}
+
+// 교환소 표지의 크기(월드 단위)와 부두 폭. 멀리 볼수록 월드 단위로는 커져 화면에서 읽을 만한 크기를 지킨다.
+function signSize(zoom) {
+  const h = Math.max(SIGN, SIGN_MIN / zoom);
+  return { w: h * SIGN_RATIO, h, pier: Math.max(PIER_W, 3 / zoom) };
+}
+
+// 표지 가운데: 해안 변 가운데에서 바다 쪽으로, 부두 PIER만큼 떨어진 곳에 표지 가장자리가 오게 한다.
+function signAt(port, { w, h }) {
+  const d = PIER + Math.min(w / 2 / Math.abs(port.ox), h / 2 / Math.abs(port.oy));
+  return { x: port.mx + port.ox * d, y: port.my + port.oy * d };
+}
 
 // 성 크기(월드 단위). 화면 크기는 전체 보기 far px에서 기본 배율 CASTLE × NATURAL px까지 log 배율의 세제곱으로 늘고,
 // 그 뒤로는 땅과 함께 커진다. 확대할수록 화면 크기가 줄지 않고, 세제곱이라 기본 배율에서 꺾이는 느낌이 smoothstep보다 작다.
@@ -92,12 +134,15 @@ function polygon(path, x, y, points) {
   path.closePath();
 }
 
-// 같은 칸은 늘 같은 풀밭 그림. 이웃끼리 줄무늬가 생기지 않게 좌표를 섞는다.
-function grassOf(q, r) {
+// 칸 좌표로 정해지는 0 이상 정수. 이웃끼리 줄무늬가 생기지 않게 좌표를 섞는다.
+function hashOf(q, r) {
   let h = Math.imul(q, 374761393) + Math.imul(r, 668265263);
   h = Math.imul(h ^ (h >>> 13), 1274126177);
-  return ((h ^ (h >>> 16)) >>> 0) % 3;
+  return (h ^ (h >>> 16)) >>> 0;
 }
+
+// 같은 칸은 늘 같은 풀밭 그림
+const grassOf = (q, r) => hashOf(q, r) % 3;
 
 // 내용 해시를 붙인 주소. 그림이 바뀌면 주소도 바뀌어 예전 그림이 캐시에 남지 않는다.
 const source = path => `${import.meta.env.BASE_URL}${path}.webp?v=${files[path]}`;
@@ -149,15 +194,19 @@ function tintCastle(castle, team, color) {
   return mips(canvas);
 }
 
-// 바닥 타일·호수·지형 오브젝트·성을 한 번에 받는다. 하나라도 실패하면 지형 색 칸으로 그리고, 다시 부르면 처음부터 받는다.
+// 바닥 타일·호수·지형 오브젝트·재화 아이콘(교환소 표지)·성을 한 번에 받는다. 하나라도 실패하면 지형 색 칸으로 그리고, 다시 부르면 처음부터 받는다.
+// 재화 아이콘은 HUD가 같은 주소로 받으므로 브라우저 캐시를 함께 쓴다.
 let art = null;
 let artLoad = null;
 export function loadMapArt() {
   const names = [...GROUNDS, ...Object.values(OBJECTS)];
-  artLoad ??= Promise.all([...names.map(name => `map/${name}`), 'game/castle', 'game/castle-team'].map(decode)).then(images => {
+  const icons = RESOURCES.map(([type]) => `game/icon-${type}`);
+  artLoad ??= Promise.all([...names.map(name => `map/${name}`), ...icons, 'game/castle', 'game/castle-team'].map(decode)).then(images => {
     const [castle, team] = images.splice(-2);
+    const iconImages = images.splice(-icons.length);
     art = {
       sprites: Object.fromEntries(names.map((name, i) => [name, mips(images[i])])),
+      icons: Object.fromEntries(RESOURCES.map(([type], i) => [type, iconImages[i]])),
       castles: PALETTE.players.map(color => tintCastle(castle, team, color)),
     };
   }, error => { artLoad = null; throw error; });
@@ -194,25 +243,29 @@ export function mapScreen(root, onModes) {
   const retry = root.querySelector('.map-retry');
   const view = { w: 0, h: 0, left: 0, top: 0, dpr: 1 };
   const pointers = new Map();
-  let camera, bounds, paths, sprites, numbers, castles, tiles, selected, minZoom, mini, big, tap, glide;
+  const fog = document.createElement('canvas');
+  let board, sight, camera, bounds, paths, sprites, numbers, castles, shown, ports, tiles, selected, minZoom, mini, big, tap, glide;
   let frame = 0;
   let renders = 0;
+  let fogBuilds = 0;
+
+  // 내 편(나와 팀전의 팀원)의 왕성은 늘 알고, 상대 왕성은 붙은 칸이 지금 보일 때만 안다.
+  const castleKnown = player => board.starts[player].team === board.starts[0].team || pieceSeen(sight.state, board.starts[player].hexes);
 
   // 판이 바뀔 때 한 번만 경로와 그리는 순서를 만든다. 그릴 때는 종류별로 한 번씩 채우기만 한다.
-  function prepare(board) {
+  function prepare() {
     const land = new Set(board.tiles.map(({ q, r }) => `${q},${r}`));
-    paths = { coast: new Path2D(), disc: new Path2D() };
-    for (const type of TYPES) paths[type] = new Path2D();
+    paths = { coast: new Path2D() };
     tiles = new Map();
     sprites = [];
-    numbers = [];
     for (const tile of board.tiles) {
       const { x, y } = hexToPixel(tile.q, tile.r, TILE);
-      const ground = tile.type === 'lake' ? 'lake' : ON_BARREN.has(tile.type) ? 'barren' : GROUNDS[grassOf(tile.q, tile.r)];
-      const item = { ...tile, x, y, text: String(tile.number), ground, object: OBJECTS[tile.type] };
+      // base: 안개 속에서도 보이는 바닥(풀밭·빈 땅·호수)
+      const base = tile.type === 'lake' ? 'lake' : ON_BARREN.has(tile.type) ? 'barren' : 'grass';
+      const ground = base === 'grass' ? GROUNDS[grassOf(tile.q, tile.r)] : base;
+      const item = { ...tile, x, y, text: String(tile.number), base, ground, object: OBJECTS[tile.type] };
       tiles.set(`${tile.q},${tile.r}`, item);
       sprites.push(item);
-      polygon(paths[tile.type], x, y, CORNERS);
       // 바다와 닿은 변. 아래쪽 두께까지 감싸도록 살짝 내려 그린다.
       EDGE_DIRS.forEach(([dq, dr], i) => {
         if (land.has(`${tile.q + dq},${tile.r + dr}`)) return;
@@ -221,22 +274,84 @@ export function mapScreen(root, onModes) {
         paths.coast.moveTo(x + ax, y + ay + DEPTH / 2);
         paths.coast.lineTo(x + bx, y + by + DEPTH / 2);
       });
-      if (tile.number === null) continue;
-      paths.disc.moveTo(x + DISC_R, y + DISC_Y);
-      paths.disc.arc(x, y + DISC_Y, DISC_R, 0, Math.PI * 2);
-      numbers.push(item);
     }
     // 위쪽 줄부터 그려 아랫줄 타일이 윗줄의 두께를 덮게 한다. 오브젝트는 제 칸 윗면 안에만 있어 칸 바로 뒤에 그려도 된다.
     sprites.sort((a, b) => a.y - b.y || a.x - b.x);
-    // 성은 세 칸이 만나는 꼭짓점, 곧 세 칸 중심의 평균에 놓는다.
-    castles = board.starts.map(({ player, hexes }) => {
-      const points = hexes.map(({ q, r }) => hexToPixel(q, r, TILE));
-      return { player, x: points.reduce((sum, p) => sum + p.x, 0) / 3, y: points.reduce((sum, p) => sum + p.y, 0) / 3 };
+    // 성은 세 칸이 만나는 꼭짓점에 놓는다.
+    castles = board.starts.map(({ player, hexes }) => ({ player, ...vertexAt(hexes) }));
+    // 교환소: 변의 두 꼭짓점(a, b), 변 가운데(mx, my), 칸 중심에서 바다 쪽으로 가는 방향(ox, oy)
+    ports = board.ports.map(port => {
+      const [a, b] = portSpots(port).map(vertexAt);
+      const center = hexToPixel(port.q, port.r, TILE);
+      const mx = (a.x + b.x) / 2;
+      const my = (a.y + b.y) / 2;
+      const length = Math.hypot(mx - center.x, my - center.y);
+      const [give, get] = port.pair;
+      return { ...port, a, b, mx, my, ox: (mx - center.x) / length, oy: (my - center.y) / length, text: `교환소: ${RESOURCE_NAMES[give]} ⇄ ${RESOURCE_NAMES[get]} (${PORT_RATE}:1)` };
     });
     // 바다를 포함한 판 상자(가로 cols × 세로 rows 칸)
     const half = TILE * Math.sqrt(3) / 2;
     bounds = { minX: -TILE, maxX: (board.cols - 1) * 1.5 * TILE + TILE, minY: -half, maxY: (board.rows - 0.5) * 2 * half + half + DEPTH };
     Object.assign(bounds, { w: bounds.maxX - bounds.minX, h: bounds.maxY - bounds.minY, cx: (bounds.minX + bounds.maxX) / 2, cy: (bounds.minY + bounds.maxY) / 2 });
+  }
+
+  // 시야가 바뀔 때만(지금은 판을 열 때, 나중에는 말이 움직일 때) 부른다. 칸 단계에 맞춰 숫자 패, 지형 색 경로(미니맵·대체 그림),
+  // 보이는 성, 안개 그림을 다시 만든다. 모르는 칸은 오브젝트·숫자 없이 바닥 색만 쓴다.
+  function applyVision() {
+    paths.disc = new Path2D();
+    paths.fill = {};
+    paths.mist = { [UNKNOWN]: new Path2D(), [KNOWN]: new Path2D() };
+    numbers = [];
+    for (const tile of sprites) {
+      tile.state = sight.state.get(`${tile.q},${tile.r}`);
+      polygon(paths.fill[tile.state === UNKNOWN ? tile.base : tile.type] ??= new Path2D(), tile.x, tile.y, CORNERS);
+      if (tile.state !== VISIBLE) polygon(paths.mist[tile.state], tile.x, tile.y, CORNERS);
+      if (tile.number === null || tile.state === UNKNOWN) continue;
+      paths.disc.moveTo(tile.x + DISC_R, tile.y + DISC_Y);
+      paths.disc.arc(tile.x, tile.y + DISC_Y, DISC_R, 0, Math.PI * 2);
+      numbers.push(tile);
+    }
+    shown = castles.filter(({ player }) => castleKnown(player));
+    buildFog();
+  }
+
+  // 안개 그림(둘레 FOG_MARGIN을 더한 판 상자를 FOG_SCALE분의 1로 줄인 크기). 안개 낀 칸마다 둥근 안개를 깔고 가장자리를 흐리게 번지게 한다.
+  // 흐림은 ctx.filter(Safari 18 미만에 없음) 대신 그림자로 낸다. 원은 그림판 밖에 그리고 흐린 그림자만 제자리에 떨어뜨린다.
+  // 모름·앎 칸 층을 FOG_KNOWN으로 깔고 모르는 칸 층을 더해, 겹친 곳이 FOG_UNKNOWN이 되게 한다. 한 층은 경로 하나라 원이 겹쳐도 짙어지지 않는다.
+  function buildFog() {
+    fogBuilds++;
+    fog.width = Math.ceil((bounds.w + 2 * FOG_MARGIN) / FOG_SCALE);
+    fog.height = Math.ceil((bounds.h + 2 * FOG_MARGIN) / FOG_SCALE);
+    const away = fog.width * 2;
+    const g = fog.getContext('2d');
+    g.setTransform(1 / FOG_SCALE, 0, 0, 1 / FOG_SCALE, (FOG_MARGIN - bounds.minX) / FOG_SCALE - away, (FOG_MARGIN - bounds.minY) / FOG_SCALE);
+    g.shadowOffsetX = away;
+    g.shadowBlur = 2 * FOG_BLUR / FOG_SCALE; // 그림자 흐림 값은 σ의 2배
+    g.shadowColor = PALETTE.mist;
+    for (const [level, alpha] of [[KNOWN, FOG_KNOWN], [UNKNOWN, 1 - (1 - FOG_UNKNOWN) / (1 - FOG_KNOWN)]]) {
+      const puffs = new Path2D();
+      for (const tile of sprites) {
+        if (tile.state > level) continue;
+        puffs.moveTo(tile.x + FOG_PUFF, tile.y);
+        puffs.arc(tile.x, tile.y, FOG_PUFF, 0, Math.PI * 2);
+      }
+      g.globalAlpha = alpha;
+      g.fill(puffs);
+    }
+    // 구름 결: 칸 좌표로 정한 자리라 시야가 바뀌어도 결이 움직이지 않는다.
+    const thin = new Path2D();
+    for (const tile of sprites) {
+      const h = hashOf(tile.q, tile.r);
+      const angle = h % 628 / 100;
+      const reach = (h >>> 10) % 60 / 100 * TILE;
+      const x = tile.x + Math.cos(angle) * reach;
+      const y = tile.y + Math.sin(angle) * reach;
+      thin.moveTo(x + FOG_THIN_R, y);
+      thin.arc(x, y, FOG_THIN_R, 0, Math.PI * 2);
+    }
+    g.globalCompositeOperation = 'destination-out';
+    g.globalAlpha = FOG_THIN;
+    g.fill(thin);
   }
 
   // 판 전체가 w×h 안에 여백을 두고 들어가는 배율과 위치
@@ -245,6 +360,15 @@ export function mapScreen(root, onModes) {
     return { s, ox: w / 2 - bounds.cx * s, oy: h / 2 - bounds.cy * s };
   }
 
+  // 지형 색 칸(모르는 칸은 바닥 색). 미니맵과, 그림이 없을 때의 판에 쓴다.
+  function fillTerrain(g) {
+    for (const [look, path] of Object.entries(paths.fill)) {
+      g.fillStyle = PALETTE[look];
+      g.fill(path);
+    }
+  }
+
+  // 미니맵은 안개를 칸 모양 그대로 단순하게 덮는다. 상대 왕성은 보일 때만 찍는다.
   function drawMini(target) {
     const w = target.clientWidth;
     const h = target.clientHeight;
@@ -253,19 +377,22 @@ export function mapScreen(root, onModes) {
     target.height = Math.round(h * view.dpr);
     const g = target.getContext('2d');
     g.setTransform(view.dpr * t.s, 0, 0, view.dpr * t.s, view.dpr * t.ox, view.dpr * t.oy);
-    for (const type of TYPES) {
-      g.fillStyle = PALETTE[type];
-      g.fill(paths[type]);
+    fillTerrain(g);
+    g.fillStyle = PALETTE.mist;
+    for (const [level, alpha] of [[UNKNOWN, FOG_UNKNOWN], [KNOWN, FOG_KNOWN]]) {
+      g.globalAlpha = alpha;
+      g.fill(paths.mist[level]);
     }
+    g.globalAlpha = 1;
     castleDots(g, 4 / t.s);
     return t;
   }
 
-  // 성 자리를 플레이어 색 점으로 찍는다. 미니맵과, 그림이 없을 때의 판에 쓴다.
+  // 보이는 성 자리를 플레이어 색 점으로 찍는다. 미니맵과, 그림이 없을 때의 판에 쓴다.
   function castleDots(g, radius) {
     g.lineWidth = radius * 0.375;
     g.strokeStyle = PALETTE.castleEdge;
-    for (const { player, x, y } of castles) {
+    for (const { player, x, y } of shown) {
       g.beginPath();
       g.arc(x, y, radius, 0, Math.PI * 2);
       g.fillStyle = PALETTE.players[player];
@@ -319,6 +446,7 @@ export function mapScreen(root, onModes) {
     const reachY = h / 2 / zoom + REACH;
     let drawn = 0;
     let objects = 0;
+    let texts = 0;
     if (art) {
       // 오브젝트는 타일과 같은 비율로 줄인 그림이라 같은 단계를 쓴다. 전체 보기에서도 그대로 그린다.
       const level = levelOf(art.sprites['grass-1'], SPRITE * k);
@@ -326,17 +454,17 @@ export function mapScreen(root, onModes) {
         if (Math.abs(tile.x - cx) > reachX || Math.abs(tile.y - cy) > reachY) continue;
         ctx.drawImage(art.sprites[tile.ground][level], tile.x - SPRITE_X, tile.y - SPRITE_Y, SPRITE, SPRITE);
         drawn++;
-        if (!tile.object) continue;
+        if (!tile.object || tile.state === UNKNOWN) continue;
         ctx.drawImage(art.sprites[tile.object][level], tile.x + OBJECT_X, tile.y + OBJECT_Y, OBJECT_W, OBJECT_H);
         objects++;
       }
     } else {
       // 그림이 오기 전(또는 실패)에는 지형 색 칸으로 대신 그린다. 판이 비어 보이는 일이 없다.
-      for (const type of TYPES) {
-        ctx.fillStyle = PALETTE[type];
-        ctx.fill(paths[type]);
-      }
+      fillTerrain(ctx);
     }
+    // 안개는 바닥·오브젝트 위, 교환소·선택·성·숫자 아래. 미리 만든 한 장을 판 크기로 늘려 붙인다(부드럽게 보간).
+    ctx.drawImage(fog, bounds.minX - FOG_MARGIN, bounds.minY - FOG_MARGIN, fog.width * FOG_SCALE, fog.height * FOG_SCALE);
+    const signs = drawPorts(zoom, reachX, reachY);
     if (selected) {
       // 밝은 칸에서도 보이게 어두운 테두리를 먼저 깐다.
       const width = Math.max(7, 3 / zoom);
@@ -365,11 +493,13 @@ export function mapScreen(root, onModes) {
         if (Math.abs(tile.x - cx) > reachX || Math.abs(tile.y - cy) > reachY) continue;
         ctx.fillStyle = tile.number === 6 || tile.number === 8 ? PALETTE.hot : PALETTE.number;
         ctx.fillText(tile.text, tile.x, tile.y + DISC_Y + 1);
+        texts++;
       }
     }
     if (above) drawCastles(size, k);
     placeView(miniView, mini);
-    performance.measure('map-render', { start, detail: { tiles: drawn, objects } });
+    // 시험용 수: 그린 타일·오브젝트·숫자·성·교환소 표지, 안개 그림을 만든 횟수
+    performance.measure('map-render', { start, detail: { tiles: drawn, objects, numbers: texts, castles: shown.length, ports: signs, fog: fogBuilds } });
     if (++renders % 120 === 0) performance.clearMeasures('map-render');
   }
 
@@ -379,15 +509,97 @@ export function mapScreen(root, onModes) {
     // 전체 보기에서는 지붕 색만으로 찾기 어려워 성 아래에 플레이어 색 받침을 깐다.
     if (TILE * camera.zoom < DETAIL) castleDots(ctx, size * CASTLE_BASE);
     const level = levelOf(art.castles[0], size * k);
-    for (const { player, x, y } of castles) ctx.drawImage(art.castles[player][level], x - size / 2, y - size * CASTLE_FOOT, size, size);
+    for (const { player, x, y } of shown) ctx.drawImage(art.castles[player][level], x - size / 2, y - size * CASTLE_FOOT, size, size);
+  }
+
+  // 교환소: 부두(나무 판 + 널빤지 틈) → 자리 표시(가까이 볼 때만) → 표지(두 자원 아이콘과 ⇄). 처음부터 아는 칸이라 안개 위에 그린다.
+  // 화면 안에 있는 표지 수를 돌려준다.
+  function drawPorts(zoom, reachX, reachY) {
+    const size = signSize(zoom);
+    const { w, h } = size;
+    const onScreen = ports.map(port => ({ port, ...signAt(port, size) }))
+      .filter(({ x, y }) => Math.abs(x - camera.x) <= reachX + w && Math.abs(y - camera.y) <= reachY + w);
+    if (!onScreen.length) return 0;
+    const pier = new Path2D();
+    for (const { port, x, y } of onScreen) {
+      pier.moveTo(port.mx, port.my);
+      pier.lineTo(x, y);
+    }
+    ctx.lineCap = 'butt';
+    ctx.lineWidth = size.pier + 5;
+    ctx.strokeStyle = PALETTE.castleEdge;
+    ctx.stroke(pier);
+    ctx.lineWidth = size.pier;
+    ctx.strokeStyle = PALETTE.pier;
+    ctx.stroke(pier);
+    ctx.setLineDash([size.pier * 0.12, size.pier * 0.5]);
+    ctx.strokeStyle = PALETTE.plank;
+    ctx.stroke(pier);
+    ctx.setLineDash([]);
+    ctx.lineCap = 'round';
+    if (TILE * zoom >= DETAIL) {
+      const spots = new Path2D();
+      for (const { port } of onScreen) for (const { x, y } of [port.a, port.b]) {
+        spots.moveTo(x + SPOT, y);
+        spots.arc(x, y, SPOT, 0, Math.PI * 2);
+      }
+      ctx.fillStyle = PALETTE.disc;
+      ctx.fill(spots);
+      ctx.lineWidth = 3;
+      ctx.strokeStyle = PALETTE.castleEdge;
+      ctx.stroke(spots);
+    }
+    // 표지: 둥근 양끝 안에 아이콘, 가운데에 화살표
+    const signs = new Path2D();
+    for (const { x, y } of onScreen) {
+      signs.moveTo(x + w / 2 - h / 2, y - h / 2);
+      signs.arc(x + w / 2 - h / 2, y, h / 2, -Math.PI / 2, Math.PI / 2);
+      signs.arc(x - w / 2 + h / 2, y, h / 2, Math.PI / 2, Math.PI * 1.5);
+      signs.closePath();
+    }
+    ctx.fillStyle = PALETTE.disc;
+    ctx.fill(signs);
+    ctx.lineWidth = h * 0.07;
+    ctx.strokeStyle = PALETTE.castleEdge;
+    ctx.stroke(signs);
+    ctx.strokeStyle = PALETTE.number;
+    for (const { port, x, y } of onScreen) {
+      if (art) port.pair.forEach((type, i) => ctx.drawImage(art.icons[type], x + (i ? 1 : -1) * (w / 2 - h / 2) - h / 2, y - h / 2, h, h));
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.scale(h, h);
+      ctx.lineWidth = 0.08;
+      ctx.stroke(ARROW);
+      ctx.restore();
+    }
+    return onScreen.length;
+  }
+
+  // 월드 점 (x, y)에 있는 교환소(표지나 부두). 표지 크기가 배율에 따라 바뀌므로 그릴 때와 같은 계산을 쓴다.
+  function portAt(x, y) {
+    const size = signSize(camera.zoom);
+    const pad = HIT / camera.zoom;
+    return ports.find(port => {
+      const sign = signAt(port, size);
+      if (Math.abs(x - sign.x) <= size.w / 2 + pad && Math.abs(y - sign.y) <= size.h / 2 + pad) return true;
+      // 부두: 변 가운데에서 표지 가운데까지의 선분과의 거리
+      const dx = sign.x - port.mx;
+      const dy = sign.y - port.my;
+      const t = clamp(((x - port.mx) * dx + (y - port.my) * dy) / (dx * dx + dy * dy), 0, 1);
+      return Math.hypot(x - port.mx - t * dx, y - port.my - t * dy) <= size.pier / 2 + pad;
+    });
   }
 
   // 전체 보기(기본 배율보다 멀리)였다면 기본 배율까지 확대하고, 아니면 배율을 그대로 둔다. 판을 만지면 멈춘다(lookAt, pointerdown).
   function goToCastle(player) {
     const castle = castles.find(item => item.player === player);
-    if (!castle || !castleKnown(player)) return;
+    if (!castle) return;
+    if (!castleKnown(player)) {
+      status.textContent = `${PLAYERS[player].name}의 왕성은 아직 안개 속에 있어요`;
+      return;
+    }
     const zoom = Math.max(camera.zoom, NATURAL);
-    if (!reduceMotion.matches) {
+    if (!useReducedMotion()) {
       glide = { from: { ...camera }, to: { x: castle.x, y: castle.y, zoom }, start: performance.now() };
       return requestRender();
     }
@@ -426,12 +638,19 @@ export function mapScreen(root, onModes) {
     requestRender();
   }
 
+  // 교환소(표지·부두)를 먼저 본다. 교환소를 누르면 칸은 고르지 않는다. 안개 속 칸은 바닥만 알린다.
   function select(x, y) {
-    const { q, r } = pixelToHex(camera.x + (x - view.w / 2) / camera.zoom, camera.y + (y - view.h / 2) / camera.zoom, TILE);
-    const tile = tiles.get(`${q},${r}`);
+    const wx = camera.x + (x - view.w / 2) / camera.zoom;
+    const wy = camera.y + (y - view.h / 2) / camera.zoom;
+    const port = portAt(wx, wy);
+    const { q, r } = pixelToHex(wx, wy, TILE);
+    const tile = port ? null : tiles.get(`${q},${r}`);
     selected = null;
     if (tile) polygon(selected = new Path2D(), tile.x, tile.y, CORNERS);
-    status.textContent = tile ? `선택: ${TERRAIN[tile.type].name}${tile.number === null ? '' : ` ${tile.number}`}` : '선택 해제';
+    if (port) status.textContent = port.text;
+    else if (!tile) status.textContent = '선택 해제';
+    else if (tile.state === UNKNOWN) status.textContent = `선택: 안개 속 ${GROUND_NAMES[tile.base]}`;
+    else status.textContent = `선택: ${TERRAIN[tile.type].name}${tile.number === null ? '' : ` ${tile.number}`}`;
     requestRender();
   }
 
@@ -512,8 +731,12 @@ export function mapScreen(root, onModes) {
   new ResizeObserver(resize).observe(canvas);
 
   return function openMap(mode = 'duel') {
-    const board = createBoard({ mode });
-    prepare(board);
+    board = createBoard({ mode });
+    // 지금은 나(0번)의 시야. 처음 상태라 아는 칸은 교환소와 숫자 6·8 칸뿐이다.
+    sight = vision(board);
+    prepare();
+    applyVision();
+    root.dataset.seed = board.seed; // 시험이 같은 판을 다시 만들어 안개 결과와 맞춰 본다
     const [me, ...others] = PLAYERS.slice(0, board.starts.length);
     // 팀전은 0·1번이 한 팀이라 같은 팀(봇 1)을 먼저 보인다.
     const groups = mode === 'team' ? [['같은 팀', others.slice(0, 1)], ['상대 팀', others.slice(1)]] : [['상대', others]];
