@@ -125,9 +125,9 @@
     {
       "name": "warrior",
       "file": "warrior.png",
-      "x": -10,
-      "y": 262,
-      "w": 770,
+      "x": -40,
+      "y": 250,
+      "w": 840,
       "h": 600,
       "z": 40,
       "align": "bottom-left"
