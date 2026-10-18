@@ -13,6 +13,13 @@ await mkdir(generated, { recursive: true });
 const changedAt = Math.max((await stat(new URL('layout.json', source))).mtimeMs, (await stat(new URL(import.meta.url))).mtimeMs);
 let originalBytes = 0;
 let outputBytes = 0;
+// 결과 파일이 없거나 changed 시각보다 오래됐으면 다시 만든다.
+async function stale(destination, changed) {
+  try { return (await stat(destination)).mtimeMs < changed; } catch (error) {
+    if (error.code !== 'ENOENT') throw error;
+    return true;
+  }
+}
 // AI 생성 그림의 면 안쪽 얼룩을 없앤다. 색면 도형으로 다시 딴 그림에서 면 안쪽만 가져오고,
 // 테두리와 색 경계에서 3px 안은 원본을 그대로 둬 외곽선의 매끈함을 지킨다(2026-10-18 비교 뒤 '2단계' 채택).
 // 설정값과 비교 결과는 docs/game-design.md의 '캐릭터 아트 기준'. 원본 PNG는 바꾸지 않는다.
@@ -65,11 +72,7 @@ for (const file of new Set(layout.layers.map(layer => layer.file))) originalByte
 for (const layer of layout.layers) {
   const input = new URL(layer.file, source);
   const destination = new URL(`${layer.name}.webp`, output);
-  let current;
-  try { current = await stat(destination); } catch (error) {
-    if (error.code !== 'ENOENT') throw error;
-  }
-  if (!current || current.mtimeMs < Math.max((await stat(input)).mtimeMs, changedAt)) {
+  if (await stale(destination, Math.max((await stat(input)).mtimeMs, changedAt))) {
     const png = await clean(layer.file);
     const [left, top, right, bottom] = layer.sourceBounds ?? await bounds(png);
     // 비율을 지키는 그림은 큰 화면에서도 선명하게, 늘려 채우는 지형은 원본 크기로 둔다.
@@ -86,6 +89,27 @@ for (const layer of layout.layers) {
 }
 await writeFile(new URL('title-layout.json', generated), JSON.stringify(layout));
 console.log(`타이틀 이미지 ${(originalBytes / 1e6).toFixed(2)} MB → ${(outputBytes / 1e6).toFixed(2)} MB (${Math.round((1 - outputBytes / originalBytes) * 100)}% 감소)`);
+
+// 바닥 타일은 이미 깨끗한 색면 그림이라 얼룩 정리 없이 600px로만 줄인다. 가장 크게 확대한 2배 화면에서 칸 하나가 약 600px.
+const mapSource = new URL('../assets/map/', import.meta.url);
+const mapOutput = new URL('../public/map/', import.meta.url);
+await mkdir(mapOutput, { recursive: true });
+const tiles = {};
+let tileBytes = 0;
+for (const name of ['grass-1', 'grass-2', 'grass-3', 'barren']) {
+  const input = new URL(`${name}.png`, mapSource);
+  const destination = new URL(`${name}.webp`, mapOutput);
+  if (await stale(destination, Math.max((await stat(input)).mtimeMs, changedAt))) {
+    const temporary = new URL(`${name}.tmp.webp`, mapOutput);
+    await sharp(await readFile(input)).resize(600, 600).webp({ quality: 90, alphaQuality: 100, smartSubsample: true, effort: 6 }).toFile(fileURLToPath(temporary));
+    await rename(temporary, destination);
+  }
+  const bytes = await readFile(destination);
+  tiles[name] = createHash('sha256').update(bytes).digest('hex').slice(0, 12);
+  tileBytes += bytes.length;
+}
+await writeFile(new URL('map-tiles.json', generated), JSON.stringify(tiles));
+console.log(`바닥 타일 4종 ${(tileBytes / 1000).toFixed(1)} KB`);
 
 // 모든 화면의 소스에서 필요한 글자를 모아 부분 글꼴을 만든다.
 const { createFont, woff2 } = await import('fonteditor-core');

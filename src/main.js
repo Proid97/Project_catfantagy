@@ -1,6 +1,5 @@
 import './style.css';
-import { setupScreen } from './setup-screen.js';
-import { mapScreen } from './map-screen.js';
+import { mapScreen, loadTileArt } from './map-screen.js';
 import { animateTitle, syncIntroVisibility } from './title-intro.js';
 import layout from './generated/title-layout.json';
 
@@ -14,9 +13,10 @@ const motionNote = document.querySelector('.motion-note');
 const motionToggle = document.querySelector('.motion-toggle');
 const status = document.querySelector('.status');
 const retry = document.querySelector('.retry');
-const setup = document.querySelector('#setup');
-const openMap = mapScreen(document.querySelector('#map'));
-const openSetup = setupScreen(setup, () => { stage.hidden = false; ready(); start.focus(); }, classes => openMap({ players: classes.map((classId, index) => ({ name: index ? '봇' : '나', classId })) }));
+const modes = document.querySelector('#modes');
+const modeBack = modes.querySelector('.mode-back');
+const [modeFirst, modeFour] = modes.querySelectorAll('.mode-list');
+const openMap = mapScreen(document.querySelector('#map'), () => showModes(false));
 const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
 const assetRoot = `${import.meta.env.BASE_URL}title/`;
 let animations = [];
@@ -129,12 +129,43 @@ async function load() {
   }
 }
 
+// 임시 대전 방식 선택. four가 참이면 4인 매치의 개인전·팀전 단계.
+function showModes(four) {
+  modes.hidden = false;
+  modeFirst.hidden = four;
+  modeFour.hidden = !four;
+  modeBack.textContent = four ? '← 뒤로' : '← 타이틀로';
+  modes.querySelector('h2').textContent = four ? '4인 매치 방식 고르기' : '대전 방식 고르기';
+  modes.querySelector('h2').focus({ preventScroll: true });
+}
+
+function modesBack() {
+  if (modeFirst.hidden) return showModes(false);
+  modes.hidden = true;
+  stage.hidden = false;
+  // #map 등으로 바로 들어왔다면 타이틀 그림을 아직 받지 않았다.
+  if (!art.children.length) return load();
+  ready();
+  start.focus();
+}
+
 start.addEventListener('click', () => {
   if (stage.dataset.state !== 'ready') return;
   state('started');
   stage.hidden = true;
-  openSetup();
+  showModes(false);
+  // 고르는 동안 바닥 타일을 미리 받는다. 실패하면 지도 화면이 다시 시도한다.
+  loadTileArt().catch(() => {});
   window.dispatchEvent(new CustomEvent('title:start'));
+});
+modes.addEventListener('click', event => {
+  const button = event.target.closest('button');
+  if (button === modeBack) modesBack();
+  else if (button?.hasAttribute('data-next')) showModes(true);
+  else if (button?.dataset.mode) {
+    modes.hidden = true;
+    openMap(button.dataset.mode);
+  }
 });
 skip.addEventListener('click', ready);
 // 연출 중 화면을 누르면 건너뛰기만 한다. pointerdown이면 같은 터치의 클릭이 새로 나타난 시작 버튼에 닿는다.
@@ -152,6 +183,8 @@ document.addEventListener('visibilitychange', () => {
 });
 retry.addEventListener('click', load);
 document.addEventListener('keydown', event => {
+  // Esc는 대전 방식 선택에서 한 단계 뒤로. 지도에서는 큰 미니맵만 닫고(dialog 기본 동작) 판을 떠나지 않는다.
+  if (event.key === 'Escape' && !modes.hidden) return modesBack();
   if (event.repeat || !['Enter', ' '].includes(event.key)) return;
   if (stage.hidden || event.target instanceof HTMLButtonElement) return;
   event.preventDefault();
@@ -163,8 +196,9 @@ reducedMotion.addEventListener('change', () => {
 });
 addEventListener('resize', fillScreen);
 fillScreen();
-// #map으로 열면 타이틀을 건너뛰고 기본 두 냥국으로 판을 바로 본다(개발·시험용).
-if (location.hash === '#map') {
+// 개발·시험용: #map(1대1), #map-ffa(4인 개인전), #map-team(2대2 팀전)으로 열면 타이틀을 건너뛰고 판을 바로 본다.
+const shortcut = { '#map': 'duel', '#map-ffa': 'ffa', '#map-team': 'team' }[location.hash];
+if (shortcut) {
   stage.hidden = true;
-  openMap();
+  openMap(shortcut);
 } else load();

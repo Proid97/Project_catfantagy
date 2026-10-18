@@ -1,30 +1,43 @@
-.map-screen { --sea: #3d9fcb; --hud-panel: #fff8ebeb; --hud-ink: #263638; --hud-line: #2636381f; --hud-edge: #fff8eb; --hud-shadow: 0 3px 0 #0b3b5226, 0 6px 16px #0b3b5226; --card-back: #17575c; --card-mark: #ffda63; position: absolute; inset: 0; overflow: hidden; background: var(--sea); color: var(--hud-ink); }
+.map-screen { --sea: #3d9fcb; --hud-panel: #fff8ebeb; --hud-ink: #263638; --hud-soft: #5b6c6e; --hud-line: #2636381f; --hud-edge: #fff8eb; --hud-shadow: 0 3px 0 #0b3b5226, 0 6px 16px #0b3b5226; --card-back: #17575c; --card-mark: #ffda63; --temp-edge: #263638; --retry: #ffda63; container-type: inline-size; background: var(--sea); color: var(--hud-ink); }
 .map-canvas { position: absolute; inset: 0; display: block; width: 100%; height: 100%; touch-action: none; }
-/* 지도 조작이 HUD 아래에서도 되게, 실제 조작 요소만 입력을 받는다. */
-.hud { position: absolute; inset: calc(env(safe-area-inset-top) + 12px) calc(env(safe-area-inset-right) + 12px) calc(env(safe-area-inset-bottom) + 12px) calc(env(safe-area-inset-left) + 12px); pointer-events: none; }
+/* 지도 조작이 HUD 아래에서도 되게, 실제 조작 요소만 입력을 받는다.
+   가로 화면의 가운데 기둥은 화면 가장자리에서 떨어져 있으므로, 좌우 안전 영역에서 그 거리를 뺀다. */
+.hud { --side: calc((100vw - 100%) / 2); position: absolute; inset: calc(env(safe-area-inset-top) + 12px) max(12px, calc(env(safe-area-inset-right) + 12px - var(--side))) calc(env(safe-area-inset-bottom) + 12px) max(12px, calc(env(safe-area-inset-left) + 12px - var(--side))); pointer-events: none; }
 .hud > * { position: absolute; margin: 0; }
 .hud-panel { border-radius: 16px; background: var(--hud-panel); box-shadow: var(--hud-shadow); }
-.hud-players { top: 0; left: 0; padding: 8px 16px 8px 8px; }
-.player { display: flex; align-items: center; gap: 8px; margin: 0; font-size: 16px; }
-.avatar { display: grid; place-items: center; flex: none; width: 44px; height: 44px; border: 3px solid var(--accent); border-radius: 50%; background: var(--tint); color: var(--ink); font-size: 19px; }
-.opponents { margin: 6px 0 0; padding: 6px 0 0 6px; border-top: 1px solid var(--hud-line); list-style: none; }
+.hud-players { top: 0; left: 0; max-width: calc(50% - 6px); padding: 8px 14px 8px 8px; }
+.player { display: flex; align-items: center; gap: 8px; margin: 0; font-size: 16px; white-space: nowrap; }
+/* 테두리는 판 위 성과 같은 플레이어 색, 안쪽은 종족 색 */
+.avatar { display: grid; place-items: center; flex: none; width: 44px; height: 44px; border: 3px solid var(--player); border-radius: 50%; background: var(--tint); color: var(--ink); font-size: 19px; }
+.warrior { --tint: #fbdfaa; --ink: #6e3423; }
+.mage { --tint: #e4dbfc; --ink: #513b7e; }
+.assassin { --tint: #c9ede0; --ink: #1c5957; }
+.group-label { margin: 8px 0 0; padding-top: 6px; border-top: 1px solid var(--hud-line); color: var(--hud-soft); font-size: 11px; }
+.opponents { display: grid; gap: 4px; margin: 4px 0 0; padding: 0 0 0 6px; list-style: none; }
 .opponents .player { font-size: 13px; }
-.opponents .avatar { width: 32px; height: 32px; border-width: 2px; font-size: 14px; }
+.opponents .avatar { width: 32px; height: 32px; border-width: 3px; font-size: 14px; }
 .hud-resources { top: 0; right: 0; display: flex; gap: 2px; padding: 4px 8px; list-style: none; }
 .hud-resources li { display: flex; align-items: center; gap: 5px; min-width: 54px; height: 36px; padding: 0 6px; font-size: 17px; font-variant-numeric: tabular-nums; }
 .hud-resources svg { flex: none; width: 24px; height: 24px; }
-.minimap { left: 0; bottom: 0; width: 176px; height: 132px; padding: 0; border: 3px solid var(--hud-edge); border-radius: 14px; overflow: hidden; background: var(--sea); box-shadow: var(--hud-shadow); pointer-events: auto; touch-action: manipulation; }
+/* 판 상자와 같은 비율(약 4:3). --board-ratio는 판을 열 때 정한다. */
+.minimap { left: 0; bottom: 0; width: 176px; aspect-ratio: var(--board-ratio, 4 / 3); padding: 0; border: 3px solid var(--hud-edge); border-radius: 14px; overflow: hidden; background: var(--sea); box-shadow: var(--hud-shadow); pointer-events: auto; touch-action: manipulation; }
 .minimap canvas, .minimap-dialog canvas { display: block; width: 100%; height: 100%; }
 .minimap-view { position: absolute; left: 0; top: 0; border: 2px solid #fff; border-radius: 3px; box-shadow: 0 0 0 1px #0b3b5280; pointer-events: none; }
-/* 화면을 어둡게 덮지 않는다. 투명한 바깥을 누르면 닫힌다. */
-.minimap-dialog { height: min(80vw, 80vh); padding: 0; border: 3px solid var(--hud-edge); border-radius: 18px; overflow: hidden; background: var(--sea); box-shadow: 0 6px 0 #0b3b5233, 0 18px 48px #0b3b5259; }
+/* 화면을 어둡게 덮지 않는다. 투명한 바깥을 누르면 닫힌다. 너비는 세로 기둥(높이의 3/4) 안에 들어가게 한다. */
+.minimap-dialog { width: min(92vw, 69svh); aspect-ratio: var(--board-ratio, 4 / 3); padding: 0; border: 3px solid var(--hud-edge); border-radius: 18px; overflow: hidden; background: var(--sea); box-shadow: 0 6px 0 #0b3b5233, 0 18px 48px #0b3b5259; }
 .minimap-dialog::backdrop { background: transparent; }
+/* 임시: 모드 선택으로 돌아가는 시험용 버튼. 점선으로 정식 UI가 아님을 드러낸다. */
+.mode-change { left: 50%; bottom: 0; translate: -50% 0; display: grid; justify-items: center; min-width: 44px; min-height: 44px; padding: 4px 12px; border: 2px dashed var(--temp-edge); border-radius: 12px; background: var(--hud-panel); color: var(--hud-ink); font-size: 13px; line-height: 1.2; pointer-events: auto; }
+.mode-change small { color: var(--hud-soft); font-size: 10px; }
+.map-retry { left: 50%; top: 50%; translate: -50% -50%; min-height: 44px; padding: 0 20px; border: 0; border-radius: 22px; background: var(--retry); color: var(--hud-ink); font-size: 15px; box-shadow: var(--hud-shadow); pointer-events: auto; }
 .hand { right: 0; bottom: 0; width: 104px; height: 108px; }
 .hand span { position: absolute; right: 4px; bottom: 4px; width: 64px; height: 90px; border: 3px solid var(--hud-edge); border-radius: 10px; background: var(--card-back); box-shadow: var(--hud-shadow); }
 .hand span::after { content: ''; position: absolute; inset: 0; margin: auto; width: 20px; height: 20px; rotate: 45deg; border: 2px solid var(--card-mark); border-radius: 3px; }
 .hand span:nth-child(1) { transform: translate(-30px, -8px) rotate(-11deg); }
 .hand span:nth-child(2) { transform: translate(-15px, -3px) rotate(-4deg); }
 .hand span:nth-child(3) { transform: rotate(4deg); }
-@media (max-width: 480px) {
+/* 휴대폰 너비: 재화는 2×2, 미니맵은 조금 작게 */
+@container (max-width: 520px) {
   .hud-resources { display: grid; grid-template-columns: 1fr 1fr; }
+  .minimap { width: 136px; }
 }

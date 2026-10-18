@@ -27,7 +27,7 @@ test('등장 순서, 자연 종료, 시작 입력과 되돌아오기', async ({ 
   expect(await start.evaluate(button => ['backgroundColor', 'boxShadow', 'borderTopWidth'].map(key => getComputedStyle(button)[key]))).toEqual(['rgba(0, 0, 0, 0)', 'none', '0px']);
   await page.evaluate(() => { window.starts = 0; window.addEventListener('title:start', () => window.starts++); });
   await page.keyboard.press('Enter');
-  await expect(page.getByRole('heading', { name: '플레이어 1의 냥국을 골라요' })).toBeVisible();
+  await expect(page.getByRole('button', { name: /^1대1 매치/ })).toBeVisible();
   expect(await page.evaluate(() => window.starts)).toBe(1);
   await page.getByRole('button', { name: '← 타이틀로' }).click();
   await ready(page);
@@ -63,7 +63,7 @@ for (const [width, height] of [[1024, 768], [768, 1024], [844, 390], [2560, 1080
     expect((await start.boundingBox()).height).toBeGreaterThanOrEqual(44);
     await page.screenshot({ path: test.info().outputPath(`title-${width}x${height}.png`) });
     await start.click();
-    await expect(page.getByRole('heading', { name: '플레이어 1의 냥국을 골라요' })).toBeVisible();
+    await expect(page.getByRole('button', { name: /^1대1 매치/ })).toBeVisible();
   });
 }
 
@@ -96,7 +96,7 @@ test('터치: 연출 중 누르면 건너뛰기만 하고 다시 누르면 시�
   await page.touchscreen.tap(...await startSpot(page));
   await ready(page);
   await page.getByRole('button', { name: '게임 시작' }).tap();
-  await expect(page.getByRole('heading', { name: '플레이어 1의 냥국을 골라요' })).toBeVisible();
+  await expect(page.getByRole('button', { name: /^1대1 매치/ })).toBeVisible();
   await context.close();
 });
 

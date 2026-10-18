@@ -42,3 +42,13 @@ button:focus-visible { outline: 3px solid #ffda63; outline-offset: 6px; }
 .retry { position: absolute; z-index: 70; left: 50%; top: 60%; translate: -50% 0; padding: 12px 24px; border: 0; border-radius: 24px; color: #173d42; background: #ffda63; }
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 .start, .controls button, .retry { min-height: 44px; min-width: 44px; }
+/* 합의: 앱은 세로 화면. 가로로 돌리면 세로 화면(폭 = 높이의 3/4까지)을 가운데 기둥으로 두고 양옆은 배경으로 채운다. */
+.mode-screen, .map-screen { position: absolute; inset: 0; width: min(100%, var(--app-height) * 3 / 4); margin: 0 auto; overflow: hidden; }
+/* 임시 대전 방식 선택(설계서 10장 6번). 어두운 화면 위쪽 1대1, 아래쪽 4인. 4인은 왼쪽 개인전, 오른쪽 팀전. */
+.mode-screen { --mode-bg: #0c1f23; --mode-card: #173a3f; --mode-card-on: #22525a; --mode-edge: #ffffff2e; --mode-sub: #b5cec6; display: flex; flex-direction: column; gap: 16px; padding: calc(env(safe-area-inset-top) + 12px) 16px calc(env(safe-area-inset-bottom) + 16px); background: var(--mode-bg); }
+.mode-back { align-self: flex-start; min-height: 44px; padding: 0 16px; border: 1px solid var(--mode-edge); border-radius: 22px; color: inherit; background: none; font-size: 15px; }
+.mode-list { flex: 1; display: grid; grid-auto-rows: 1fr; gap: 16px; }
+.mode-list.four { grid-template-columns: 1fr 1fr; }
+.mode-list button { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; min-height: 44px; border: 2px solid var(--mode-edge); border-radius: 24px; color: inherit; background: var(--mode-card); font-size: clamp(26px, 6vmin, 40px); }
+.mode-list button:active { background: var(--mode-card-on); }
+.mode-list small { color: var(--mode-sub); font-size: 15px; }
