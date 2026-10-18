@@ -1,0 +1,279 @@
+{
+  "mode": "ChatGPT built-in image_gen",
+  "reference_commit": "13cfcf0dfc894d9c34568c853e97d3bffe21d538",
+  "references": [
+    "assets/concepts/style-reference-warrior.png",
+    "assets/title/hills.png",
+    "docs/images/gameplay-mockup.png"
+  ],
+  "decision": "이번 요청을 따라 위아래 변이 평평한 정육각형(flat-top)을 사용합니다.",
+  "assets": [
+    {
+      "file": "grass-1.png",
+      "source": "exec-cfbaeb59-5c03-4a5f-be5a-98803500aa20.png",
+      "prompt": "Create ONE grassland board-game tile on a completely solid vivid MAGENTA #FF00FF background for later background extraction. The WHOLE hex tile, including the middle, is solid opaque artwork.\nSquare 1024×1024 image. Flat-top regular hexagon: horizontal top and bottom edges, single pointed left/right corners. Top face 94% canvas width, about 81% canvas height, slightly above center. Shallow 8%-height warm earth/stone side visible only below front edges. No perspective squashing. One pale narrow rim line around top surface.\nClean INDIE FLAT VECTOR art matching the attached warrior's hard angular color planes, no black outlines. Quiet desaturated light yellow-green grass, only 3 broad flat colors (#A6BF78 base, #AEC77F light, #9CB570 shadow). Broad subtle angular patches. The middle area is a CONTINUOUS UNDECORATED GREEN SURFACE, with no hole, alpha, fade, white area or lighting spot. Upper-left light. One tiny angular grass tuft near lower-right edge and one small pair of gray pebbles near upper-left edge. No details near center. Matte earth sides 2 flat shades. No gradients, grain, blur, noise or shadows outside the tile. No trees, water, buildings, roads, numbers, text, resource objects or additional tiles. Render the magenta background fully opaque; do not add alpha to this source."
+    },
+    {
+      "file": "grass-2.png",
+      "source": "exec-5fc8beea-c868-4bda-bde7-6645b1eb3e5a.png",
+      "prompt": "Use case: precise-object-edit. This is an OPAQUE source image for a game tile. Preserve the attached tile's EXACT outer silhouette, size, placement, shallow earth side thickness, rim and broad quiet green color planes. Keep the solid vivid MAGENTA #FF00FF background unchanged and fully opaque; transparency will be applied by code later. Entire tile interior stays solid and opaque. Same clean angular indie flat-vector art, no black outlines. Top is subdued pale yellow-green, light upper left, no gradients, noise or texture. Center surface remains plain green with no objects. Do not change camera, geometry, sides or rim. No resources, water, trees, buildings, roads, numbers, letters, shadows outside tile, or extra tiles. Single square 1024×1024 image. Variant grass-2: remove ALL existing little gray pebbles and existing grass tuft. Place exactly TWO tiny edge decorations instead: one small flat three-blade grass tuft near UPPER RIGHT edge and one tiny warm-gray pebble near LOWER LEFT edge. Keep decorations within the outer 20% of top surface. Color and all broad surface patches must match the attached grass tile closely, so it tiles seamlessly. Decorations are the only meaningful difference."
+    },
+    {
+      "file": "grass-3.png",
+      "source": "exec-134f8712-f4c7-42bb-af7b-40534838c862.png",
+      "prompt": "Use case: precise-object-edit. This is an OPAQUE source image for a game tile. Preserve the attached tile's EXACT outer silhouette, size, placement, shallow earth side thickness, rim and broad quiet green color planes. Keep the solid vivid MAGENTA #FF00FF background unchanged and fully opaque; transparency will be applied by code later. Entire tile interior stays solid and opaque. Same clean angular indie flat-vector art, no black outlines. Top is subdued pale yellow-green, light upper left, no gradients, noise or texture. Center surface remains plain green with no objects. Do not change camera, geometry, sides or rim. No resources, water, trees, buildings, roads, numbers, letters, shadows outside tile, or extra tiles. Single square 1024×1024 image. Variant grass-3: remove ALL existing little gray pebbles and existing grass tuft. Place exactly TWO tiny edge decorations instead: a single tiny CREAM flower with muted golden center near LOWER LEFT edge and a small three-blade muted green grass tuft near UPPER RIGHT edge, but at different positions from grass-2. Keep decorations within the outer 20% of top surface. Color and all broad surface patches must match the attached grass tile closely, so it tiles seamlessly. Decorations are the only meaningful difference."
+    },
+    {
+      "file": "barren.png",
+      "source": "exec-70013d2c-2b19-489d-88f2-0ebd08dab131.png",
+      "prompt": "Use case: precise-object-edit. This is an OPAQUE source image for a game tile. Preserve the attached tile's EXACT outer silhouette, size, placement, shallow earth side thickness, rim and broad quiet green color planes. Keep the solid vivid MAGENTA #FF00FF background unchanged and fully opaque; transparency will be applied by code later. Entire tile interior stays solid and opaque. Same clean angular indie flat-vector art, no black outlines. Top is subdued pale yellow-green, light upper left, no gradients, noise or texture. Center surface remains plain green with no objects. Do not change camera, geometry, sides or rim. No resources, water, trees, buildings, roads, numbers, letters, shadows outside tile, or extra tiles. Single square 1024×1024 image. Variant barren: change ONLY the grass top into quiet warm LIGHT EARTH color (#C4AA83 base, #CDB68F light, #BBA17B shadow), keeping the same very subtle angular face patches. Rim is one narrow pale sandy-cream line. Remove ALL grass blades and gray pebbles and replace with exactly ONE tiny flat gray-brown pebble at the upper-left edge. No dry branches, no cracked desert pattern, no sand dunes or rocks. Smooth ordinary empty dirt plot, no resources. Side faces remain the exact same warm earth/stone color and thickness as the grass tile. Solid uniform earth center, no holes or fades."
+    }
+  ],
+  "discarded_attempts": [
+    {
+      "file": "grass-1.png",
+      "reason": "투명 생성 과정에서 중앙 풀밭까지 제거됨",
+      "prompt": "Use case: stylized-concept.\nAsset type: ONE reusable ground-only board-game hex tile, transparent PNG, EXACT 1024×1024.\nReference image 1: ONLY the angular indie flat-vector visual language; do not depict a cat, weapon, banner or armor. Reference image 2: ONLY the yellow-green grass color family; reduce its saturation and contrast for a quiet ground beneath future objects.\nGEOMETRY: FLAT-TOP regular hexagon seen straight overhead. A HORIZONTAL straight top edge AND horizontal straight bottom edge. Left and right are single pointed vertices. Do NOT put a vertex at the top. NO perspective foreshortening, NO isometric diamond. Top-face width 962px (94% of 1024). Six top-face vertices approximately (31,478),(271,62),(753,62),(993,478),(753,895),(271,895). Top plane therefore a regular equilateral hexagon, taller than a squashed isometric tile. Centered composition including shallow side thickness.\nBelow the front three edges show a very thin earthen/stone side extrusion extending straight DOWN by about 67px (8% of the top face height). Max overall bottom y962. Sides are just two or three large flat warm earth and muted stone color planes, no brickwork/individual pebbly strata. Same thickness all variants. No floating island taper, no roots, no jagged crust. No shadow outside the tile.\nTop rim: ONE narrow continuous pale yellow-green line about 5px wide along all six top edges. No black outline, no thick cream frame, no double outline, no separate white sticker border.\nStyle: clean angular indie vector-like art, large flat SOLID color regions, hard straight shape boundaries, soft restrained contrast between top planes, light source upper LEFT. No gradients, texture, noise, grain, brushwork, gloss, blur or glow. Crisp silhouette. No lettering, numbers, roads, paths, buildings, trees, mountains, ore, gems, lakes or water. No scene, no additional tiles. True transparent background outside the tile; tile interiors opaque.\nVariant grass-1: quiet slightly desaturated LIGHT YELLOW-GREEN meadow top, base about #A6BF78, light plane #AEC77F, shadow plane #9CB570. Only 2–3 broad very subtle angular patches near the outer part; center 60% completely clear and almost one flat base color. Keep top a single meadow with no soil patches. Exactly TWO small sparse edge decorations: one tiny 3-blade angular grass tuft near the lower-right edge, and one little pair of flat gray pebbles near upper-left edge. Decorations stay fully inside the top face, never cross border and never in central 60%. Grass very low, not tall plants. Tiny edge details must not dominate.\nOutput only this single tile at exactly 1024×1024, top width about 962px."
+    },
+    {
+      "file": "grass-1.png",
+      "reason": "중앙 알파 구멍이 남음",
+      "prompt": "Use case: precise-object-edit. Fix the attached single grass board tile.\nThe middle of this tile was incorrectly made see-through. FILL THE ENTIRE TOP FACE, including its center, with OPAQUE SOLID PALE YELLOW-GREEN grass color (#A6BF78). The center is a continuous solid green surface to place objects on later; it is NOT a hole, NOT a cutout, NOT transparent, NOT white, and NOT blurred. The tile is a solid board-game piece. Transparency belongs ONLY OUTSIDE the outer tile silhouette. Alpha of every interior point is fully opaque.\nUse 2 or 3 subtly different SOLID flat angular color regions total on the top face. Remove ALL gradients, smudges and dark fuzzy shading from every surface. Simple matte flat vector color planes only. Keep the existing two small edge decoration groups, the thin pale-green top-edge line, straight flat-top regular hexagon and thin straight soil side below it. Make earth sides two large solid color blocks, no gradient.\nCenter the whole tile with comfortable transparent margin: top face spans about 94% canvas width, not touching canvas edges. Horizontal top and bottom hex edges, left and right pointed vertices. Top face NOT squashed. Thin thickness 8% below.\nKeep the existing exact style, orientation, light upper-left and sparse decoration locations. No added objects, shadows, resources, text or symbols. Output a SINGLE transparent-background PNG at EXACTLY 1024×1024."
+    },
+    {
+      "file": "grass-1.png",
+      "reason": "배경 추출이 중앙까지 제거해 불투명 원본을 대신 사용",
+      "prompt": "Use case: background-extraction. Remove ONLY the vivid magenta background from the attached board tile and make those outside pixels truly transparent. Keep the entire green and brown tile interior fully opaque, including its center. Preserve the tile artwork and decoration. Absolutely no transparency inside the hexagon. No magenta edge fringe, no extra shadow.\nKeep flat-top hex orientation. Refine top shading to just THREE broad SOLID subtle green color regions, merging the small angular patch fragments. No soft gradients, grain or texture. Keep one tiny grass tuft and two tiny gray pebbles near the outer edge, center green and undecorated.\nOutput one clean transparent PNG, 1024×1024."
+    }
+  ],
+  "export": {
+    "canvas": [
+      1024,
+      1024
+    ],
+    "format": "RGBA PNG",
+    "source_canvas": [
+      1254,
+      1254
+    ],
+    "description": "이미지젠으로 그림을 생성한 뒤, 사용자가 허용한 코드 정렬로 윗면을 정육각형에 맞추고 바깥 배경만 잘랐습니다. vtracer로 잔노이즈를 정리하고 재질별 단색 팔레트에 맞춰 PNG로 출력했습니다.",
+    "source_top_vertices": [
+      [
+        26,
+        547
+      ],
+      [
+        358,
+        94
+      ],
+      [
+        896,
+        94
+      ],
+      [
+        1227,
+        547
+      ],
+      [
+        930,
+        1005
+      ],
+      [
+        318,
+        1005
+      ]
+    ],
+    "top_vertices": [
+      [
+        31,
+        478
+      ],
+      [
+        271.5,
+        61.441780779685
+      ],
+      [
+        752.5,
+        61.441780779685
+      ],
+      [
+        993,
+        478
+      ],
+      [
+        752.5,
+        894.558219220315
+      ],
+      [
+        271.5,
+        894.558219220315
+      ]
+    ],
+    "top_width": 962,
+    "top_height": 833.11643844063,
+    "side_depth": 66.64931507525,
+    "alpha": "바깥 0, 타일 안 255. 4종 실루엣 동일.",
+    "vtracer": {
+      "package": "@neplex/vectorizer",
+      "mode": "Polygon",
+      "colorPrecision": 6,
+      "layerDifference": 8,
+      "filterSpeckle": 16,
+      "cornerThreshold": 60,
+      "lengthThreshold": 4,
+      "maxIterations": 10,
+      "spliceThreshold": 45,
+      "pathPrecision": 2
+    },
+    "palette": {
+      "grass": [
+        [
+          174,
+          199,
+          127
+        ],
+        [
+          166,
+          191,
+          120
+        ],
+        [
+          156,
+          181,
+          112
+        ]
+      ],
+      "dirt": [
+        [
+          205,
+          182,
+          143
+        ],
+        [
+          196,
+          170,
+          131
+        ],
+        [
+          187,
+          161,
+          123
+        ]
+      ],
+      "tuft": [
+        [
+          118,
+          142,
+          79
+        ],
+        [
+          103,
+          128,
+          70
+        ],
+        [
+          86,
+          110,
+          60
+        ]
+      ],
+      "stone": [
+        [
+          167,
+          171,
+          162
+        ],
+        [
+          143,
+          149,
+          141
+        ],
+        [
+          116,
+          124,
+          118
+        ]
+      ],
+      "side": [
+        [
+          158,
+          120,
+          77
+        ],
+        [
+          144,
+          108,
+          69
+        ],
+        [
+          126,
+          94,
+          61
+        ]
+      ],
+      "rim": [
+        237,
+        230,
+        183
+      ],
+      "flower_center": [
+        211,
+        175,
+        69
+      ]
+    }
+  },
+  "preview": {
+    "file": "../../docs/images/tile-map-preview.png",
+    "canvas": [
+      1200,
+      1440
+    ],
+    "grid": [
+      5,
+      5
+    ],
+    "scale": 0.28,
+    "rotation": false,
+    "layout": "flat-top, odd-q offset, centers dx=0.75×962, dy=833.11643844063, odd columns offset by half a row. Sort by center y before drawing.",
+    "pattern": [
+      [
+        "grass-1",
+        "grass-2",
+        "barren",
+        "grass-3",
+        "grass-1"
+      ],
+      [
+        "grass-3",
+        "grass-1",
+        "grass-2",
+        "grass-1",
+        "grass-2"
+      ],
+      [
+        "grass-2",
+        "barren",
+        "grass-3",
+        "grass-2",
+        "barren"
+      ],
+      [
+        "barren",
+        "grass-3",
+        "grass-1",
+        "grass-3",
+        "grass-1"
+      ],
+      [
+        "grass-1",
+        "grass-2",
+        "grass-3",
+        "barren",
+        "grass-2"
+      ]
+    ],
+    "review": "실제 PNG 25장으로 조립. 내부 빈틈과 중앙 투명 구멍 없음. 면 무늬 반복은 보이지만 대비가 낮음. 장식은 가장자리에만 있고 중앙에는 없음."
+  },
+  "unverified": "게임에 얹었을 때의 객체 크기·입력·iPad 실기기 성능은 확인하지 않았습니다."
+}
