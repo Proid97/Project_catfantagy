@@ -175,24 +175,23 @@
 
 ### 캐릭터 아트 기준
 
-**합의:** 지금 그림체(벡터풍 색면, 큰 눈, 과장된 비율)를 유지합니다. **임시:** 아래 수치는 2026-10-17 타이틀 캐릭터 3종을 분석해 정한 첫 기준이며, 새 그림으로 검증하며 다듬습니다.
+**합의(2026-10-18):** 스타일 기준은 **이전 버전 냥전사**([style-reference-warrior.png](../assets/concepts/style-reference-warrior.png))입니다. 깔끔한 인디풍 벡터, 각진 면 분할, 과감한 실루엣이 핵심입니다. 2026-10-17 재제작본은 둥글고 뭉툭해져 이 기준에서 벗어났습니다. **임시:** 아래 수치는 새 그림으로 검증하며 다듬습니다.
 
-기준 시트: [character-art-reference.png](../assets/concepts/character-art-reference.png). 세 캐릭터의 얼굴과 눈 구조, 재질별 3단 색 견본, 빛 방향을 담았습니다.
+기준 시트 [character-art-reference.png](../assets/concepts/character-art-reference.png)는 이 스타일로 다시 만들 예정입니다.
 
 | 항목 | 기준 |
 |---|---|
 | 빛 | 왼쪽 위 한 방향. 밝은 면은 왼쪽·위, 그림자는 오른쪽·아래 |
-| 명암 | 재질마다 **3단**(밝은 면·기본·그림자). 단계 사이는 단색 경계이고 그러데이션·얼룩·번짐은 없음. 그림자는 기본보다 확실히 어둡게, 색상은 살짝 붉거나 푸른 쪽으로 |
-| 짙은 재질 | 검정·짙은 남색도 3단. 밝은 면을 푸른 회색으로 넣어 형태를 보이게 함 |
-| 외곽 | 검은 외곽선 없음. 색면 경계로 형태를 만들고, 가장자리는 반투명 없이 또렷하게 |
-| 눈 | 굵은 위 눈꺼풀 선 + 홍채 2단(기본·위쪽 그림자) + 동공 + 왼쪽 위 큰 **하이라이트** 1개(홍채 폭의 약 1/4). 작은 반사광은 넣지 않음. 흰자 유무와 동공 모양만 캐릭터 고유 |
-| 색 수 | 캐릭터당 재질 6~8개 × 3단(기준 시트의 색 견본). 원본 PNG의 미세한 색 변형은 정리 단계에서 합쳐지므로, 검수는 정리 뒤 색 덩어리로 함 |
-| 실루엣 | 검게 칠해도 클래스가 읽힘. 머리·귀 둘레는 망토·소품과 겹치지 않게 트고, 대표 형태 하나(전사 방패, 법사 모자·지팡이, 냥살자 꼬리·단검)를 크게 |
-| 비율 | 머리 : 몸 = 1 : 1.2~1.6. 72px 토큰 크기에서도 얼굴이 보임 |
-| 작은 디테일 | 하이라이트·코·발바닥은 긴 변 1672px 기준 지름 10px 이상. 정리 과정에서 사라지지 않게 함 |
+| 면과 명암 | 접힌 종이나 보석 단면처럼 **곧은 경계의 각진 면**으로 나눔. 재질마다 2~4단. 둥글게 뭉갠 면, 그러데이션, 얼룩, 번짐은 없음 |
+| 짙은 재질 | 검정·짙은 남색도 각진 면으로 나누고, 밝은 면은 짙은 회색이나 푸른 회색으로 형태를 보이게 함 |
+| 외곽 | 검은 외곽선 없음. 색면 경계로 형태를 만들고, 가장자리는 또렷하게 |
+| 눈 | 기준 전사처럼 단순한 모양. 왼쪽 위에 또렷한 흰 하이라이트 1개, 작은 반사광 없음 |
+| 실루엣 | 기준 전사의 망토·방패처럼 크고 과감한 형태. 검게 칠해도 클래스가 읽히고, 머리·귀 둘레는 소품과 겹치지 않게 틈 |
+| 비율과 자세 | 기준 전사의 몸 비율과 과장 정도를 따름. 72px 토큰 크기에서도 얼굴이 보임 |
+| 작은 디테일 | 하이라이트·코·발바닥은 긴 변 1672px 기준 지름 10px 이상 |
 | 접지 | 서 있는 발은 바닥면이 평평하게 보임. 공중 자세는 몸 아래를 비워 떠 있음을 보여 줌 |
 
-**부위별 현황** (2026-10-17 재제작과 잔여 정리 뒤, 점검 시트: [character-art-check.png](images/character-art-check.png))
+**부위별 현황** (2026-10-17 재제작본, 이전 전사 스타일로 다시 만들 예정. 점검 시트: [character-art-check.png](images/character-art-check.png))
 
 | 부위 | 냥전사 | 냥법사 | 냥살자 |
 |---|---|---|---|
@@ -209,12 +208,12 @@
 
 1. 이미지젠 요청 끝에 아래 공통 문구를 붙입니다.
    ```text
-   Flat vector game illustration in the same style as the reference. Hard-edged cel shading with exactly three tones per material (highlight, base, shadow), single light source from the upper left. No gradients, no texture, no grain, no noise, no glow, no blur. Crisp clean edges, no black outlines, fully transparent background with no semi-transparent fringe. Eyes: thick upper lid line, two-tone iris, one large clear white highlight at the upper left, no small secondary reflection. Smallest details at least 10 px wide. Head-to-body ratio about 1:1.4.
+   Clean indie flat vector illustration matching the style reference warrior exactly: angular faceted planes with straight hard edges, like folded paper or cut gems, two to four tones per material, single light source from the upper left. Bold dramatic silhouette, same body proportions and exaggeration as the reference. No rounded blobby shapes, no gradients, no texture, no grain, no noise, no glow, no blur, no black outlines. Crisp clean edges, fully transparent background. Simple eyes like the reference with one clear white highlight at the upper left. Smallest details at least 10 px wide.
    ```
-2. 생성 원본 PNG는 그대로 커밋합니다. 정리는 `npm run assets`가 실행용 WebP를 만들 때 자동으로 합니다. 반투명 가장자리를 알파 128 기준으로 또렷하게 하고, [vtracer](https://github.com/visioncortex/vtracer)(`@neplex/vectorizer`)로 색면 도형을 다시 딴 뒤 원래 크기로 되돌립니다. 설정은 `colorPrecision 6`, `layerDifference 16`, `filterSpeckle 6`, `cornerThreshold 60`입니다. 잘라 쓸 영역도 정리된 그림에서 자동으로 재므로, 그림을 바꿔도 `layout.json`을 고칠 필요가 없습니다. 그림의 일부만 쓰는 층(하늘, 나무 왼쪽·오른쪽)만 `sourceBounds`를 적습니다.
+2. 생성 원본 PNG는 그대로 커밋합니다. 정리는 `npm run assets`가 실행용 WebP를 만들 때 자동으로 합니다. [vtracer](https://github.com/visioncortex/vtracer)(`@neplex/vectorizer`)로 색면 도형을 다시 딴 그림에서 **면 안쪽만** 가져오고, 테두리와 색 경계에서 3px 안은 원본을 그대로 둡니다. 설정은 `colorPrecision 6`, `layerDifference 16`, `filterSpeckle 6`, `cornerThreshold 60`입니다. 잘라 쓸 영역도 정리된 그림에서 자동으로 재므로, 그림을 바꿔도 `layout.json`을 고칠 필요가 없습니다. 그림의 일부만 쓰는 층(하늘, 나무 왼쪽·오른쪽)만 `sourceBounds`를 적습니다.
 3. 새 그림을 넣으면 같은 부위를 3배 확대해 원본과 비교합니다. 눈 하이라이트와 작은 디테일이 남았는지 확인합니다.
 
-적용 결과(타이틀 13층): 얼룩과 번짐이 사라지고 모서리와 3단 명암은 유지됐습니다. 실행 이미지는 0.67MB에서 0.48MB로, 첫 로딩은 약 0.73MB에서 0.54MB로 줄었습니다. `filterSpeckle 10`에서는 성문 아치의 가는 선과 작은 반사광이 사라져 6으로 낮췄습니다. 그림을 새로 처음부터 만들 때는 약 20초가 걸립니다.
+정리 강도: 2026-10-18에 원본과 4단계를 비교하고 **2단계**를 골랐습니다. 처음 적용한 전체 다시 따기(4단계)는 용량이 약 30% 줄었지만 외곽선이 거칠어졌습니다. 2단계는 외곽선이 원본 그대로이고 넓은 면의 얼룩만 지웁니다. 대신 용량 이득은 거의 없습니다(실행 이미지 약 0.68MB, 첫 로딩 약 0.75MB). 그림을 새로 처음부터 만들 때는 약 1분이 걸립니다.
 
 ### 타이틀 화면
 

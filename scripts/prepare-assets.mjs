@@ -13,19 +13,42 @@ await mkdir(generated, { recursive: true });
 const changedAt = Math.max((await stat(new URL('layout.json', source))).mtimeMs, (await stat(new URL(import.meta.url))).mtimeMs);
 let originalBytes = 0;
 let outputBytes = 0;
-// AI 생성 그림의 얼룩·번짐을 없앤다. 가장자리를 또렷하게 한 뒤 색면 도형으로 다시 따서 원래 크기로 되돌린다.
-// 설정값과 시험 결과는 docs/game-design.md의 '캐릭터 아트 기준'. 원본 PNG는 바꾸지 않는다.
+// AI 생성 그림의 면 안쪽 얼룩을 없앤다. 색면 도형으로 다시 딴 그림에서 면 안쪽만 가져오고,
+// 테두리와 색 경계에서 3px 안은 원본을 그대로 둬 외곽선의 매끈함을 지킨다(2026-10-18 비교 뒤 '2단계' 채택).
+// 설정값과 비교 결과는 docs/game-design.md의 '캐릭터 아트 기준'. 원본 PNG는 바꾸지 않는다.
 const cleaned = new Map();
 function clean(file) {
   if (!cleaned.has(file)) cleaned.set(file, (async () => {
-    const { data, info } = await sharp(await readFile(new URL(file, source))).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
-    for (let i = 3; i < data.length; i += 4) data[i] = data[i] >= 128 ? 255 : 0;
-    const svg = await vectorizeRaw(data, { width: info.width, height: info.height }, {
+    const { data: original, info } = await sharp(await readFile(new URL(file, source))).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
+    const { width, height } = info;
+    const hard = Buffer.from(original);
+    for (let i = 3; i < hard.length; i += 4) hard[i] = hard[i] >= 128 ? 255 : 0;
+    const svg = await vectorizeRaw(hard, { width, height }, {
       colorMode: ColorMode.Color, hierarchical: Hierarchical.Stacked, mode: PathSimplifyMode.Spline,
       colorPrecision: 6, layerDifference: 16, filterSpeckle: 6, cornerThreshold: 60,
       lengthThreshold: 4, maxIterations: 10, spliceThreshold: 45, pathPrecision: 2,
     });
-    return sharp(Buffer.from(svg)).resize(info.width, info.height).png().toBuffer();
+    const flat = await sharp(Buffer.from(svg)).resize(width, height).ensureAlpha().raw().toBuffer();
+    // 경계: 정리된 그림에서 오른쪽·아래 이웃과 색이나 투명도가 다른 픽셀. 여기서 3px 안은 원본을 쓴다.
+    let keep = new Uint8Array(width * height);
+    const differs = (p, q) => Math.abs(flat[p] - flat[q]) + Math.abs(flat[p + 1] - flat[q + 1]) + Math.abs(flat[p + 2] - flat[q + 2]) + Math.abs(flat[p + 3] - flat[q + 3]) >= 8;
+    for (let y = 0; y < height; y++) for (let x = 0; x < width; x++) {
+      const i = y * width + x;
+      if (!(x < width - 1 && differs(i * 4, i * 4 + 4)) && !(y < height - 1 && differs(i * 4, (i + width) * 4))) continue;
+      keep[i] = 1;
+      if (x < width - 1) keep[i + 1] = 1;
+      if (y < height - 1) keep[i + width] = 1;
+    }
+    for (let step = 0; step < 3; step++) {
+      const grown = Uint8Array.from(keep);
+      for (let i = 0; i < keep.length; i++) if (!keep[i]) {
+        const x = i % width;
+        if ((x > 0 && keep[i - 1]) || (x < width - 1 && keep[i + 1]) || keep[i - width] || keep[i + width]) grown[i] = 1;
+      }
+      keep = grown;
+    }
+    for (let i = 0; i < keep.length; i++) if (keep[i]) original.copy(flat, i * 4, i * 4, i * 4 + 4);
+    return sharp(flat, { raw: { width, height, channels: 4 } }).png().toBuffer();
   })());
   return cleaned.get(file);
 }
