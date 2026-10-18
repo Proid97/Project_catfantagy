@@ -554,6 +554,19 @@
         "runtime": "빌드 정리 후 화면과 iPad 실기기는 미확인"
       },
       "publish_base_commit": "f9f43011f3fcc1e6e6ac30bc19de0389c923a9e0"
+    },
+    {
+      "name": "mage-tail-left",
+      "file": "mage.png",
+      "mode": "built-in image_gen",
+      "request": "냥법사 꼬리를 몸 뒤에서 왼쪽으로 옮김",
+      "prompt": "Use case: precise-object-edit. Edit target: the attached mage.png transparent PNG, exact canvas 1536×1024.\nChange ONLY the TAIL placement. Remove the entire large cream-white tail currently curling on the RIGHT of the character, leaving true empty transparency there. Redraw the SAME fluffy cream-white cat tail naturally attached at the lower back/hip BEHIND the purple robe, emerging toward the viewer's LEFT and curling upward along the LEFT side of the lower body. Make its root anatomically continuous with the back beneath the robe, broad at base and tapering to a curved tufted tip. Keep it behind the robe and behind the left arm. Tail silhouette stays clear of the diagonal staff shaft and face; keep a narrow transparent gap between tail and staff so the silhouette reads. Tail should curve left/back in sympathy with the floating pose, not look like an extra arm. ONE tail total, no remnant on the right. Keep its total visual mass similar, fit the tail within the existing canvas.\nPreserve EVERYTHING ELSE: face, eye highlights (one per eye), gaze, head, ears, hat and turquoise band, purple robe and plain collar, hand and pink paw pads, leg positions and lengths, staff with sky-blue open ring, all colors, original body pose, size and position. Do NOT mirror or shift the whole character. Do NOT restore the removed collar jewel.\nMatch the existing simple indie flat vector style with broad flat base-and-shadow color blocks, no extra folds or fur detail, upper-left lighting. Tail uses cream-white base and one pale cream shadow only. No gradients, texture, noise, glow, magic/light effects, floor shadow, black outline, white fringe or text. TRUE TRANSPARENT background including old tail area and ring hole, clean edges. EXACT output 1536×1024.",
+      "checks": [
+        "1536×1024 유지",
+        "오른쪽 기존 꼬리 영역과 지팡이 고리 안쪽 알파 0 확인",
+        "단색 배경 합성, 실루엣·72px 축소본 육안 확인"
+      ],
+      "unverified": "빌드 정리 후 게임 배치와 iPad 실기기"
     }
   ],
   "note": "법사냥은 흰 배경에서 번짐 제거 후 이미지젠 배경 제거를 거쳤습니다. 선택한 최종 PNG를 기준으로 사용합니다.",
