@@ -2,6 +2,7 @@ import './map.css';
 import { MODES, TERRAIN, PORT_RATE, createBoard, hexToPixel, pixelToHex, hexCorners, portSpots } from './board.js';
 import { UNKNOWN, KNOWN, VISIBLE, vision, pieceSeen } from './vision.js';
 import { useReducedMotion } from './motion.js';
+import { rollDice } from './dice.js';
 import { files, objectBox } from './generated/map-art.json';
 
 const TILE = 100; // 칸 중심에서 꼭짓점까지(월드 단위)
@@ -228,6 +229,7 @@ export function mapScreen(root, onModes) {
       <ul class="hud-panel hud-resources" aria-label="보유 자원">${RESOURCES.map(([type, name]) => `<li><img src="${source(`game/icon-${type}`)}" alt="" loading="lazy"><span class="sr-only">${name}</span><span>0</span></li>`).join('')}</ul>
       <button class="minimap" aria-label="미니맵 크게 보기"><canvas></canvas><span class="minimap-view"></span></button>
       <button class="mode-change"><small>임시</small>모드 바꾸기</button>
+      <button class="dice-roll"><small>임시</small>주사위 굴리기</button>
       <div class="hand" role="img" aria-label="내 카드 3장">${`<img src="${source('game/card-back')}" alt="" loading="lazy">`.repeat(3)}</div>
       <button class="map-retry" hidden>지도 그림 다시 불러오기</button>
     </div>
@@ -726,6 +728,20 @@ export function mapScreen(root, onModes) {
   root.querySelector('.mode-change').addEventListener('click', () => {
     root.hidden = true;
     onModes();
+  });
+  // 임시: 눈을 먼저 정하고 연출은 보여 주기만 한다. 연출하는 동안 버튼을 잠근다.
+  // shortcut: Math.random이라 다시 만들 수 없다. 턴 규칙을 만들 때 판 시드로 이어지는 주사위로 바꾼다.
+  const diceButton = root.querySelector('.dice-roll');
+  diceButton.addEventListener('click', () => {
+    const values = [1 + Math.floor(Math.random() * 6), 1 + Math.floor(Math.random() * 6)];
+    const refocus = document.activeElement === diceButton;
+    diceButton.disabled = true;
+    status.textContent = `주사위 ${values[0]}, ${values[1]} · 합 ${values[0] + values[1]}`;
+    rollDice(root, values, { reducedMotion: useReducedMotion() }).finished.then(() => {
+      diceButton.disabled = false;
+      // 잠그는 동안 키보드 초점이 빠졌다면 버튼으로 돌려준다.
+      if (refocus && document.activeElement === document.body) diceButton.focus({ preventScroll: true });
+    });
   });
   // 창 크기 이벤트가 아니라 그림판의 실제 크기 변화를 본다. iOS 홈 화면 앱의 높이 보정(main.js)보다 먼저 재는 일이 없다.
   new ResizeObserver(resize).observe(canvas);

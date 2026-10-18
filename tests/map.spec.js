@@ -5,7 +5,7 @@ import { UNKNOWN, vision } from '../src/vision.js';
 const names = ['풀밭', '숲', '호수', '금광', '수정산', '바위산'];
 const COLORS = { me: [242, 179, 61], blue: [63, 127, 224], red: [224, 82, 74], purple: [154, 90, 214] }; // 플레이어 색(나, 봇 1~3)
 const RESOURCE_NAMES = { gold: '금', crystal: '수정', wood: '나무', fish: '생선' };
-const HUD = ['.hud-players', '.hud-resources', '.minimap', '.mode-change', '.hand'];
+const HUD = ['.hud-players', '.hud-resources', '.minimap', '.mode-change', '.dice-roll', '.hand'];
 const view = page => page.locator('.minimap .minimap-view');
 const box = locator => locator.boundingBox();
 const overlaps = (a, b) => a.x < b.x + b.width && b.x < a.x + a.width && a.y < b.y + b.height && b.y < a.y + a.height;
@@ -113,6 +113,28 @@ async function miniCenters(page, rgb) {
   }, rgb);
   return { dot: { x: area.x + dot.x, y: area.y + dot.y }, view: { x: rect.x + rect.width / 2, y: rect.y + rect.height / 2 } };
 }
+// requestAnimationFrame 호출 수(window.rafCalls). addInitScript로 넣는다.
+function countFrames() {
+  window.rafCalls = 0;
+  const request = window.requestAnimationFrame.bind(window);
+  window.requestAnimationFrame = callback => { window.rafCalls++; return request(callback); };
+}
+// 주사위 연출(src/dice.js): 각 주사위에서 화면 쪽(+z)을 가장 많이 보는 면의 눈. 면은 1~6 순서로 놓인다.
+const diceFaces = page => page.locator('.die').evaluateAll(dice => dice.map(die => {
+  const turn = new DOMMatrix(getComputedStyle(die).transform);
+  const toward = [...die.children].map(face => {
+    const n = turn.multiply(new DOMMatrix(getComputedStyle(face).transform)).transformPoint(new DOMPoint(0, 0, 1, 0));
+    return n.z / Math.hypot(n.x, n.y, n.z);
+  });
+  return toward.indexOf(Math.max(...toward)) + 1;
+}));
+// 임시 주사위 버튼을 누르고, 지도 알림에서 미리 정해진 두 눈을 읽는다.
+async function roll(page) {
+  await page.getByRole('button', { name: '임시 주사위 굴리기' }).click();
+  const [, a, b, sum] = (await page.locator('#map [role="status"]').textContent()).match(/^주사위 ([1-6]), ([1-6]) · 합 (\d+)$/);
+  expect(Number(sum)).toBe(Number(a) + Number(b));
+  return [Number(a), Number(b)];
+}
 function watchErrors(page) {
   const errors = [];
   page.on('pageerror', error => errors.push(error.message));
@@ -152,7 +174,7 @@ for (const [width, height, hash, players, name] of [
     // 재화 아이콘(이름은 화면 읽기용 글자)과 카드 뒷면 그림이 다 왔다.
     await expect(page.getByRole('list', { name: '보유 자원' }).getByRole('listitem')).toHaveText(['금0', '수정0', '나무0', '생선0']);
     await expect.poll(() => page.locator('.hud img').evaluateAll(images => images.filter(image => image.complete && image.naturalWidth > 0).length)).toBe(7);
-    for (const name of ['미니맵 크게 보기', '임시 모드 바꾸기']) expect((await box(page.getByRole('button', { name }))).height).toBeGreaterThanOrEqual(44);
+    for (const name of ['미니맵 크게 보기', '임시 모드 바꾸기', '임시 주사위 굴리기']) expect((await box(page.getByRole('button', { name }))).height).toBeGreaterThanOrEqual(44);
     // 플레이어 줄(왕성으로 가는 버튼)은 누르는 판정이 가로세로 44px 이상이고 서로 겹치지 않는다.
     const rows = await page.locator('.hud-players button').evaluateAll(buttons => buttons.map(button => button.getBoundingClientRect().toJSON()));
     expect(rows).toHaveLength(players);
@@ -173,11 +195,7 @@ test('팀전: 같은 팀을 먼저, 팀을 나눠 보임', async ({ page }) => {
 });
 
 test('가만히 있으면 다시 그리지 않음', async ({ page }) => {
-  await page.addInitScript(() => {
-    window.rafCalls = 0;
-    const request = window.requestAnimationFrame.bind(window);
-    window.requestAnimationFrame = callback => { window.rafCalls++; return request(callback); };
-  });
+  await page.addInitScript(countFrames);
   await open(page, '#map-ffa');
   expect(await page.evaluate(() => performance.getEntriesByName('map-render').length)).toBeGreaterThan(0);
   const before = await page.evaluate(() => window.rafCalls);
@@ -187,11 +205,7 @@ test('가만히 있으면 다시 그리지 않음', async ({ page }) => {
 
 test('플레이어를 누르면 그 왕성으로 시점이 감(안개 속 상대 왕성으로는 가지 않음)', async ({ page }) => {
   await page.setViewportSize({ width: 768, height: 1024 });
-  await page.addInitScript(() => {
-    window.rafCalls = 0;
-    const request = window.requestAnimationFrame.bind(window);
-    window.requestAnimationFrame = callback => { window.rafCalls++; return request(callback); };
-  });
+  await page.addInitScript(countFrames);
   await page.addInitScript(recordDraws);
   await open(page, '#map-team');
   const zoom = async () => (await castleDraws(page, 1))[0][0];
@@ -277,6 +291,79 @@ test('칸을 누르면 선택을 알려 줌', async ({ page }) => {
   await open(page);
   const text = await tapLand(page);
   expect(['안개 속 ', ...names].some(name => text.startsWith(`선택: ${name}`))).toBe(true);
+});
+
+test('임시 주사위: 정한 눈으로 멈춰 합을 보인 뒤 모두 지우고, 그 뒤 다시 그리지 않으며 지도 조작이 됨', async ({ page }) => {
+  const errors = watchErrors(page);
+  await page.setViewportSize({ width: 768, height: 1024 });
+  await page.addInitScript(countFrames);
+  await open(page);
+  const button = page.getByRole('button', { name: '임시 주사위 굴리기' });
+  const values = await roll(page);
+  await expect(button).toBeDisabled();
+  // 두 주사위의 회전이 끝나면(멈추면) 앞면이 미리 정한 눈이다. 합은 그 뒤에 나온다.
+  await page.waitForFunction(() => document.querySelectorAll('.die').length === 2 && !document.getAnimations().some(a => a.effect.target.classList.contains('die')));
+  expect(await diceFaces(page)).toEqual(values);
+  await expect(page.locator('.dice-sum')).toHaveText(String(values[0] + values[1]));
+  await expect(page.locator('.dice-sum')).toHaveCSS('opacity', '1');
+  await page.screenshot({ path: test.info().outputPath('dice-roll-768x1024.png') });
+  // 끝나면 층을 지우고 버튼을 푼다. 도는 애니메이션도, 다시 그리기도 없다.
+  await expect(page.locator('.dice-layer')).toHaveCount(0);
+  await expect(button).toBeEnabled();
+  expect(await page.evaluate(() => document.getAnimations().filter(a => a.playState === 'running').length)).toBe(0);
+  const before = await page.evaluate(() => window.rafCalls);
+  await page.waitForTimeout(1000);
+  expect(await page.evaluate(() => window.rafCalls)).toBe(before);
+  // 지도를 다시 누르고 끌 수 있다.
+  await tapLand(page);
+  const [x, y] = await center(page);
+  const start = await box(view(page));
+  await page.mouse.move(x, y);
+  await page.mouse.down();
+  await page.mouse.move(x + 120, y + 80, { steps: 6 });
+  await page.mouse.up();
+  await expect.poll(async () => (await box(view(page))).x).not.toBe(start.x);
+  expect(errors).toEqual([]);
+});
+
+test('임시 주사위: 연출 중 화면을 누르면 결과로 건너뛰고 곧 끝남(누른 곳의 칸은 고르지 않음)', async ({ page }) => {
+  const errors = watchErrors(page);
+  await open(page);
+  const values = await roll(page);
+  const status = page.locator('#map [role="status"]');
+  const told = await status.textContent();
+  await page.waitForTimeout(150);
+  const [x, y] = await center(page);
+  await page.mouse.click(x, y);
+  const tapped = Date.now();
+  // 누르는 즉시 결과 면과 합이 다 보인다.
+  expect(await diceFaces(page)).toEqual(values);
+  await expect(page.locator('.dice-sum')).toHaveCSS('opacity', '1');
+  // 그냥 두면 1.7초 넘게 남는다. 건너뛰면 결과를 0.35초 보여 주고 0.24초에 걸쳐 사라진다.
+  await expect(page.locator('.dice-layer')).toHaveCount(0, { timeout: 1500 });
+  expect(Date.now() - tapped).toBeLessThan(1300);
+  await expect(status).toHaveText(told);
+  await expect(page.getByRole('button', { name: '임시 주사위 굴리기' })).toBeEnabled();
+  expect(errors).toEqual([]);
+});
+
+test('타이틀에서 고른 "움직임 줄임"이면 주사위가 구르지 않고 결과 면으로 나타났다 사라짐', async ({ page }) => {
+  const errors = watchErrors(page);
+  await page.goto('/');
+  await page.getByRole('button', { name: '연출 건너뛰기' }).click();
+  await page.getByRole('button', { name: '움직임: 전체', exact: true }).click();
+  await expect(page.locator('.stage')).toHaveAttribute('data-motion', 'reduced');
+  await page.getByRole('button', { name: '게임 시작' }).click();
+  await page.getByRole('button', { name: /^1대1 매치/ }).click();
+  await settled(page);
+  const values = await roll(page);
+  // 처음부터 결과 면이고, 투명도만 바뀐다(이동·회전·크기 변화 없음).
+  expect(await diceFaces(page)).toEqual(values);
+  const changed = await page.locator('.dice-layer').evaluate(layer => [...new Set(layer.getAnimations({ subtree: true }).flatMap(a => a.effect.getKeyframes().flatMap(Object.keys)))]);
+  expect(changed.filter(key => !['offset', 'computedOffset', 'easing', 'composite'].includes(key))).toEqual(['opacity']);
+  await expect(page.locator('.dice-layer')).toHaveCount(0);
+  await expect(page.getByRole('button', { name: '임시 주사위 굴리기' })).toBeEnabled();
+  expect(errors).toEqual([]);
 });
 
 test('안개 속 칸은 바닥만, 아는 칸은 지형과 숫자까지 알려 줌', async ({ page }) => {

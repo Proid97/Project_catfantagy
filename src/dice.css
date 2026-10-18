@@ -1,0 +1,33 @@
+/* 주사위 연출 층(dice.js). host를 덮고, 연출하는 동안만 입력을 받아 한 번 누르면 건너뛴다.
+   색은 주사위 그림(assets/game/dice-*.png)과 같은 크림 면·황갈색 모서리·짙은 남색 눈이다. */
+.dice-layer {
+  --die-face: #fff6dc; --die-edge: #dcc493; --die-pip: #142a35; --die-dark: #8a5a1c; --die-shadow: #0b3b52;
+  --sum-fill: #ffda63; --sum-ink: #142a35; --spark: #fff6dc;
+  --die-dot: radial-gradient(circle closest-side, var(--die-pip) 78%, #0000 calc(78% + 1px));
+  position: absolute; inset: 0; z-index: 10; overflow: hidden; touch-action: none;
+}
+/* 자리(left/top)는 dice.js가 멈출 곳에 둔다. 움직임은 transform만 쓴다. */
+.die-slot { position: absolute; width: var(--die); height: var(--die); margin: calc(var(--die) / -2); }
+.die-shadow { position: absolute; left: 4%; top: 76%; width: 116%; height: 46%; background: radial-gradient(closest-side, color-mix(in srgb, var(--die-shadow) 50%, #0000) 45%, #0000); }
+.die-lift { position: absolute; inset: 0; perspective: calc(var(--die) * 5); }
+.die { position: absolute; inset: 0; transform-style: preserve-3d; }
+/* 면 둘레는 황갈색 모서리, 안쪽은 둥근 크림 면. 뒷면을 그리지 않아 Safari의 겹침 순서 문제를 피한다. */
+.die-face { position: absolute; inset: 0; background: var(--die-edge); backface-visibility: hidden; }
+.die-face::before { content: ''; position: absolute; inset: 5%; padding: 13%; border-radius: 20%; background: var(--die-face) var(--die-dot) 50% 50% / 33.4% 33.4% no-repeat; background-origin: content-box; }
+.die-face::after { content: ''; position: absolute; inset: 0; background: var(--die-dark); opacity: var(--shade); }
+.f1 { transform: translateZ(calc(var(--die) / 2)); }
+.f2 { transform: rotateX(90deg) translateZ(calc(var(--die) / 2)); }
+.f3 { transform: rotateY(90deg) translateZ(calc(var(--die) / 2)); }
+.f4 { transform: rotateY(-90deg) translateZ(calc(var(--die) / 2)); }
+.f5 { transform: rotateX(-90deg) translateZ(calc(var(--die) / 2)); }
+.f6 { transform: rotateY(180deg) translateZ(calc(var(--die) / 2)); }
+.f2::before { background-image: var(--die-dot), var(--die-dot); background-position: 0 0, 100% 100%; }
+.f3::before { background-image: var(--die-dot), var(--die-dot), var(--die-dot); background-position: 0 0, 50% 50%, 100% 100%; }
+.f4::before { background-image: var(--die-dot), var(--die-dot), var(--die-dot), var(--die-dot); background-position: 0 0, 100% 0, 0 100%, 100% 100%; }
+.f5::before { background-image: var(--die-dot), var(--die-dot), var(--die-dot), var(--die-dot), var(--die-dot); background-position: 0 0, 100% 0, 50% 50%, 0 100%, 100% 100%; }
+.f6::before { background-image: var(--die-dot), var(--die-dot), var(--die-dot), var(--die-dot), var(--die-dot), var(--die-dot); background-position: 0 0, 100% 0, 0 50%, 100% 50%, 0 100%, 100% 100%; }
+.dice-sum { position: absolute; translate: -50% -50%; color: var(--sum-fill); font-size: calc(var(--die) * 1.5); line-height: 1; font-variant-numeric: tabular-nums; -webkit-text-stroke: calc(var(--die) * .1) var(--sum-ink); paint-order: stroke fill; text-shadow: 0 calc(var(--die) * .07) 0 var(--sum-ink); }
+.dice-spark { position: absolute; width: calc(var(--die) * .3); aspect-ratio: 1; background: var(--spark); clip-path: polygon(50% 0, 61% 39%, 100% 50%, 61% 61%, 50% 100%, 39% 61%, 0 50%, 39% 39%); opacity: 0; }
+.dice-spark:nth-child(1) { left: -30%; top: 0; }
+.dice-spark:nth-child(2) { right: -34%; top: 18%; }
+.dice-spark:nth-child(3) { right: -16%; bottom: -8%; width: calc(var(--die) * .2); }

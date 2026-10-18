@@ -2,7 +2,7 @@
 .map-canvas { position: absolute; inset: 0; display: block; width: 100%; height: 100%; touch-action: none; }
 /* 지도 조작이 HUD 아래에서도 되게, 실제 조작 요소만 입력을 받는다.
    가로 화면의 가운데 기둥은 화면 가장자리에서 떨어져 있으므로, 좌우 안전 영역에서 그 거리를 뺀다. */
-.hud { --side: calc((100vw - 100%) / 2); position: absolute; inset: calc(env(safe-area-inset-top) + 12px) max(12px, calc(env(safe-area-inset-right) + 12px - var(--side))) calc(env(safe-area-inset-bottom) + 12px) max(12px, calc(env(safe-area-inset-left) + 12px - var(--side))); pointer-events: none; }
+.hud { --side: calc((100vw - 100%) / 2); --minimap: 176px; --hand: 104px; position: absolute; inset: calc(env(safe-area-inset-top) + 12px) max(12px, calc(env(safe-area-inset-right) + 12px - var(--side))) calc(env(safe-area-inset-bottom) + 12px) max(12px, calc(env(safe-area-inset-left) + 12px - var(--side))); pointer-events: none; }
 .hud > * { position: absolute; margin: 0; }
 .hud-panel { border-radius: 16px; background: var(--hud-panel); box-shadow: var(--hud-shadow); }
 .hud-players { top: 0; left: 0; max-width: calc(50% - 6px); padding: 8px 14px 8px 8px; }
@@ -24,24 +24,29 @@
 .hud-resources li { display: flex; align-items: center; gap: 5px; min-width: 54px; height: 36px; padding: 0 6px; font-size: 17px; font-variant-numeric: tabular-nums; }
 .hud-resources img { flex: none; width: 24px; height: 24px; }
 /* 판 상자와 같은 비율(약 4:3). --board-ratio는 판을 열 때 정한다. */
-.minimap { left: 0; bottom: 0; width: 176px; aspect-ratio: var(--board-ratio, 4 / 3); padding: 0; border: 3px solid var(--hud-edge); border-radius: 14px; overflow: hidden; background: var(--sea); box-shadow: var(--hud-shadow); pointer-events: auto; touch-action: manipulation; }
+.minimap { left: 0; bottom: 0; width: var(--minimap); aspect-ratio: var(--board-ratio, 4 / 3); padding: 0; border: 3px solid var(--hud-edge); border-radius: 14px; overflow: hidden; background: var(--sea); box-shadow: var(--hud-shadow); pointer-events: auto; touch-action: manipulation; }
 .minimap canvas, .minimap-dialog canvas { display: block; width: 100%; height: 100%; }
 .minimap-view { position: absolute; left: 0; top: 0; border: 2px solid #fff; border-radius: 3px; box-shadow: 0 0 0 1px #0b3b5280; pointer-events: none; }
 /* 화면을 어둡게 덮지 않는다. 투명한 바깥을 누르면 닫힌다. 너비는 세로 기둥(높이의 3/4) 안에 들어가게 한다. */
 .minimap-dialog { width: min(92vw, 69svh); aspect-ratio: var(--board-ratio, 4 / 3); padding: 0; border: 3px solid var(--hud-edge); border-radius: 18px; overflow: hidden; background: var(--sea); box-shadow: 0 6px 0 #0b3b5233, 0 18px 48px #0b3b5259; }
 .minimap-dialog::backdrop { background: transparent; }
-/* 임시: 모드 선택으로 돌아가는 시험용 버튼. 점선으로 정식 UI가 아님을 드러낸다. */
-.mode-change { left: 50%; bottom: 0; translate: -50% 0; display: grid; justify-items: center; min-width: 44px; min-height: 44px; padding: 4px 12px; border: 2px dashed var(--temp-edge); border-radius: 12px; background: var(--hud-panel); color: var(--hud-ink); font-size: 13px; line-height: 1.2; pointer-events: auto; }
-.mode-change small { color: var(--hud-soft); font-size: 10px; }
+/* 임시: 모드 선택으로 돌아가는 시험용 버튼과 주사위 굴리기. 점선으로 정식 UI가 아님을 드러낸다.
+   주사위는 엄지가 닿는 아래 가운데, 모드 바꾸기 바로 위. 미니맵(왼쪽)과 카드(오른쪽) 사이 폭 안에 든다. */
+.mode-change, .dice-roll { left: 50%; bottom: 0; translate: -50% 0; display: grid; justify-items: center; min-width: 44px; min-height: 44px; padding: 4px 12px; border: 2px dashed var(--temp-edge); border-radius: 12px; background: var(--hud-panel); color: var(--hud-ink); font-size: 13px; line-height: 1.2; white-space: nowrap; pointer-events: auto; }
+.mode-change small, .dice-roll small { color: var(--hud-soft); font-size: 10px; }
+.dice-roll { bottom: 56px; }
+.dice-roll:disabled { opacity: .5; cursor: default; }
 .map-retry { left: 50%; top: 50%; translate: -50% -50%; min-height: 44px; padding: 0 20px; border: 0; border-radius: 22px; background: var(--retry); color: var(--hud-ink); font-size: 15px; box-shadow: var(--hud-shadow); pointer-events: auto; }
-.hand { right: 0; bottom: 0; width: 104px; height: 108px; }
+.hand { right: 0; bottom: 0; width: var(--hand); height: 108px; }
 /* 모서리 반지름은 카드 뒷면 그림의 둥근 모서리와 같다. */
 .hand img { position: absolute; right: 4px; bottom: 4px; width: 64px; height: 90px; border-radius: 5px; box-shadow: var(--hud-shadow); }
 .hand img:nth-child(1) { transform: translate(-30px, -8px) rotate(-11deg); }
 .hand img:nth-child(2) { transform: translate(-15px, -3px) rotate(-4deg); }
 .hand img:nth-child(3) { transform: rotate(4deg); }
-/* 휴대폰 너비: 재화는 2×2, 미니맵은 조금 작게 */
+/* 휴대폰 너비: 재화는 2×2, 미니맵은 조금 작게. 아래 가운데 임시 버튼은 화면 가운데에 두면 미니맵에 닿으므로
+   미니맵과 카드 사이 빈 곳의 가운데에 둔다. */
 @container (max-width: 520px) {
   .hud-resources { display: grid; grid-template-columns: 1fr 1fr; }
-  .minimap { width: 136px; }
+  .hud { --minimap: 136px; }
+  .mode-change, .dice-roll { left: calc((var(--minimap) + 100% - var(--hand)) / 2); }
 }
