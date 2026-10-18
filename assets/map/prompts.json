@@ -517,5 +517,26 @@
       "previous_source": "/workspace/scratch/238a3695bcb8/generated_images/exec-8a10fd79-c669-4a7d-aad7-77418125551f.png",
       "result": "입체 받침과 잘게 나뉜 바위를 줄이도록 다시 생성한 두 번째 그림 채택"
     }
+  },
+  "port": {
+    "file": "port.png",
+    "canvas": [
+      512,
+      512
+    ],
+    "land_contact": [
+      256,
+      400
+    ],
+    "direction": "up",
+    "source": "exec-73e904a2-a196-487a-b5f9-b6f249d49ca0.png",
+    "prompt": "Use case: precise-object-edit. Simplify this dock into a SHORT FLAT 2D game sprite. This is NOT a 3D object or an isometric miniature. Keep the same warm brown wood identity, vertical upward direction and transparent background. Make EXACTLY FOUR broad horizontal planks, with EXACTLY FOUR short posts, one at each corner, and one simple short rope between the two far (upper) posts. The whole dock should be almost square, only slightly taller than wide, not a long bridge. Straight-on 2D graphic, parallel deck sides, rectangular post faces, no perspective depth, no rhomboid tops or extruded sides. Each plank is ONE SOLID MEDIUM BROWN rectangle; one slim pale-gold upper edge and one slim dark-brown lower edge are enough for the material's three tones. NO DIAGONAL SUBDIVISIONS or mottled shading on the planks. Keep all areas one completely uniform solid color, like a flat vector sticker. No texture, no gradient, no wood grain, no noise. One flat cream rope curve, thick enough to read small. Smooth antialiased edges, no stroke or white outline. Empty transparent exterior, fully opaque interior. Nothing but the dock: no sea, land, exchange icons, symbols, numbers, text or shadow. In final 512x512 canvas dock's lower central land contact is (256,400), upper end near y130, center x256. This task-specific simple flat form overrides gem-like faceting language in the general style suffix. Clean indie flat vector illustration matching the style reference warrior exactly: angular faceted planes with straight hard edges, like folded paper or cut gems, two to four tones per material, single light source from the upper left. Bold dramatic silhouette, same body proportions and exaggeration as the reference. No rounded blobby shapes, no gradients, no texture, no grain, no noise, no glow, no blur, no black outlines. Crisp clean edges, fully transparent background. Simple eyes like the reference with one clear white highlight at the upper left. Smallest details at least 10 px wide.",
+    "first_attempt": {
+      "source": "exec-e610f5a6-f67d-409a-b319-117c4e37cd40.png",
+      "prompt": "Use case: stylized-concept. Asset type: isolated flat 2D wooden trading dock sprite for a bright cat-fantasy hex board game. Image 1 is the mandatory flat indie illustration style reference, image 2 is the wood/material style reference only. Create ONE very short wooden pier on a genuinely transparent square canvas. Target final canvas 512x512. Its land-contact midpoint is exactly (256,400); the dock extends straight UP the canvas from this bottom contact toward the sea, ending near y110. Occupy roughly x145..367, y95..400, centered on x256. Five or six broad horizontal warm-brown planks joined into one short narrow rectangular deck, a few simple timber posts along the sides, one short thick pale-tan rope tying just two posts. No fancy knot, no hatch marks or wood grain. Depict as a straight-on flat 2D paper-cut illustration in the SAME drawing language as the cat character, not an isometric 3D miniature and not a perspective platform. The deck sides stay parallel, do not converge. Only 2 or 3 uniform solid-color broad angular shapes per wooden material, lighter upper-left and darker lower-right, no subdivided facets. Posts are thick simple rectangular silhouettes. The lower middle end of the deck is flat at y400 for placement against a shore; do not paint any land or water. Entire inside is fully opaque, exterior alpha zero, native smooth antialiased silhouette edge only. No drawn outline, no dark contour stroke, no thick pedestal, no external shadow, no boats, no barrels, no buildings, no flags, no cats, no currency or exchange symbols, no arrows, no text, no numbers. Clean indie flat vector illustration matching the style reference warrior exactly: angular faceted planes with straight hard edges, like folded paper or cut gems, two to four tones per material, single light source from the upper left. Bold dramatic silhouette, same body proportions and exaggeration as the reference. No rounded blobby shapes, no gradients, no texture, no grain, no noise, no glow, no blur, no black outlines. Crisp clean edges, fully transparent background. Simple eyes like the reference with one clear white highlight at the upper left. Smallest details at least 10 px wide.",
+      "reason": "길고 입체적인 형태를 짧고 단순한 네 장의 널빤지로 재생성"
+    },
+    "processing": "원본 RGB 유지. 빈 배경과 내부 알파 정리 및 캔버스 크기·자리 맞춤만 적용. 외곽선과 교환 아이콘 없음.",
+    "inspection": "실제 48px·72px, 해안 회전 배치, 4배 확대. 일부 미세한 색 변화는 원본에 남아 있으며 코드에서 색을 고치지 않음."
   }
 }
