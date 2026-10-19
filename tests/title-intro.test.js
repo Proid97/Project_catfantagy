@@ -13,8 +13,8 @@ const byName = animations => Object.fromEntries(animations.map((item, index) => 
 test('전체 연출: 지형 → 전사 → 냥살자·냥법사 → 로고 순서와 끝나는 시간', () => {
   const animations = byName(animateTitle(names.map(element)));
   const start = name => animations[name].timing.delay;
-  assert.deepEqual(['sky-tall', 'hills-tall', 'peaks', 'castle-hill', 'ground-tall', 'warrior-front', 'assassin', 'mage', 'logo'].map(start),
-    [0, 0, 420, 600, 760, 1100, 1560, 1680, 2120]);
+  assert.deepEqual(['sky-tall', 'ground-tall', 'hills-tall', 'peaks', 'castle-hill', 'warrior-front', 'assassin', 'mage', 'logo'].map(start),
+    [0, 0, 0, 420, 600, 1100, 1560, 1680, 2120]);
   assert.equal(Math.max(...Object.values(animations).map(item => item.timing.delay + item.timing.duration)), 2680);
   // 전사는 살짝 위에서 떨어져 착지하고, 냥살자는 전사 쪽(오른쪽)·냥법사는 왼쪽에서 바깥으로 튀어나온다.
   assert.match(animations['warrior-front'].frames[0].transform, /^translateY\(-/);
@@ -27,15 +27,17 @@ test('전체 연출: 지형 → 전사 → 냥살자·냥법사 → 로고 순�
   assert.match(animations.mage.frames[0].transform, /^translate\(-\d+%/);
 });
 
-test('숨어 있다가 움직이는 순간 완전히 보이고, 하늘은 처음부터 보임', () => {
+test('숨어 있다가 움직이는 순간 완전히 보이고, 하늘과 앞 땅은 처음부터 보임', () => {
   const animations = byName(animateTitle(names.map(element)));
-  for (const name of ['peaks', 'castle-hill', 'hills-tall', 'ground-tall']) {
+  for (const name of ['peaks', 'castle-hill', 'hills-tall']) {
     assert.deepEqual(animations[name].frames.map(frame => [frame.offset, frame.opacity]), [[0, 0], [.001, 1], [1, 1]]);
     assert.equal(animations[name].frames.at(-1).transform, 'none');
   }
   assert.equal(animations.mage.frames[1].offset, .2);
   assert.equal(animations.logo.frames[1].offset, .15);
-  assert.ok(animations['sky-tall'].frames.every(frame => frame.opacity === 1));
+  // 앞 땅이 처음부터 깔려 있어 긴 휴대폰에서도 화면 아래가 빈 판으로 보이지 않는다. 언덕은 그 뒤에서 올라온다.
+  for (const name of ['sky-tall', 'ground-tall']) assert.ok(animations[name].frames.every(frame => frame.opacity === 1));
+  assert.equal(animations['hills-tall'].frames[0].transform, 'translateY(100%)');
   assert.ok(Object.values(animations).every(item => item.timing.fill === 'both'));
 });
 

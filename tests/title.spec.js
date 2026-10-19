@@ -19,7 +19,7 @@ test('등장 순서, 자연 종료, 시작 입력과 되돌아오기', async ({ 
     name: layer.dataset.layer, delay: layer.getAnimations()[0].effect.getTiming().delay,
   })));
   expect(times.sort((a, b) => a.delay - b.delay).map(item => item.name)).toEqual([
-    'sky-tall', 'hills-tall', 'peaks', 'castle-hill', 'ground-tall', 'warrior-front-shadow', 'warrior-front', 'assassin', 'mage-shadow', 'mage', 'logo',
+    'sky-tall', 'hills-tall', 'ground-tall', 'peaks', 'castle-hill', 'warrior-front-shadow', 'warrior-front', 'assassin', 'mage-shadow', 'mage', 'logo',
   ]);
   await ready(page);
   expect(await page.evaluate(() => document.getAnimations().every(item => item instanceof CSSAnimation))).toBe(true);
@@ -179,7 +179,8 @@ test('화면이 가려진 동안 연출을 멈추고 돌아오면 이어서 재�
   });
   await page.goto('/');
   await intro(page);
-  const paused = await page.locator('.art').evaluate(art => [...art.children].every(layer => layer.getAnimations()[0].playState === 'paused'));
+  // 처음부터 깔린 앞 땅은 이미 끝난 상태이고, 나머지는 멈춰 있다.
+  const paused = await page.locator('.art').evaluate(art => [...art.children].every(layer => ['paused', 'finished'].includes(layer.getAnimations()[0].playState)));
   expect(paused).toBe(true);
   await page.evaluate(() => { window.testHidden = false; document.dispatchEvent(new Event('visibilitychange')); });
   await ready(page);

@@ -3,15 +3,15 @@ const rise = 'cubic-bezier(.2,1.2,.35,1)';
 const pop = 'cubic-bezier(.34,1.56,.64,1)';
 const fall = 'cubic-bezier(.55,0,.9,.45)'; // 떨어질수록 빨라진다
 // [지연, 길이, 시작 모양, 움직임, 불투명해지는 지점]. 지점이 없으면 처음부터 보인다. 시작 모양 대신 프레임 목록을 줄 수도 있다.
-// 100vh는 화면 아래 밖에서 출발한다는 뜻이다. 긴 휴대폰에서도 시작 모습이 보이지 않는다.
-// 뒷산과 성은 언덕 뒤에 숨은 자리에서 올라온다. 뒷산 아래끝이 평평해 언덕이 먼저 자리 잡는다.
+// 앞 땅은 처음부터 깔려 있다. 긴 휴대폰에서 땅이 올라오기 전 화면 아래가 빈 판으로 보이지 않는다.
+// 언덕은 앞 땅 뒤에서, 뒷산과 성은 언덕 뒤에서 숨은 자리부터 올라온다. 뒷산 아래끝이 평평해 언덕이 먼저 자리 잡는다.
 // 성은 89%만 내려 숨긴다. 깃발 끝은 언덕 능선 아래, 바위 아래끝은 언덕 아래끝(2000) 위에 있다.
 const entrances = {
   'sky-tall': [0, 1200, 'scale(1.06)', 'ease-out'],
-  'hills-tall': [0, 700, 'translateY(100vh)', bounce, .001],
+  'ground-tall': [0, 0, 'none'],
+  'hills-tall': [0, 700, 'translateY(100%)', bounce, .001], // 꼭대기(854)가 앞 땅 윗선(1629) 아래로 숨는다
   peaks: [420, 650, 'translateY(100%)', 'cubic-bezier(.2,1.1,.35,1)', .001],
   'castle-hill': [600, 650, 'translateY(89%)', rise, .001],
-  'ground-tall': [760, 600, 'translateY(100vh)', bounce, .001],
   // 전사는 살짝 위에서 떨어져 앞 땅에 내려앉는다. 발이 변형 기준점이라 짧게 눌렸다 펴져도 발은 땅에 붙어 있다.
   'warrior-front': [1100, 560, [
     { offset: 0, opacity: 0, transform: 'translateY(-16%)', easing: fall },

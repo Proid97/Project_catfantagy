@@ -89,7 +89,7 @@ const PALETTE = {
   discEdge: 'rgba(70, 48, 20, .35)',
   number: '#3b2b1b',
   hot: '#c8372d', // 6과 8: 자주 나오는 숫자
-  outline: '#000', // 성·교환소 외곽선. 성·아이콘 그림에 구운 테두리(prepare-assets)와 같은 검은색
+  outline: '#000', // 코드로 그리는 교환소 표지·성 받침 테두리
   select: '#ffda63',
   selectEdge: 'rgba(40, 28, 8, .55)',
   players: ['#f2b33d', '#3f7fe0', '#e0524a', '#9a5ad6'], // 나(따뜻한 금색), 파랑, 빨강, 보라. 성 지붕·깃발에 곱한다
