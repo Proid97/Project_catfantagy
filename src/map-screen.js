@@ -44,12 +44,12 @@ const CASTLE_FOOT = 420 / 512; // 땅에 닿는 점(원본 256, 420)을 꼭짓�
 const GLIDE = 300; // 왕성으로 가는 시점 이동 시간(ms)
 const FOAM = 26; // 해안 거품 굵기. 절반은 육지 그림에 덮인다
 // 임시 · 안개(볼류메트릭): 짙은 회색으로 판 상자 전체(바다 포함)를 덮어, 보이는 곳(내 성·말 둘레)에 눈이 가게 한다.
-// 바닥 질감은 비친다. 모르는 칸·바다는 짙게, 아는 칸은 옅게 덮고, 보이는 칸은 칸보다 조금 좁게, 부드럽게 걷힌다.
+// 바닥 질감은 비친다. 모르는 칸·바다는 짙게, 아는 칸은 옅게 덮는다. 보이는 칸은 다 밝고, 흐린 경계는 칸 바깥(이웃 칸 쪽)에 생긴다.
 // 안개 그림은 시야가 바뀔 때만 다시 만들고(buildFog), 매번 그릴 때는 한 장을 판 크기로 늘려 붙이기만 한다. 상자 밖은 같은 색(--sea-fog)으로 칠한다.
 const FOG_SCALE = 10; // 안개 그림 1px = 월드 10단위(4인 판 465×362px, 약 0.7MB). 흐린 그림이라 늘려도 거칠지 않다
-const FOG_PUFF = 1.05 * TILE; // 안개 낀 칸(바다 칸 포함)마다 이 반지름의 원을 깐다. 칸 안쪽 반지름(0.87)보다 커서 이웃한 보이는 칸으로 조금 번진다
-const FOG_BLUR = 22; // 안개 가장자리가 번지는 정도(가우스 σ, 월드 단위)
-const FOG_MARGIN = 2 * TILE; // 판 상자 둘레. 여기까지 모르는 곳 짙기로 덮어 상자 밖 색과 이어진다
+const FOG_REACH = 1.25 * TILE; // 보이는 칸(아는 칸)마다 이 반지름의 원만큼 안개를 걷는다. 칸 꼭짓점(1.0)보다 커서 경계가 칸 바깥에 생기고, 이웃 칸 가운데(1.73)까지는 닿지 않는다
+const FOG_BLUR = 20; // 안개 가장자리가 번지는 정도(가우스 σ, 월드 단위)
+const FOG_MARGIN = 2 * TILE; // 판 상자 둘레. 가장자리 칸의 걷힌 곳이 번질 자리이고, 그 바깥은 모르는 곳 짙기라 상자 밖 색과 이어진다
 const FOG_UNKNOWN = 0.62; // 모르는 칸과 바다 안개의 불투명도
 const FOG_KNOWN = 0.38; // 아는 칸
 // 교환소(임시 그림): 부두 그림이 오기 전까지 코드로 그린다. 변 가운데에서 바다 쪽으로 나무 부두, 그 끝에 두 자원 아이콘과 ⇄ 표지.
@@ -319,34 +319,32 @@ export function mapScreen(root, onModes) {
     buildFog();
   }
 
-  // 안개 그림(둘레 FOG_MARGIN을 더한 판 상자를 FOG_SCALE분의 1로 줄인 크기). 안개 낀 칸마다 둥근 안개를 깔고 가장자리를 흐리게 번지게 한다.
-  // 판 상자와 둘레 두 줄의 모든 칸 자리를 쓰고, 바다·둘레는 모르는 칸으로 본다.
-  // 흐림은 ctx.filter(Safari 18 미만에 없음) 대신 그림자로 낸다. 원은 그림판 밖에 그리고 흐린 그림자만 제자리에 떨어뜨린다.
-  // 모름·앎 칸 층을 FOG_KNOWN으로 깔고 모르는 칸 층을 더해, 겹친 곳이 FOG_UNKNOWN이 되게 한다. 한 층은 경로 하나라 원이 겹쳐도 짙어지지 않는다.
+  // 안개 그림(둘레 FOG_MARGIN을 더한 판 상자를 FOG_SCALE분의 1로 줄인 크기). 전체를 모르는 곳 짙기로 칠하고 아는 칸·보이는 칸 둘레를 흐리게 걷어 낸다.
+  // 흐림은 ctx.filter(Safari 18 미만에 없음) 대신 그림자로 낸다. 원은 그림판 밖에 그리고 흐린 그림자만 제자리에서 지운다.
+  // 아는 칸과 보이는 칸을 FOG_KNOWN까지 걷고, 보이는 칸을 마저 걷는다. 한 층은 경로 하나라 원이 겹쳐도 더 걷히지 않는다.
   function buildFog() {
     fogBuilds++;
     fog.width = Math.ceil((bounds.w + 2 * FOG_MARGIN) / FOG_SCALE);
     fog.height = Math.ceil((bounds.h + 2 * FOG_MARGIN) / FOG_SCALE);
     const away = fog.width * 2;
     const g = fog.getContext('2d');
+    g.globalAlpha = FOG_UNKNOWN;
+    g.fillStyle = PALETTE.fog;
+    g.fillRect(0, 0, fog.width, fog.height);
     g.setTransform(1 / FOG_SCALE, 0, 0, 1 / FOG_SCALE, (FOG_MARGIN - bounds.minX) / FOG_SCALE - away, (FOG_MARGIN - bounds.minY) / FOG_SCALE);
     g.shadowOffsetX = away;
     g.shadowBlur = 2 * FOG_BLUR / FOG_SCALE; // 그림자 흐림 값은 σ의 2배
-    g.shadowColor = PALETTE.fog;
-    const spots = [];
-    for (let q = -2; q < board.cols + 2; q++) for (let row = -2; row < board.rows + 2; row++) {
-      const r = row - Math.floor(q / 2);
-      spots.push({ ...hexToPixel(q, r, TILE), state: tiles.get(`${q},${r}`)?.state ?? UNKNOWN });
-    }
-    for (const [level, alpha] of [[KNOWN, FOG_KNOWN], [UNKNOWN, 1 - (1 - FOG_UNKNOWN) / (1 - FOG_KNOWN)]]) {
-      const puffs = new Path2D();
-      for (const { x, y, state } of spots) {
-        if (state > level) continue;
-        puffs.moveTo(x + FOG_PUFF, y);
-        puffs.arc(x, y, FOG_PUFF, 0, Math.PI * 2);
+    g.shadowColor = '#000';
+    g.globalCompositeOperation = 'destination-out';
+    for (const [level, alpha] of [[KNOWN, 1 - FOG_KNOWN / FOG_UNKNOWN], [VISIBLE, 1]]) {
+      const holes = new Path2D();
+      for (const tile of sprites) {
+        if (tile.state < level) continue;
+        holes.moveTo(tile.x + FOG_REACH, tile.y);
+        holes.arc(tile.x, tile.y, FOG_REACH, 0, Math.PI * 2);
       }
       g.globalAlpha = alpha;
-      g.fill(puffs);
+      g.fill(holes);
     }
   }
 
