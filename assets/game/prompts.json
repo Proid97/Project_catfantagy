@@ -226,5 +226,213 @@
         "floor-reference.png"
       ]
     }
-  ]
+  ],
+  "rawRestore": {
+    "method": "남아 있는 생성 원본 RGB 복원. 색·명암·노이즈를 코드로 고치지 않음. 빈 배경 제거와 안쪽 알파 채우기만 허용하며 부드러운 원본 경계 유지. 캔버스 크기와 그림 상자는 기존 규격에 맞춤.",
+    "files": [
+      {
+        "file": "assets/game/cloud-1.png",
+        "source": "/workspace/scratch/238a3695bcb8/generated_images/exec-fc4a741d-8a36-404b-aa09-cb74b75d2a17.png",
+        "canvas": [
+          1600,
+          900
+        ],
+        "method": "원본 RGB 유지, 빈 배경 제거와 기존 그림 상자에 맞춘 크기·자리만 적용",
+        "rgb_editing": "none; original colors preserved, no vectorization or quantization"
+      },
+      {
+        "file": "assets/game/cloud-2.png",
+        "source": "/workspace/scratch/238a3695bcb8/generated_images/exec-5d44e7f7-9ac4-4325-b873-31fab5e3b9d8.png",
+        "canvas": [
+          1600,
+          1000
+        ],
+        "method": "원본 RGB 유지, 빈 배경 제거와 기존 그림 상자에 맞춘 크기·자리만 적용",
+        "rgb_editing": "none; original colors preserved, no vectorization or quantization"
+      },
+      {
+        "file": "assets/game/cloud-3.png",
+        "source": "/workspace/scratch/238a3695bcb8/generated_images/exec-bd8e7129-deb5-4cf5-95ee-1b96c407077d.png",
+        "canvas": [
+          1600,
+          760
+        ],
+        "method": "원본 RGB 유지, 빈 배경 제거와 기존 그림 상자에 맞춘 크기·자리만 적용",
+        "rgb_editing": "none; original colors preserved, no vectorization or quantization"
+      },
+      {
+        "file": "assets/game/icon-gold.png",
+        "source": "/workspace/scratch/238a3695bcb8/generated_images/exec-0c01219d-775e-4d27-93b8-90a3f3e169c4.png",
+        "canvas": [
+          256,
+          256
+        ],
+        "method": "원본 RGB 유지, 빈 배경 제거와 기존 그림 상자에 맞춘 크기·자리만 적용",
+        "rgb_editing": "none; original colors preserved, no vectorization or quantization"
+      },
+      {
+        "file": "assets/game/icon-crystal.png",
+        "source": "/workspace/scratch/238a3695bcb8/generated_images/exec-baa80c07-d284-4246-86bb-ff7604cfe88e.png",
+        "canvas": [
+          256,
+          256
+        ],
+        "method": "원본 RGB 유지, 빈 배경 제거와 기존 그림 상자에 맞춘 크기·자리만 적용",
+        "rgb_editing": "none; original colors preserved, no vectorization or quantization"
+      },
+      {
+        "file": "assets/game/icon-wood.png",
+        "source": "/workspace/scratch/238a3695bcb8/generated_images/exec-dc5ffd1f-3944-4031-9ce7-4ff9a27c1fd9.png",
+        "canvas": [
+          256,
+          256
+        ],
+        "method": "원본 RGB 유지, 빈 배경 제거와 기존 그림 상자에 맞춘 크기·자리만 적용",
+        "rgb_editing": "none; original colors preserved, no vectorization or quantization"
+      },
+      {
+        "file": "assets/game/icon-fish.png",
+        "source": "/workspace/scratch/238a3695bcb8/generated_images/exec-34e52003-ca7e-43f1-bde9-56d6afdb2822.png",
+        "canvas": [
+          256,
+          256
+        ],
+        "method": "원본 RGB 유지, 빈 배경 제거와 기존 그림 상자에 맞춘 크기·자리만 적용",
+        "rgb_editing": "none; original colors preserved, no vectorization or quantization"
+      },
+      {
+        "file": "assets/game/dice-1.png",
+        "source": "/workspace/scratch/238a3695bcb8/generated_images/exec-5620a481-eed4-4541-bc35-314724e24caf.png",
+        "canvas": [
+          256,
+          256
+        ],
+        "method": "원본 RGB 유지, 빈 배경 제거와 기존 그림 상자에 맞춘 크기·자리만 적용",
+        "rgb_editing": "none; original colors preserved, no vectorization or quantization"
+      },
+      {
+        "file": "assets/game/dice-2.png",
+        "source": "/workspace/scratch/238a3695bcb8/generated_images/exec-e2a4bbea-47b1-4e1a-a449-730719ff9fa4.png",
+        "canvas": [
+          256,
+          256
+        ],
+        "method": "원본 RGB 유지, 빈 배경 제거와 기존 그림 상자에 맞춘 크기·자리만 적용",
+        "rgb_editing": "none; original colors preserved, no vectorization or quantization"
+      },
+      {
+        "file": "assets/game/dice-3.png",
+        "source": "/workspace/scratch/238a3695bcb8/generated_images/exec-d00e3fa1-29e5-4dc0-982a-57e737693a43.png",
+        "canvas": [
+          256,
+          256
+        ],
+        "method": "원본 RGB 유지, 빈 배경 제거와 기존 그림 상자에 맞춘 크기·자리만 적용",
+        "rgb_editing": "none; original colors preserved, no vectorization or quantization"
+      },
+      {
+        "file": "assets/game/dice-4.png",
+        "source": "/workspace/scratch/238a3695bcb8/generated_images/exec-74de4798-2090-4792-b2cb-b4822d38350e.png",
+        "canvas": [
+          256,
+          256
+        ],
+        "method": "원본 RGB 유지, 빈 배경 제거와 기존 그림 상자에 맞춘 크기·자리만 적용",
+        "rgb_editing": "none; original colors preserved, no vectorization or quantization"
+      },
+      {
+        "file": "assets/game/dice-5.png",
+        "source": "/workspace/scratch/238a3695bcb8/generated_images/exec-96a9eddf-9e0e-4048-ae1c-aa353c931524.png",
+        "canvas": [
+          256,
+          256
+        ],
+        "method": "원본 RGB 유지, 빈 배경 제거와 기존 그림 상자에 맞춘 크기·자리만 적용",
+        "rgb_editing": "none; original colors preserved, no vectorization or quantization"
+      },
+      {
+        "file": "assets/game/dice-6.png",
+        "source": "/workspace/scratch/238a3695bcb8/generated_images/exec-d7a9e204-114e-4dce-ae2a-06b6b9f33966.png",
+        "canvas": [
+          256,
+          256
+        ],
+        "method": "원본 RGB 유지, 빈 배경 제거와 기존 그림 상자에 맞춘 크기·자리만 적용",
+        "rgb_editing": "none; original colors preserved, no vectorization or quantization"
+      },
+      {
+        "file": "assets/game/card-back.png",
+        "source": "/workspace/scratch/238a3695bcb8/generated_images/exec-9621f9e5-76fc-4b0f-a229-1c1ffa4bed27.png",
+        "canvas": [
+          600,
+          840
+        ],
+        "method": "원본 RGB 유지, 빈 배경 제거와 기존 그림 상자에 맞춘 크기·자리만 적용",
+        "rgb_editing": "none; original colors preserved, no vectorization or quantization"
+      }
+    ],
+    "not_restored": {
+      "castle.png, village.png": "원본은 팀 마스크 추출을 위해 분홍 지붕으로 생성한 판뿐. 중립색 본 그림 원본 없음. 요청 4의 새 2D 원본으로 교체 예정.",
+      "castle-team.png, village-team.png": "생성 그림이 아니라 이전 색 변환으로 만든 마스크라 독립 생성 원본 없음. 새 2D 제작에서 맞춤."
+    }
+  },
+  "flat_objects": {
+    "mode": "ChatGPT built-in image_gen",
+    "rule": "생성 원본 RGB를 유지. 벡터화·색 축소·전체 알파 이진화 없음. 빈 배경 제거, 안쪽 불투명화, 부드러운 가장자리 유지와 캔버스 맞춤만 적용. 팀 파일은 생성된 회색 부분 픽셀만 분리.",
+    "references": [
+      "assets/concepts/style-reference-warrior.png",
+      "assets/title/trees.png",
+      "assets/title/mine.png",
+      "assets/title/crystals.png",
+      "assets/title/castle.png"
+    ],
+    "assets": [
+      {
+        "file": "castle.png",
+        "source": "exec-616d22e2-2ea5-44c7-a365-b1ff19358ffe.png",
+        "prompt": "Use case: stylized-concept. Draw ONE flat 2D board-game building sprite from the FRONT, like an illustrated cardboard standee. Genuine transparent PNG square canvas512x512, object inside x60..452,y40..420, bottom contact middle (256,420). Keep broad simple readable silhouette at 48px height. No isometric view, no top-down view, no 3D miniature/diorama, no thick rocky plinth or floor base, no external cast shadow, no outlines or sticker border. Two or three big FLAT color shapes per material, no fine triangulation or texture. Fully opaque artwork, smooth antialiased 1–2px silhouette, no alpha holes or matte residue. CREAM STONE is warm yellow-cream with warm ochre shadows (not gray), wood is warm brown. IMPORTANT for team-color separation: ONLY roofs and fabric flag are NEUTRAL GRAYSCALE, white/light gray/base gray/dark gray, RGB gray without blue or purple tint. No other gray anywhere: make flagpole GOLD or BROWN, not metal gray. Paw emblem is warm cream, distinct from gray flag. Gray roofs/flag are not a changed design: code will tint them teal/gold/blue/red/purple later. No words, numbers, UI, people, glow or magical effects. Subject: a small but grand cat CASTLE from the same title castle design family: cream front wall with a big brown arched doorway, a taller CENTER tower and two shorter side towers, three simple pointed roofs, ONE LARGE flag bearing a big cream cat PAW with FOUR toes on the central pole. The castle has FRONT elevation, wall not cylindrical depth-rendered, crenellations just 3–4 big squared notches, TWO tiny dark window shapes total. Very broad flat cream wall shapes, three gray triangular roof silhouettes, each split only into a light left plane and dark right plane. No angled side walls, no visible wall top ellipses, no little brick lines. Baseline level and flat. Keep top flag and roof tips separate and clean. No green grass or surrounding scenery. Clean indie flat vector illustration matching the style reference warrior exactly: angular faceted planes with straight hard edges, like folded paper or cut gems, two to four tones per material, single light source from the upper left. Bold dramatic silhouette, same body proportions and exaggeration as the reference. No rounded blobby shapes, no gradients, no texture, no grain, no noise, no glow, no blur, no black outlines. Crisp clean edges, fully transparent background. Simple eyes like the reference with one clear white highlight at the upper left. Smallest details at least 10 px wide.",
+        "placement": {
+          "canvas": [
+            512,
+            512
+          ],
+          "visible_box": [
+            62,
+            40,
+            387,
+            380
+          ],
+          "anchor": [
+            256,
+            420
+          ],
+          "color_processing": "none; generated RGB preserved; only background/interior alpha cleanup, canvas size/position and team-pixel separation"
+        }
+      },
+      {
+        "file": "village.png",
+        "source": "exec-7c099918-a2de-4dc9-a015-e52cf49a21a5.png",
+        "prompt": "Use case: stylized-concept. Draw ONE flat 2D board-game building sprite from the FRONT, like an illustrated cardboard standee. Genuine transparent PNG square canvas512x512, object inside x60..452,y40..420, bottom contact middle (256,420). Keep broad simple readable silhouette at 48px height. No isometric view, no top-down view, no 3D miniature/diorama, no thick rocky plinth or floor base, no external cast shadow, no outlines or sticker border. Two or three big FLAT color shapes per material, no fine triangulation or texture. Fully opaque artwork, smooth antialiased 1–2px silhouette, no alpha holes or matte residue. CREAM STONE is warm yellow-cream with warm ochre shadows (not gray), wood is warm brown. IMPORTANT for team-color separation: ONLY roofs and fabric flag are NEUTRAL GRAYSCALE, white/light gray/base gray/dark gray, RGB gray without blue or purple tint. No other gray anywhere: make flagpole GOLD or BROWN, not metal gray. Paw emblem is warm cream, distinct from gray flag. Gray roofs/flag are not a changed design: code will tint them teal/gold/blue/red/purple later. No words, numbers, UI, people, glow or magical effects. Subject: a small VILLAGE HOUSE, exactly ONE little warm cream cottage with a chunky neutral-gray gable roof, brown rectangular door, ONE dark window and one small neutral-gray pennant on a gold pole. Viewed absolutely STRAIGHT FROM FRONT: roof is a simple wide triangle with no visible side roof plane or side house wall; flat cream rectangular facade. No visible top surface or oblique perspective. The two gray roof tones are broad simple diagonal graphic shapes, not extruded beams. A single warm ochre shadow strip down right wall is enough. Cute compact sturdy house silhouette, clearly much simpler and smaller than a castle. No turrets, chimney smoke, stone platform, garden or decorative props. Clean indie flat vector illustration matching the style reference warrior exactly: angular faceted planes with straight hard edges, like folded paper or cut gems, two to four tones per material, single light source from the upper left. Bold dramatic silhouette, same body proportions and exaggeration as the reference. No rounded blobby shapes, no gradients, no texture, no grain, no noise, no glow, no blur, no black outlines. Crisp clean edges, fully transparent background. Simple eyes like the reference with one clear white highlight at the upper left. Smallest details at least 10 px wide.",
+        "placement": {
+          "canvas": [
+            512,
+            512
+          ],
+          "visible_box": [
+            132,
+            140,
+            248,
+            280
+          ],
+          "anchor": [
+            256,
+            420
+          ],
+          "color_processing": "none; generated RGB preserved; only background/interior alpha cleanup, canvas size/position and team-pixel separation"
+        }
+      }
+    ],
+    "inspection": "전체·48px·4배 확인. 코드로 그림의 색이나 모양을 고치지 않음. 생성본의 미세한 면 안 색 변화는 일부 남아 있음.",
+    "attempts": []
+  }
 }

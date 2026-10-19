@@ -356,5 +356,187 @@
       "preview": "7×5 같은 배치: 위는 흰 숫자 패 검사 원, 아래는 윗면 폭 48px 실제 크기. 바다색 #3d9fcb."
     },
     "scope": "타이틀·코드·기존 바닥 원본은 변경하지 않음"
+  },
+  "rawRestore": {
+    "method": "남아 있는 생성 원본 RGB 복원. 색·명암·노이즈를 코드로 고치지 않음. 빈 배경 제거와 안쪽 알파 채우기만 허용하며 부드러운 원본 경계 유지. 캔버스 크기와 그림 상자는 기존 규격에 맞춤.",
+    "files": [
+      {
+        "file": "assets/map/forest.png",
+        "source": "/workspace/scratch/238a3695bcb8/generated_images/exec-0a056ec2-9ecc-4cf1-b05d-b0a4b289c9e9.png",
+        "canvas": [
+          1024,
+          1024
+        ],
+        "method": "원본 RGB 유지, 빈 배경과 안쪽 알파만 정리, 기존 상자 아래에 맞춤",
+        "rgb_editing": "none; original colors preserved, no vectorization or quantization"
+      },
+      {
+        "file": "assets/map/gold-mine.png",
+        "source": "/workspace/scratch/238a3695bcb8/generated_images/exec-684693aa-95fe-4281-9dbf-0a74a0ec5699.png",
+        "canvas": [
+          1024,
+          1024
+        ],
+        "method": "원본 RGB 유지, 빈 배경과 안쪽 알파만 정리, 기존 상자 아래에 맞춤",
+        "rgb_editing": "none; original colors preserved, no vectorization or quantization"
+      },
+      {
+        "file": "assets/map/crystal.png",
+        "source": "/workspace/scratch/238a3695bcb8/generated_images/exec-8051253e-6383-4ad0-80a3-f7af97c0ab43.png",
+        "canvas": [
+          1024,
+          1024
+        ],
+        "method": "원본 RGB 유지, 빈 배경과 안쪽 알파만 정리, 기존 상자 아래에 맞춤",
+        "rgb_editing": "none; original colors preserved, no vectorization or quantization"
+      },
+      {
+        "file": "assets/map/rock.png",
+        "source": "/workspace/scratch/238a3695bcb8/generated_images/exec-8ed05f0c-0421-44ba-b851-de03ee3e0752.png",
+        "canvas": [
+          1024,
+          1024
+        ],
+        "method": "원본 RGB 유지, 빈 배경과 안쪽 알파만 정리, 기존 상자 아래에 맞춤",
+        "rgb_editing": "none; original colors preserved, no vectorization or quantization"
+      }
+    ],
+    "not_restored": {
+      "grass-1.png, grass-2.png, grass-3.png, barren.png": "현재 정육각형 규격의 전체 생성 원본이 없음. 남은 원본은 비정규 육각형이어서 원본 RGB·테두리를 유지한 단순 클리핑으로 현 규격을 만들 수 없음. 새 규칙상 내부 변형을 하지 않고 유지.",
+      "lake.png, fog.png": "표면 생성 원본만 남음. 현재 규격의 테두리·옆면까지 포함한 전체 미처리 원본 없음."
+    }
+  },
+  "flat_objects": {
+    "mode": "ChatGPT built-in image_gen",
+    "rule": "생성 원본 RGB를 유지. 벡터화·색 축소·전체 알파 이진화 없음. 빈 배경 제거, 안쪽 불투명화, 부드러운 가장자리 유지와 캔버스 맞춤만 적용. 팀 파일은 생성된 회색 부분 픽셀만 분리.",
+    "references": [
+      "assets/concepts/style-reference-warrior.png",
+      "assets/title/trees.png",
+      "assets/title/mine.png",
+      "assets/title/crystals.png",
+      "assets/title/castle.png"
+    ],
+    "assets": [
+      {
+        "file": "forest.png",
+        "source": "exec-3eeb1811-4444-437b-8895-b43391e7c794.png",
+        "prompt": "Use case: stylized-concept. Make ONE isolated game-board resource object, true transparent PNG 1024x1024. Composition: object centered around x=512, occupies ONLY x=247..777, y=117..550; leave all other canvas transparent, especially the lower central number-disc area around (512,670), radius125. NO tile, no hexagon, no island, no 3D base or thick floor. Draw as a FLAT 2D FRONT/SIDE ELEVATION sprite like the old title reference, not a miniature, diorama, prism, isometric model or view from above. Large simple silhouette, two or three LARGE clean uniform color planes per material, no fine triangular tessellation. No visible top surfaces or foreshortened ground plane. One small flat shadow shape directly under object is allowed, no soft shadow. Upper-left light. No outline or sticker border. Small-scale recognition at tile width48px is the main goal. Smooth 1–2px antialiased silhouette; fully opaque artwork, genuine alpha0 outside. NO texture, dust, grain, mottled color or paint. No text, numbers, UI, characters or decorative particles. Subject: three chunky flat 2D conifer tree silhouettes grouped as one small forest, same dark evergreen/teal-green family as title trees, one taller center tree and two shorter flanking trees. Large angular zigzag branches and short brown trunks, flat FRONT view. Each tree has just one broad light green face on left and one dark green face on right, with a third base green if needed, no pyramidal volumes or horizontal top faces. Tree bases sit on one thin flat dark-green ground shadow. Clean indie flat vector illustration matching the style reference warrior exactly: angular faceted planes with straight hard edges, like folded paper or cut gems, two to four tones per material, single light source from the upper left. Bold dramatic silhouette, same body proportions and exaggeration as the reference. No rounded blobby shapes, no gradients, no texture, no grain, no noise, no glow, no blur, no black outlines. Crisp clean edges, fully transparent background. Simple eyes like the reference with one clear white highlight at the upper left. Smallest details at least 10 px wide.",
+        "placement": {
+          "canvas": [
+            1024,
+            1024
+          ],
+          "visible_box": [
+            288,
+            117,
+            449,
+            428
+          ],
+          "anchor": null,
+          "color_processing": "none; generated RGB preserved; only background/interior alpha cleanup, canvas size/position and team-pixel separation"
+        }
+      },
+      {
+        "file": "crystal.png",
+        "source": "exec-82db0e50-6fab-4e7f-a4ca-68e8446897fa.png",
+        "prompt": "Use case: stylized-concept. Make ONE isolated game-board resource object, true transparent PNG 1024x1024. Composition: object centered around x=512, occupies ONLY x=247..777, y=117..550; leave all other canvas transparent, especially the lower central number-disc area around (512,670), radius125. NO tile, no hexagon, no island, no 3D base or thick floor. Draw as a FLAT 2D FRONT/SIDE ELEVATION sprite like the old title reference, not a miniature, diorama, prism, isometric model or view from above. Large simple silhouette, two or three LARGE clean uniform color planes per material, no fine triangular tessellation. No visible top surfaces or foreshortened ground plane. One small flat shadow shape directly under object is allowed, no soft shadow. Upper-left light. No outline or sticker border. Small-scale recognition at tile width48px is the main goal. Smooth 1–2px antialiased silhouette; fully opaque artwork, genuine alpha0 outside. NO texture, dust, grain, mottled color or paint. No text, numbers, UI, characters or decorative particles. Subject: three bold upright pointed CRYSTAL silhouettes, one large violet crystal in the middle, one smaller purple on left and one small turquoise on right. They are a flat 2D front-elevation drawing, not a gem sculpture viewed from above. Each crystal has one broad base-color face, one lighter left face and optionally one darker right face, no tiny triangles or many cut facets. A very low thin flat gray support shadow beneath them, no rocky island or pedestal and no grass. Preserve the purple/teal crystal resource identity. Clean indie flat vector illustration matching the style reference warrior exactly: angular faceted planes with straight hard edges, like folded paper or cut gems, two to four tones per material, single light source from the upper left. Bold dramatic silhouette, same body proportions and exaggeration as the reference. No rounded blobby shapes, no gradients, no texture, no grain, no noise, no glow, no blur, no black outlines. Crisp clean edges, fully transparent background. Simple eyes like the reference with one clear white highlight at the upper left. Smallest details at least 10 px wide.",
+        "placement": {
+          "canvas": [
+            1024,
+            1024
+          ],
+          "visible_box": [
+            304,
+            117,
+            415,
+            428
+          ],
+          "anchor": null,
+          "color_processing": "none; generated RGB preserved; only background/interior alpha cleanup, canvas size/position and team-pixel separation"
+        }
+      },
+      {
+        "file": "rock.png",
+        "source": "exec-2cb45487-3de7-482a-8292-16db924adc3a.png",
+        "prompt": "Use case: stylized-concept. Make ONE isolated game-board resource object, true transparent PNG 1024x1024. Composition: object centered around x=512, occupies ONLY x=247..777, y=117..550; leave all other canvas transparent, especially the lower central number-disc area around (512,670), radius125. NO tile, no hexagon, no island, no 3D base or thick floor. Draw as a FLAT 2D FRONT/SIDE ELEVATION sprite like the old title reference, not a miniature, diorama, prism, isometric model or view from above. Large simple silhouette, two or three LARGE clean uniform color planes per material, no fine triangular tessellation. No visible top surfaces or foreshortened ground plane. One small flat shadow shape directly under object is allowed, no soft shadow. Upper-left light. No outline or sticker border. Small-scale recognition at tile width48px is the main goal. Smooth 1–2px antialiased silhouette; fully opaque artwork, genuine alpha0 outside. NO texture, dust, grain, mottled color or paint. No text, numbers, UI, characters or decorative particles. Subject: two or three high pointed GRAY ROCK MOUNTAIN silhouettes seen from the FRONT, like a flat 2D scenery drawing. Tall triangular peak in middle, two lower shoulder peaks. Only three large broad color shapes: pale cool gray upper-left, medium gray base, darker gray right-side band. No gold, no entrance, no timber, no green, no white snow. No 3D rocky plinth, no visible horizontal top faces, no tessellated mineral planes, no scatter pebbles. Visually distinct from the low mine by height, sharp triangular silhouette and absence of warm colors. Clean indie flat vector illustration matching the style reference warrior exactly: angular faceted planes with straight hard edges, like folded paper or cut gems, two to four tones per material, single light source from the upper left. Bold dramatic silhouette, same body proportions and exaggeration as the reference. No rounded blobby shapes, no gradients, no texture, no grain, no noise, no glow, no blur, no black outlines. Crisp clean edges, fully transparent background. Simple eyes like the reference with one clear white highlight at the upper left. Smallest details at least 10 px wide.",
+        "placement": {
+          "canvas": [
+            1024,
+            1024
+          ],
+          "visible_box": [
+            281,
+            117,
+            462,
+            428
+          ],
+          "anchor": null,
+          "color_processing": "none; generated RGB preserved; only background/interior alpha cleanup, canvas size/position and team-pixel separation"
+        }
+      },
+      {
+        "file": "gold-mine.png",
+        "source": "exec-49d8f83d-abd9-4775-88fc-d340128a7446.png",
+        "prompt": "Use case: stylized-concept. Create one flat 2D GOLD MINE sprite, not a 3D object. Match reference 1's extreme 2D tree simplicity and reference 2's indie character color-block art. Transparent square 1024x1024. Object only within x247..777, y117..550, upper middle of canvas; lower half empty. FRONT ELEVATION, like a flat cutout pasted on a stage. A low broad irregular GRAY HILL is drawn with EXACTLY THREE LARGE FLAT SHAPES: one large medium-gray hill silhouette, one broad pale-gray upper-left polygon, ONE dark-gray band on the lower/right edge. The hill is not broken into stone facets: NO triangular mosaic, NO rocky chunks, NO top planes, NO 3D prism or volume rendering. In hill center one black/navy flat mine-door opening. A simple thick brown rectangular post on each side and a horizontal rectangular wood lintel on top, straight face-on, only TWO wood colors, no depth extrusion on beams. At bottom entrance THREE big FLAT GOLD LUMPS, irregular rounded/angular graphic silhouettes, each only base yellow and a small light-yellow side, no gem cut, no visible top facets. No rails, cart, soil island, plinth, thick base, scattered rocks, grass, outline, outside shadow or numbers. Thin flat ground shadow only if needed. All geometry clean, broad and simple, drawn as 2D shapes, absolutely not an isometric game asset. Uniform colors, no grain, no gradients, no lighting texture. True transparent empty background and smooth antialiased 1–2px edge, opaque inside. Clean indie flat vector illustration matching the style reference warrior exactly: angular faceted planes with straight hard edges, like folded paper or cut gems, two to four tones per material, single light source from the upper left. Bold dramatic silhouette, same body proportions and exaggeration as the reference. No rounded blobby shapes, no gradients, no texture, no grain, no noise, no glow, no blur, no black outlines. Crisp clean edges, fully transparent background. Simple eyes like the reference with one clear white highlight at the upper left. Smallest details at least 10 px wide.",
+        "placement": {
+          "canvas": [
+            1024,
+            1024
+          ],
+          "visible_box": [
+            247,
+            248,
+            530,
+            297
+          ],
+          "anchor": null,
+          "color_processing": "none; generated RGB preserved; only background/interior alpha cleanup, canvas size/position and team-pixel separation"
+        }
+      }
+    ],
+    "inspection": "전체·48px·4배 확인. 코드로 그림의 색이나 모양을 고치지 않음. 생성본의 미세한 면 안 색 변화는 일부 남아 있음.",
+    "attempts": [
+      {
+        "name": "forest",
+        "prompt": "Use case: precise-object-edit. Edit this single transparent game object. Preserve exactly its frontal 2D silhouette, three-object grouping, colors and broad angular shape arrangement. The only correction is to replace the mottled or smoothly shaded material interiors with genuinely UNIFORM FLAT SOLID COLOR polygons. Every polygon must be one solid unvarying RGB color, like a screen-printed paper cutout. No airbrushing, tiny flecks, stains, granularity or tonal variation within a polygon. Restrict each material to 2 or 3 distinct flat tones. Keep the same tiny flat ground shadow, no pedestal, no outline, no white fringe, no cast shadow outside. Transparent exterior, fully opaque interior, smooth anti-aliased 1–2 pixel outer boundary. No text, no new objects, no icons. Clean indie flat vector illustration matching the style reference warrior exactly: angular faceted planes with straight hard edges, like folded paper or cut gems, two to four tones per material, single light source from the upper left. Bold dramatic silhouette, same body proportions and exaggeration as the reference. No rounded blobby shapes, no gradients, no texture, no grain, no noise, no glow, no blur, no black outlines. Crisp clean edges, fully transparent background. Simple eyes like the reference with one clear white highlight at the upper left. Smallest details at least 10 px wide.",
+        "previous": "/workspace/scratch/238a3695bcb8/generated_images/exec-3eeb1811-4444-437b-8895-b43391e7c794.png",
+        "result_source": "Generated images are saved to /workspace/scratch/238a3695bcb8/generated_images as /workspace/scratch/238a3695bcb8/generated_images/exec-ba89a86c-2c95-4a7d-9d26-ed816b85d4f0.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+        "selected": false,
+        "reason": "재생성에서도 미세한 색 변화가 남아 기존의 더 차분한 색과 비율을 유지"
+      },
+      {
+        "name": "crystal",
+        "prompt": "Use case: precise-object-edit. Edit this single transparent game object. Preserve exactly its frontal 2D silhouette, three-object grouping, colors and broad angular shape arrangement. The only correction is to replace the mottled or smoothly shaded material interiors with genuinely UNIFORM FLAT SOLID COLOR polygons. Every polygon must be one solid unvarying RGB color, like a screen-printed paper cutout. No airbrushing, tiny flecks, stains, granularity or tonal variation within a polygon. Restrict each material to 2 or 3 distinct flat tones. Keep the same tiny flat ground shadow, no pedestal, no outline, no white fringe, no cast shadow outside. Transparent exterior, fully opaque interior, smooth anti-aliased 1–2 pixel outer boundary. No text, no new objects, no icons. Clean indie flat vector illustration matching the style reference warrior exactly: angular faceted planes with straight hard edges, like folded paper or cut gems, two to four tones per material, single light source from the upper left. Bold dramatic silhouette, same body proportions and exaggeration as the reference. No rounded blobby shapes, no gradients, no texture, no grain, no noise, no glow, no blur, no black outlines. Crisp clean edges, fully transparent background. Simple eyes like the reference with one clear white highlight at the upper left. Smallest details at least 10 px wide.",
+        "previous": "/workspace/scratch/238a3695bcb8/generated_images/exec-82db0e50-6fab-4e7f-a4ca-68e8446897fa.png",
+        "result_source": "Generated images are saved to /workspace/scratch/238a3695bcb8/generated_images as /workspace/scratch/238a3695bcb8/generated_images/exec-554eee43-6f26-4a06-8aaf-ff7a19edc897.png by default.\nIf you need to use a generated image at another path, copy it and leave the original in place unless the user explicitly asks you to delete it.\nThe generated image is already displayed to the user. There is no need to render it in the final response as a Markdown image or file link.",
+        "selected": false,
+        "reason": "재생성에서도 미세한 색 변화가 남아 기존의 더 차분한 색과 비율을 유지"
+      }
+    ],
+    "mine_correction": {
+      "previous_source": "/workspace/scratch/238a3695bcb8/generated_images/exec-8a10fd79-c669-4a7d-aad7-77418125551f.png",
+      "result": "입체 받침과 잘게 나뉜 바위를 줄이도록 다시 생성한 두 번째 그림 채택"
+    }
+  },
+  "port": {
+    "file": "port.png",
+    "canvas": [
+      512,
+      512
+    ],
+    "land_contact": [
+      256,
+      400
+    ],
+    "direction": "up",
+    "source": "exec-73e904a2-a196-487a-b5f9-b6f249d49ca0.png",
+    "prompt": "Use case: precise-object-edit. Simplify this dock into a SHORT FLAT 2D game sprite. This is NOT a 3D object or an isometric miniature. Keep the same warm brown wood identity, vertical upward direction and transparent background. Make EXACTLY FOUR broad horizontal planks, with EXACTLY FOUR short posts, one at each corner, and one simple short rope between the two far (upper) posts. The whole dock should be almost square, only slightly taller than wide, not a long bridge. Straight-on 2D graphic, parallel deck sides, rectangular post faces, no perspective depth, no rhomboid tops or extruded sides. Each plank is ONE SOLID MEDIUM BROWN rectangle; one slim pale-gold upper edge and one slim dark-brown lower edge are enough for the material's three tones. NO DIAGONAL SUBDIVISIONS or mottled shading on the planks. Keep all areas one completely uniform solid color, like a flat vector sticker. No texture, no gradient, no wood grain, no noise. One flat cream rope curve, thick enough to read small. Smooth antialiased edges, no stroke or white outline. Empty transparent exterior, fully opaque interior. Nothing but the dock: no sea, land, exchange icons, symbols, numbers, text or shadow. In final 512x512 canvas dock's lower central land contact is (256,400), upper end near y130, center x256. This task-specific simple flat form overrides gem-like faceting language in the general style suffix. Clean indie flat vector illustration matching the style reference warrior exactly: angular faceted planes with straight hard edges, like folded paper or cut gems, two to four tones per material, single light source from the upper left. Bold dramatic silhouette, same body proportions and exaggeration as the reference. No rounded blobby shapes, no gradients, no texture, no grain, no noise, no glow, no blur, no black outlines. Crisp clean edges, fully transparent background. Simple eyes like the reference with one clear white highlight at the upper left. Smallest details at least 10 px wide.",
+    "first_attempt": {
+      "source": "exec-e610f5a6-f67d-409a-b319-117c4e37cd40.png",
+      "prompt": "Use case: stylized-concept. Asset type: isolated flat 2D wooden trading dock sprite for a bright cat-fantasy hex board game. Image 1 is the mandatory flat indie illustration style reference, image 2 is the wood/material style reference only. Create ONE very short wooden pier on a genuinely transparent square canvas. Target final canvas 512x512. Its land-contact midpoint is exactly (256,400); the dock extends straight UP the canvas from this bottom contact toward the sea, ending near y110. Occupy roughly x145..367, y95..400, centered on x256. Five or six broad horizontal warm-brown planks joined into one short narrow rectangular deck, a few simple timber posts along the sides, one short thick pale-tan rope tying just two posts. No fancy knot, no hatch marks or wood grain. Depict as a straight-on flat 2D paper-cut illustration in the SAME drawing language as the cat character, not an isometric 3D miniature and not a perspective platform. The deck sides stay parallel, do not converge. Only 2 or 3 uniform solid-color broad angular shapes per wooden material, lighter upper-left and darker lower-right, no subdivided facets. Posts are thick simple rectangular silhouettes. The lower middle end of the deck is flat at y400 for placement against a shore; do not paint any land or water. Entire inside is fully opaque, exterior alpha zero, native smooth antialiased silhouette edge only. No drawn outline, no dark contour stroke, no thick pedestal, no external shadow, no boats, no barrels, no buildings, no flags, no cats, no currency or exchange symbols, no arrows, no text, no numbers. Clean indie flat vector illustration matching the style reference warrior exactly: angular faceted planes with straight hard edges, like folded paper or cut gems, two to four tones per material, single light source from the upper left. Bold dramatic silhouette, same body proportions and exaggeration as the reference. No rounded blobby shapes, no gradients, no texture, no grain, no noise, no glow, no blur, no black outlines. Crisp clean edges, fully transparent background. Simple eyes like the reference with one clear white highlight at the upper left. Smallest details at least 10 px wide.",
+      "reason": "길고 입체적인 형태를 짧고 단순한 네 장의 널빤지로 재생성"
+    },
+    "processing": "원본 RGB 유지. 빈 배경과 내부 알파 정리 및 캔버스 크기·자리 맞춤만 적용. 외곽선과 교환 아이콘 없음.",
+    "inspection": "실제 48px·72px, 해안 회전 배치, 4배 확대. 일부 미세한 색 변화는 원본에 남아 있으며 코드에서 색을 고치지 않음."
   }
 }

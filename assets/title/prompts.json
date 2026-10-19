@@ -705,5 +705,126 @@
       "docs/images/mage-eye-fix.png",
       "docs/images/title-face-check.png"
     ]
+  },
+  "rawOriginals": {
+    "rule": "생성 원본 RGB 유지. 벡터화·색 줄이기·알파 0/255 자르기 없음. 배경 제거와 안쪽 불투명화만 하고 바깥 1~2px 원본 알파를 보존.",
+    "characters": {
+      "mage": {
+        "source": "눈 수정 전의 3bec0f234dbfb26ba0088b0bd8d3376db4631fb9 mage.png",
+        "method": "눈만 다시 생성해 부드러운 선택 영역으로 합성. 눈 밖 RGB는 원본과 동일. 알파만 사용자 허용 범위에서 정리.",
+        "comparison": "docs/images/mage-eye-fix.png"
+      },
+      "warrior-front": {
+        "reference": "assets/concepts/cat-warrior.png",
+        "canvas": [
+          1536,
+          2048
+        ],
+        "ear_top": 846,
+        "feet_y": 1950,
+        "method": "새 생성본의 색을 그대로 유지해 캔버스 크기와 자리만 맞춤.",
+        "comparison": "docs/images/warrior-front-comparison.png"
+      }
+    },
+    "layout": "몸이 짧아져 전사 층 y만 655에서 818로 내림. 나머지 층 배치는 그대로.",
+    "generations": [
+      {
+        "asset": "mage-eye",
+        "prompt": "Use case: precise-object-edit. Edit only BOTH EYE INTERIORS in the supplied close-up of an existing cat mage. Match the exact eye shapes, pupil shapes/placement, single white highlights, angle and framing pixel-for-pixel. Keep all thick dark purple eyelids and all surrounding fur, eyebrows, nose, mouth and hat unchanged. Each SCLERA must be a SINGLE FLAT UNIFORM PALE LILAC shape, with NO white shards at the upper right of the smaller far eye. Each PUPIL must be a SINGLE FLAT UNIFORM DARK PURPLE shape. Exactly ONE plain white highlight in upper left of EACH pupil; no second reflected glint. Absolutely no gradients within sclera or pupil: no pale vertical stripe, no diagonal facets, no mottling, no stain, no tiny dots. Preserve thin naturally smooth antialiased boundaries, not pixel art, no jagged edges. Treat this like a carefully drawn clean flat vector eye, not painted. Keep identical crop/framing/aspect (1380x740 reference), no new scene, no face redesign, no words. The crop itself is opaque because it will be composited only into the original eyes. Clean indie flat vector illustration matching the style reference warrior exactly: angular faceted planes with straight hard edges, like folded paper or cut gems, two to four tones per material, single light source from the upper left. Bold dramatic silhouette, same body proportions and exaggeration as the reference. No rounded blobby shapes, no gradients, no texture, no grain, no noise, no glow, no blur, no black outlines. Crisp clean edges, fully transparent background. Simple eyes like the reference with one clear white highlight at the upper left. Smallest details at least 10 px wide.",
+        "references": [
+          "mage-face-source.png"
+        ],
+        "transparent_generation": false
+      },
+      {
+        "asset": "warrior-front",
+        "prompt": "Use case: stylized-concept / identity-preserve. Refine the EXACT warrior cat from reference 1, not a new character. Reference 2 sets crisp angular indie flat illustration. OUTPUT: transparent PNG portrait 1536x2048. Leave upper part EMPTY; ear tips/head top strictly BELOW y=700, approximately y=800. Flat soles of both feet on baseline y=1950. Center the whole wide stocky character horizontally. Pose: faces viewer straight-on, low and WIDE braced stance. Large broad head, short thick legs, squat powerful silhouette, same chubby sturdy proportions as concept reference 1; NOT tall, NOT long-legged. Same orange tabby facial stripe pattern, cream cheek tufts and muzzle, same gold V/diamond forehead ornament, same fierce brown eye shape with cream sclera. Face symmetric, each pupil solid dark brown, sclera single cream plane, one white upper-left highlight per eye. Wide GOLD shoulder plates, broad chest armor. On SCREEN LEFT in front of body, hold a large ROUND GOLD SHIELD with the exact cream three-point CROWN symbol of reference 1 (true circular/round silhouette, NOT a kite shield). On SCREEN RIGHT, brown gloved hand grips an ivory sword pointing diagonally DOWN and OUT toward lower right, separated from feet and tail. Short crimson cape stays just BEHIND SHOULDERS, not sweeping around the head or spanning the canvas. Orange striped tail curls on SCREEN RIGHT as in reference 1, clearly separate from sword tip. No ground, no cast shadow, no magic, no text, no outlines. Palette stays orange, cream, gold, crimson and DARK BROWN leather, never navy leather. All inner shapes fully opaque; only silhouette edge has a smooth 1–2px antialias transition to truly transparent background. Clean uniform flat color planes with just 2–3 large tones per material, no specks, painterly grain or smears. Preserve ample transparent margin and negative space beside ears and face so rear title characters stay visible. Clean indie flat vector illustration matching the style reference warrior exactly: angular faceted planes with straight hard edges, like folded paper or cut gems, two to four tones per material, single light source from the upper left. Bold dramatic silhouette, same body proportions and exaggeration as the reference. No rounded blobby shapes, no gradients, no texture, no grain, no noise, no glow, no blur, no black outlines. Crisp clean edges, fully transparent background. Simple eyes like the reference with one clear white highlight at the upper left. Smallest details at least 10 px wide.",
+        "references": [
+          "cat-warrior.png",
+          "style-reference-warrior.png"
+        ],
+        "transparent_generation": true
+      },
+      {
+        "asset": "mage-eye",
+        "prompt": "Use case: precise-object-edit. Reference 1 is the eye correction to finish. Reference 2 is the exact original eye shape and framing to preserve. Keep exact shapes and framing. FIX ONLY colored eye interiors: BOTH PALE LILAC SCLERA AND BOTH DARK PURPLE PUPILS must each be an absolutely uniform, single RGB-color graphic shape. This is flat vector drawing, not lit paint. Sclera color #dfbbf4 everywhere inside each white-of-eye shape, pupil #3c1767 everywhere inside each pupil. Keep the natural antialiased boundaries, but no gradient or tonal changes inside a shape. No brighter centers, no darker corners, no stripes or texture, no subtle stains. Keep ONE clean white upper-left circular highlight per pupil, no other white shapes; especially no stray white fragment at the upper-right of the far/small eye. Restore the exact shape and white fur around eyes from reference 2, not checkerboard. Do not move eyes or redesign their geometry. Surrounding black eyelid, nose, mouth, fur and hat remain original. Keep identical wide crop and framing. No text. Clean indie flat vector illustration matching the style reference warrior exactly: angular faceted planes with straight hard edges, like folded paper or cut gems, two to four tones per material, single light source from the upper left. Bold dramatic silhouette, same body proportions and exaggeration as the reference. No rounded blobby shapes, no gradients, no texture, no grain, no noise, no glow, no blur, no black outlines. Crisp clean edges, fully transparent background. Simple eyes like the reference with one clear white highlight at the upper left. Smallest details at least 10 px wide.",
+        "references": [
+          "exec-6a226ba5-ff84-4f04-9683-216922321021.png",
+          "mage-face-source.png"
+        ],
+        "transparent_generation": false
+      }
+    ],
+    "layoutCorrection": {
+      "reason": "새 전사는 짧고 넓어 기존 1147 높이 상자에 큰 빈 여백이 남음. 시작 문구 영역까지 상자가 내려와 화면 검사 실패. 실제 그려지는 크기·위치를 유지하며 상자만 그림 비율에 맞춤.",
+      "previous": {
+        "x": 210,
+        "y": 818,
+        "w": 1116,
+        "h": 1147
+      },
+      "current": {
+        "x": 210,
+        "y": 966,
+        "w": 1116,
+        "h": 848
+      },
+      "visual_shift": "3:4 기준 2px 미만. 코드·문서·다른 층은 변경하지 않음. 작은 가로 화면의 최소 44px 시작 버튼과도 떨어짐."
+    }
+  },
+  "rawRestore": {
+    "method": "남아 있는 생성 원본 RGB 복원. 색·명암·노이즈를 코드로 고치지 않음. 빈 배경 제거와 안쪽 알파 채우기만 허용하며 부드러운 원본 경계 유지. 캔버스 크기와 그림 상자는 기존 규격에 맞춤.",
+    "files": [
+      {
+        "file": "assets/title/castle-hill.png",
+        "source": "/workspace/scratch/238a3695bcb8/generated_images/exec-465c5c8f-9ead-4ec5-bcfb-b82efb03fd9f.png",
+        "canvas": [
+          1600,
+          1700
+        ],
+        "method": "원본 전체 캔버스 크기만 기존 규격에 맞춤; 투명 배경과 안쪽 알파만 정리",
+        "rgb_editing": "none; original colors preserved, no vectorization or quantization"
+      },
+      {
+        "file": "assets/title/sky-tall.png",
+        "source": "/workspace/scratch/238a3695bcb8/generated_images/exec-f875174e-0e71-41ff-afe5-a42c6acd78fa.png",
+        "canvas": [
+          1536,
+          2700
+        ],
+        "method": "원본 전체 캔버스 크기만 기존 규격에 맞춤; 투명 배경과 안쪽 알파만 정리",
+        "rgb_editing": "none; original colors preserved, no vectorization or quantization"
+      },
+      {
+        "file": "assets/title/peaks.png",
+        "source": "/workspace/scratch/238a3695bcb8/generated_images/exec-7589c37a-1b98-4ecd-b6a0-902184b5f606.png",
+        "canvas": [
+          2000,
+          1100
+        ],
+        "method": "원본 전체 캔버스 크기만 기존 규격에 맞춤; 투명 배경과 안쪽 알파만 정리",
+        "rgb_editing": "none; original colors preserved, no vectorization or quantization"
+      },
+      {
+        "file": "assets/title/hills-tall.png",
+        "source": "/workspace/scratch/238a3695bcb8/generated_images/exec-510e560b-f6f1-45fd-9910-adfeabce99bd.png",
+        "canvas": [
+          2000,
+          1250
+        ],
+        "method": "원본 전체 캔버스 크기만 기존 규격에 맞춤; 투명 배경과 안쪽 알파만 정리",
+        "rgb_editing": "none; original colors preserved, no vectorization or quantization"
+      },
+      {
+        "file": "assets/title/ground-tall.png",
+        "source": "/workspace/scratch/238a3695bcb8/generated_images/exec-cf99d86c-5b4f-45c8-83fe-9616f0bce919.png",
+        "canvas": [
+          1536,
+          1700
+        ],
+        "method": "원본 전체 캔버스 크기만 기존 규격에 맞춤; 투명 배경과 안쪽 알파만 정리",
+        "rgb_editing": "none; original colors preserved, no vectorization or quantization"
+      }
+    ]
   }
 }
