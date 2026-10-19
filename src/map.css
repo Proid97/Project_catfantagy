@@ -1,4 +1,4 @@
-.map-screen { --sea: #3d9fcb; --hud-panel: #fff8ebeb; --hud-ink: #263638; --hud-soft: #5b6c6e; --hud-line: #2636381f; --hud-edge: #fff8eb; --hud-shadow: 0 3px 0 #0b3b5226, 0 6px 16px #0b3b5226; --temp-edge: #263638; --retry: #ffda63; container-type: inline-size; background: var(--sea); color: var(--hud-ink); }
+.map-screen { --hud-panel: #fff8ebeb; --hud-ink: #263638; --hud-soft: #5b6c6e; --hud-line: #2636381f; --hud-edge: #fff8eb; --hud-shadow: 0 3px 0 #0b3b5226, 0 6px 16px #0b3b5226; --temp-edge: #263638; --retry: #ffda63; container-type: inline-size; background: var(--sea-fog); color: var(--hud-ink); }
 .map-canvas { position: absolute; inset: 0; display: block; width: 100%; height: 100%; touch-action: none; }
 /* 지도 조작이 HUD 아래에서도 되게, 실제 조작 요소만 입력을 받는다.
    가로 화면의 가운데 기둥은 화면 가장자리에서 떨어져 있으므로, 좌우 안전 영역에서 그 거리를 뺀다. */
@@ -24,11 +24,11 @@
 .hud-resources li { display: flex; align-items: center; gap: 5px; min-width: 54px; height: 36px; padding: 0 6px; font-size: 17px; font-variant-numeric: tabular-nums; }
 .hud-resources img { flex: none; width: 24px; height: 24px; }
 /* 판 상자와 같은 비율(약 4:3). --board-ratio는 판을 열 때 정한다. */
-.minimap { left: 0; bottom: 0; width: var(--minimap); aspect-ratio: var(--board-ratio, 4 / 3); padding: 0; border: 3px solid var(--hud-edge); border-radius: 14px; overflow: hidden; background: var(--sea); box-shadow: var(--hud-shadow); pointer-events: auto; touch-action: manipulation; }
+.minimap { left: 0; bottom: 0; width: var(--minimap); aspect-ratio: var(--board-ratio, 4 / 3); padding: 0; border: 3px solid var(--hud-edge); border-radius: 14px; overflow: hidden; background: var(--sea-fog); box-shadow: var(--hud-shadow); pointer-events: auto; touch-action: manipulation; }
 .minimap canvas, .minimap-dialog canvas { display: block; width: 100%; height: 100%; }
 .minimap-view { position: absolute; left: 0; top: 0; border: 2px solid #fff; border-radius: 3px; box-shadow: 0 0 0 1px #0b3b5280; pointer-events: none; }
 /* 화면을 어둡게 덮지 않는다. 투명한 바깥을 누르면 닫힌다. 너비는 세로 기둥(높이의 3/4) 안에 들어가게 한다. */
-.minimap-dialog { width: min(92vw, 69svh); aspect-ratio: var(--board-ratio, 4 / 3); padding: 0; border: 3px solid var(--hud-edge); border-radius: 18px; overflow: hidden; background: var(--sea); box-shadow: 0 6px 0 #0b3b5233, 0 18px 48px #0b3b5259; }
+.minimap-dialog { width: min(92vw, 69svh); aspect-ratio: var(--board-ratio, 4 / 3); padding: 0; border: 3px solid var(--hud-edge); border-radius: 18px; overflow: hidden; background: var(--sea-fog); box-shadow: 0 6px 0 #0b3b5233, 0 18px 48px #0b3b5259; }
 .minimap-dialog::backdrop { background: transparent; }
 /* 임시: 모드 선택으로 돌아가는 시험용 버튼과 주사위 굴리기. 점선으로 정식 UI가 아님을 드러낸다.
    주사위는 엄지가 닿는 아래 가운데, 모드 바꾸기 바로 위. 미니맵(왼쪽)과 카드(오른쪽) 사이 폭 안에 든다. */

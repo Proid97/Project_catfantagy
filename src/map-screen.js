@@ -43,16 +43,15 @@ const CASTLE_BASE = 0.26; // 전체 보기에서 성 아래 플레이어 색 받
 const CASTLE_FOOT = 420 / 512; // 땅에 닿는 점(원본 256, 420)을 꼭짓점에 둔다
 const GLIDE = 300; // 왕성으로 가는 시점 이동 시간(ms)
 const FOAM = 26; // 해안 거품 굵기. 절반은 육지 그림에 덮인다
-// 임시 · 안개(볼류메트릭): 바닥 질감은 늘 비치고, 모르는 칸은 짙게, 아는 칸은 옅게 덮는다. 보이는 칸은 칸보다 조금 좁게, 부드럽게 걷힌다.
-// 안개 그림은 시야가 바뀔 때만 다시 만들고(buildFog), 매번 그릴 때는 한 장을 판 크기로 늘려 붙이기만 한다.
+// 임시 · 안개(볼류메트릭): 짙은 회색으로 판 상자 전체(바다 포함)를 덮어, 보이는 곳(내 성·말 둘레)에 눈이 가게 한다.
+// 바닥 질감은 비친다. 모르는 칸·바다는 짙게, 아는 칸은 옅게 덮고, 보이는 칸은 칸보다 조금 좁게, 부드럽게 걷힌다.
+// 안개 그림은 시야가 바뀔 때만 다시 만들고(buildFog), 매번 그릴 때는 한 장을 판 크기로 늘려 붙이기만 한다. 상자 밖은 같은 색(--sea-fog)으로 칠한다.
 const FOG_SCALE = 10; // 안개 그림 1px = 월드 10단위(4인 판 465×362px, 약 0.7MB). 흐린 그림이라 늘려도 거칠지 않다
-const FOG_PUFF = 1.05 * TILE; // 안개 낀 칸마다 이 반지름의 원을 깐다. 칸 안쪽 반지름(0.87)보다 커서 이웃한 보이는 칸으로 조금 번진다
+const FOG_PUFF = 1.05 * TILE; // 안개 낀 칸(바다 칸 포함)마다 이 반지름의 원을 깐다. 칸 안쪽 반지름(0.87)보다 커서 이웃한 보이는 칸으로 조금 번진다
 const FOG_BLUR = 22; // 안개 가장자리가 번지는 정도(가우스 σ, 월드 단위)
-const FOG_MARGIN = 2 * TILE; // 판 상자 가장자리 칸의 안개가 번지는 자리. 없으면 안개가 상자 끝에서 곧게 잘린다
-const FOG_UNKNOWN = 0.5; // 모르는 칸 안개의 불투명도
-const FOG_KNOWN = 0.22; // 아는 칸
-const FOG_THIN = 0.3; // 구름 결: 칸마다 정해진 자리에 안개를 이만큼 옅게 한 둥근 곳(반지름 FOG_THIN_R)을 낸다
-const FOG_THIN_R = 0.55 * TILE;
+const FOG_MARGIN = 2 * TILE; // 판 상자 둘레. 여기까지 모르는 곳 짙기로 덮어 상자 밖 색과 이어진다
+const FOG_UNKNOWN = 0.62; // 모르는 칸과 바다 안개의 불투명도
+const FOG_KNOWN = 0.38; // 아는 칸
 // 교환소(임시 그림): 부두 그림이 오기 전까지 코드로 그린다. 변 가운데에서 바다 쪽으로 나무 부두, 그 끝에 두 자원 아이콘과 ⇄ 표지.
 const SIGN = 40; // 표지 높이(월드 단위). 너비는 SIGN_RATIO배
 const SIGN_RATIO = 2.6;
@@ -80,7 +79,8 @@ const PALETTE = {
   crystal: '#b496f0',
   rock: '#9a958b',
   barren: '#cdb487', // 금광·수정산·바위산의 바탕(빈 땅). 안개 속에서는 이 칸들이 바닥 색으로만 보인다
-  mist: '#f6f2ff', // 안개: 흰색에 가까운 연보라. 어둡게 덮지 않는다
+  sea: '#3d9fcb',
+  fog: '#2a2c30', // 안개: 짙은 회색
   pier: '#b07a43',
   plank: '#8a5a2e', // 부두 널빤지 틈
   foam: 'rgba(255, 255, 255, .6)',
@@ -88,7 +88,7 @@ const PALETTE = {
   discEdge: 'rgba(70, 48, 20, .35)',
   number: '#3b2b1b',
   hot: '#c8372d', // 6과 8: 자주 나오는 숫자
-  castleEdge: '#2b2014',
+  outline: '#000', // 성·교환소 외곽선. 성·아이콘 그림에 구운 테두리(prepare-assets)와 같은 검은색
   select: '#ffda63',
   selectEdge: 'rgba(40, 28, 8, .55)',
   players: ['#f2b33d', '#3f7fe0', '#e0524a', '#9a5ad6'], // 나(따뜻한 금색), 파랑, 빨강, 보라. 성 지붕·깃발에 곱한다
@@ -234,6 +234,8 @@ export function mapScreen(root, onModes) {
       <button class="map-retry" hidden>지도 그림 다시 불러오기</button>
     </div>
     <dialog class="minimap-dialog" aria-label="전체 지도"><canvas></canvas><span class="minimap-view"></span></dialog>`;
+  // 판 상자 밖과 미니맵 바다: 바다에 모르는 곳 안개를 덮은 색
+  root.style.setProperty('--sea-fog', `color-mix(in srgb, ${PALETTE.fog} ${FOG_UNKNOWN * 100}%, ${PALETTE.sea})`);
   const heading = root.querySelector('h2');
   const canvas = root.querySelector('.map-canvas');
   const ctx = canvas.getContext('2d');
@@ -318,6 +320,7 @@ export function mapScreen(root, onModes) {
   }
 
   // 안개 그림(둘레 FOG_MARGIN을 더한 판 상자를 FOG_SCALE분의 1로 줄인 크기). 안개 낀 칸마다 둥근 안개를 깔고 가장자리를 흐리게 번지게 한다.
+  // 판 상자와 둘레 두 줄의 모든 칸 자리를 쓰고, 바다·둘레는 모르는 칸으로 본다.
   // 흐림은 ctx.filter(Safari 18 미만에 없음) 대신 그림자로 낸다. 원은 그림판 밖에 그리고 흐린 그림자만 제자리에 떨어뜨린다.
   // 모름·앎 칸 층을 FOG_KNOWN으로 깔고 모르는 칸 층을 더해, 겹친 곳이 FOG_UNKNOWN이 되게 한다. 한 층은 경로 하나라 원이 겹쳐도 짙어지지 않는다.
   function buildFog() {
@@ -329,31 +332,22 @@ export function mapScreen(root, onModes) {
     g.setTransform(1 / FOG_SCALE, 0, 0, 1 / FOG_SCALE, (FOG_MARGIN - bounds.minX) / FOG_SCALE - away, (FOG_MARGIN - bounds.minY) / FOG_SCALE);
     g.shadowOffsetX = away;
     g.shadowBlur = 2 * FOG_BLUR / FOG_SCALE; // 그림자 흐림 값은 σ의 2배
-    g.shadowColor = PALETTE.mist;
+    g.shadowColor = PALETTE.fog;
+    const spots = [];
+    for (let q = -2; q < board.cols + 2; q++) for (let row = -2; row < board.rows + 2; row++) {
+      const r = row - Math.floor(q / 2);
+      spots.push({ ...hexToPixel(q, r, TILE), state: tiles.get(`${q},${r}`)?.state ?? UNKNOWN });
+    }
     for (const [level, alpha] of [[KNOWN, FOG_KNOWN], [UNKNOWN, 1 - (1 - FOG_UNKNOWN) / (1 - FOG_KNOWN)]]) {
       const puffs = new Path2D();
-      for (const tile of sprites) {
-        if (tile.state > level) continue;
-        puffs.moveTo(tile.x + FOG_PUFF, tile.y);
-        puffs.arc(tile.x, tile.y, FOG_PUFF, 0, Math.PI * 2);
+      for (const { x, y, state } of spots) {
+        if (state > level) continue;
+        puffs.moveTo(x + FOG_PUFF, y);
+        puffs.arc(x, y, FOG_PUFF, 0, Math.PI * 2);
       }
       g.globalAlpha = alpha;
       g.fill(puffs);
     }
-    // 구름 결: 칸 좌표로 정한 자리라 시야가 바뀌어도 결이 움직이지 않는다.
-    const thin = new Path2D();
-    for (const tile of sprites) {
-      const h = hashOf(tile.q, tile.r);
-      const angle = h % 628 / 100;
-      const reach = (h >>> 10) % 60 / 100 * TILE;
-      const x = tile.x + Math.cos(angle) * reach;
-      const y = tile.y + Math.sin(angle) * reach;
-      thin.moveTo(x + FOG_THIN_R, y);
-      thin.arc(x, y, FOG_THIN_R, 0, Math.PI * 2);
-    }
-    g.globalCompositeOperation = 'destination-out';
-    g.globalAlpha = FOG_THIN;
-    g.fill(thin);
   }
 
   // 판 전체가 w×h 안에 여백을 두고 들어가는 배율과 위치
@@ -370,7 +364,7 @@ export function mapScreen(root, onModes) {
     }
   }
 
-  // 미니맵은 안개를 칸 모양 그대로 단순하게 덮는다. 상대 왕성은 보일 때만 찍는다.
+  // 미니맵은 안개를 칸 모양 그대로 단순하게 덮는다. 바다는 바탕색(--sea-fog)이 이미 안개 낀 색이라 보이는 칸만 밝다. 상대 왕성은 보일 때만 찍는다.
   function drawMini(target) {
     const w = target.clientWidth;
     const h = target.clientHeight;
@@ -380,7 +374,7 @@ export function mapScreen(root, onModes) {
     const g = target.getContext('2d');
     g.setTransform(view.dpr * t.s, 0, 0, view.dpr * t.s, view.dpr * t.ox, view.dpr * t.oy);
     fillTerrain(g);
-    g.fillStyle = PALETTE.mist;
+    g.fillStyle = PALETTE.fog;
     for (const [level, alpha] of [[UNKNOWN, FOG_UNKNOWN], [KNOWN, FOG_KNOWN]]) {
       g.globalAlpha = alpha;
       g.fill(paths.mist[level]);
@@ -393,7 +387,7 @@ export function mapScreen(root, onModes) {
   // 보이는 성 자리를 플레이어 색 점으로 찍는다. 미니맵과, 그림이 없을 때의 판에 쓴다.
   function castleDots(g, radius) {
     g.lineWidth = radius * 0.375;
-    g.strokeStyle = PALETTE.castleEdge;
+    g.strokeStyle = PALETTE.outline;
     for (const { player, x, y } of shown) {
       g.beginPath();
       g.arc(x, y, radius, 0, Math.PI * 2);
@@ -436,8 +430,15 @@ export function mapScreen(root, onModes) {
     const k = dpr * zoom;
     const ox = dpr * w / 2 - cx * k;
     const oy = dpr * h / 2 - cy * k;
+    // 안개 그림 자리(기기 px에 맞춘 사각형). 바다는 이 안에만 칠하고 밖은 바탕색(--sea-fog)이 보인다. 둘 다 같은 사각형이라 이음매가 없다.
+    const fx = Math.round(ox + (bounds.minX - FOG_MARGIN) * k);
+    const fy = Math.round(oy + (bounds.minY - FOG_MARGIN) * k);
+    const fw = Math.round(ox + (bounds.minX - FOG_MARGIN + fog.width * FOG_SCALE) * k) - fx;
+    const fh = Math.round(oy + (bounds.minY - FOG_MARGIN + fog.height * FOG_SCALE) * k) - fy;
     ctx.setTransform(1, 0, 0, 1, 0, 0);
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = PALETTE.sea;
+    ctx.fillRect(fx, fy, fw, fh);
     ctx.setTransform(k, 0, 0, k, ox, oy);
     ctx.lineCap = ctx.lineJoin = 'round';
     ctx.lineWidth = FOAM;
@@ -465,7 +466,9 @@ export function mapScreen(root, onModes) {
       fillTerrain(ctx);
     }
     // 안개는 바닥·오브젝트 위, 교환소·선택·성·숫자 아래. 미리 만든 한 장을 판 크기로 늘려 붙인다(부드럽게 보간).
-    ctx.drawImage(fog, bounds.minX - FOG_MARGIN, bounds.minY - FOG_MARGIN, fog.width * FOG_SCALE, fog.height * FOG_SCALE);
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.drawImage(fog, fx, fy, fw, fh);
+    ctx.setTransform(k, 0, 0, k, ox, oy);
     const signs = drawPorts(zoom, reachX, reachY);
     if (selected) {
       // 밝은 칸에서도 보이게 어두운 테두리를 먼저 깐다.
@@ -529,7 +532,7 @@ export function mapScreen(root, onModes) {
     }
     ctx.lineCap = 'butt';
     ctx.lineWidth = size.pier + 5;
-    ctx.strokeStyle = PALETTE.castleEdge;
+    ctx.strokeStyle = PALETTE.outline;
     ctx.stroke(pier);
     ctx.lineWidth = size.pier;
     ctx.strokeStyle = PALETTE.pier;
@@ -548,7 +551,7 @@ export function mapScreen(root, onModes) {
       ctx.fillStyle = PALETTE.disc;
       ctx.fill(spots);
       ctx.lineWidth = 3;
-      ctx.strokeStyle = PALETTE.castleEdge;
+      ctx.strokeStyle = PALETTE.outline;
       ctx.stroke(spots);
     }
     // 표지: 둥근 양끝 안에 아이콘, 가운데에 화살표
@@ -562,7 +565,7 @@ export function mapScreen(root, onModes) {
     ctx.fillStyle = PALETTE.disc;
     ctx.fill(signs);
     ctx.lineWidth = h * 0.07;
-    ctx.strokeStyle = PALETTE.castleEdge;
+    ctx.strokeStyle = PALETTE.outline;
     ctx.stroke(signs);
     ctx.strokeStyle = PALETTE.number;
     for (const { port, x, y } of onScreen) {

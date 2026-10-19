@@ -66,30 +66,24 @@ for (const layer of layout.layers) {
 await writeFile(new URL('title-layout.json', generated), JSON.stringify(layout));
 console.log(`타이틀 이미지 ${(originalBytes / 1e6).toFixed(2)} MB → ${(outputBytes / 1e6).toFixed(2)} MB (${Math.round((1 - outputBytes / originalBytes) * 100)}% 감소)`);
 
-// 임시 · 스티커 테두리: 그림 둘레에 크림색 띠, 그 바깥에 얇은 짙은 선을 빌드 때 굽는다. 그릴 때 드는 비용이 없다.
-// band·line은 결과 그림의 px. 그림(알파 128 이상)에서 떨어진 거리로 칠해 모서리가 둥글고 바깥 1px이 부드럽다.
-// 캔버스 크기는 그대로라 둘레에 band + line + 0.5px 넘게 빈 곳이 있어야 한다. 성·재화 아이콘에 쓰고, 마을·길·다른 건물도 이걸로 두른다.
-const OUTLINE = { band: [255, 246, 223], line: [43, 32, 20] }; // 지도 화면의 숫자 패(#fff6df)·성 테두리(#2b2014)와 같은 색
-async function sticker(image, band, line) {
-  const { data, info: { width, height } } = await image.ensureAlpha().raw().toBuffer({ resolveWithObject: true });
-  const reach = band + line;
-  const r = Math.ceil(reach + .5);
+// 임시 · 스티커 테두리: 그림 둘레에 검은 테두리를 빌드 때 굽는다. 그릴 때 드는 비용이 없다.
+// width는 결과 그림의 px. 그림(알파 128 이상)에서 떨어진 거리로 칠해 모서리가 둥글고 바깥 1px이 부드럽다. 바탕이 0(검정)이라 알파만 칠한다.
+// 캔버스 크기는 그대로라 둘레에 width + 0.5px 넘게 빈 곳이 있어야 한다. 성·재화 아이콘에 쓰고, 마을·길·다른 건물도 이걸로 두른다.
+async function sticker(image, width) {
+  const { data, info: { width: w, height: h } } = await image.ensureAlpha().raw().toBuffer({ resolveWithObject: true });
+  const r = Math.ceil(width + .5);
   const near = []; // 가까운 순서의 이웃 [dx, dy, 거리]
   for (let dy = -r; dy <= r; dy++) for (let dx = -r; dx <= r; dx++) near.push([dx, dy, Math.hypot(dx, dy)]);
   near.sort((a, b) => a[2] - b[2]);
   const back = Buffer.alloc(data.length);
-  for (let y = 0; y < height; y++) for (let x = 0; x < width; x++) {
+  for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
     const hit = near.find(([dx, dy]) => {
       const u = x + dx, v = y + dy;
-      return u >= 0 && v >= 0 && u < width && v < height && data[(v * width + u) * 4 + 3] >= 128;
+      return u >= 0 && v >= 0 && u < w && v < h && data[(v * w + u) * 4 + 3] >= 128;
     });
-    if (!hit) continue;
-    const t = Math.min(Math.max(hit[2] - band, 0), 1); // 0이면 띠, 1이면 선. 사이 1px은 섞는다
-    const i = (y * width + x) * 4;
-    for (let c = 0; c < 3; c++) back[i + c] = Math.round(OUTLINE.band[c] + (OUTLINE.line[c] - OUTLINE.band[c]) * t);
-    back[i + 3] = Math.round(255 * Math.min(Math.max(reach + .5 - hit[2], 0), 1));
+    if (hit) back[(y * w + x) * 4 + 3] = Math.round(255 * Math.min(Math.max(width + .5 - hit[2], 0), 1));
   }
-  const raw = { width, height, channels: 4 };
+  const raw = { width: w, height: h, channels: 4 };
   return sharp(back, { raw }).composite([{ input: data, raw }]);
 }
 
@@ -111,11 +105,11 @@ const mapArt = [
   // 성(원본 512px)은 판에서 120 단위로 그린다. 최대 확대 1.4배 × 2배 화면 = 336px.
   // 지붕·깃발 마스크는 테두리 없이 같은 크기로 둬 성 그림과 픽셀이 맞는다. 테두리(9.8px)는 화면에서 약 3.5~4.9 CSS px(확대 1~1.4배).
   // 원본 둘레에 투명한 곳이 40px(줄이면 26px) 넘게 있어 캔버스를 넓히지 않는다.
-  ['game/castle', image => sticker(image.resize(336), 7, 2.8)],
+  ['game/castle', image => sticker(image.resize(336), 9.8)],
   ['game/castle-team', image => image.resize(336)],
   // 재화 아이콘은 24 CSS px(2배 화면 48px)로 보인다. 둘레의 투명한 곳을 잘라 그림을 34px 안에 맞추고,
   // 테두리(6.3px, 약 3.2 CSS px)가 들어갈 자리로 둘레를 7px 넓혀 48px로 만든다.
-  ...['gold', 'crystal', 'wood', 'fish'].map(name => [`game/icon-${name}`, image => sticker(image.trim().resize(34, 34, { fit: 'contain', background: '#0000' }).extend({ top: 7, bottom: 7, left: 7, right: 7, background: '#0000' }), 4.2, 2.1)]),
+  ...['gold', 'crystal', 'wood', 'fish'].map(name => [`game/icon-${name}`, image => sticker(image.trim().resize(34, 34, { fit: 'contain', background: '#0000' }).extend({ top: 7, bottom: 7, left: 7, right: 7, background: '#0000' }), 6.3)]),
   // 카드 뒷면은 64 CSS px 너비로 보인다. 둘레의 투명한 여백을 잘라 카드 칸을 꽉 채운다.
   ['game/card-back', image => image.trim().resize(128)],
 ];
