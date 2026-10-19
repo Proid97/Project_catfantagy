@@ -52,12 +52,15 @@ const FOG_BLUR = 20; // 안개 가장자리가 번지는 정도(가우스 σ, �
 const FOG_MARGIN = 2 * TILE; // 판 상자 둘레. 가장자리 칸의 걷힌 곳이 번질 자리이고, 그 바깥은 모르는 곳 짙기라 상자 밖 색과 이어진다
 const FOG_UNKNOWN = 0.62; // 모르는 칸과 바다 안개의 불투명도
 const FOG_KNOWN = 0.38; // 아는 칸
-// 교환소(임시 그림): 부두 그림이 오기 전까지 코드로 그린다. 변 가운데에서 바다 쪽으로 나무 부두, 그 끝에 두 자원 아이콘과 ⇄ 표지.
+// 교환소: 변 가운데에서 바다 쪽으로 부두 그림, 그 끝에 두 자원 아이콘과 ⇄ 표지(임시, 코드로 그림).
+// 부두 그림(원본 512px)은 땅에 닿는 점(256, 400)을 변 가운데에 두고, 위쪽 끝(y 131)이 바다 쪽을 향하게 돌린다.
+const DOCK = 110; // 부두 그림 크기(월드 단위). 보이는 부두는 길이 58, 폭 53
+const DOCK_FOOT = 400 / 512;
 const SIGN = 40; // 표지 높이(월드 단위). 너비는 SIGN_RATIO배
 const SIGN_RATIO = 2.6;
 const SIGN_MIN = 18; // 멀리 볼 때도 표지 높이가 화면에서 이 CSS px보다 작아지지 않게 한다(성과 같은 방식)
-const PIER = 34; // 해안에서 표지까지 보이는 부두 길이(월드 단위)
-const PIER_W = 16; // 부두 폭. 멀리서는 화면 3px보다 가늘어지지 않는다
+const PIER = 46; // 해안에서 표지까지(월드 단위). 표지가 부두 끝 기둥을 조금 덮는다
+const PIER_W = 40; // 부두를 누르는 폭. 멀리서는 화면 3px보다 가늘어지지 않는다
 const SPOT = 9; // 교환소 자리(변의 두 꼭짓점) 표시 반지름. 숫자 패처럼 가까이 볼 때만 그린다
 const HIT = 8; // 교환소를 누르는 판정 여유(CSS px)
 // ⇄ 화살표(표지 높이 1 기준). 글꼴에 없을 수 있어 선으로 그린다.
@@ -81,8 +84,6 @@ const PALETTE = {
   barren: '#cdb487', // 금광·수정산·바위산의 바탕(빈 땅). 안개 속에서는 이 칸들이 바닥 색으로만 보인다
   sea: '#3d9fcb',
   fog: '#2a2c30', // 안개: 짙은 회색
-  pier: '#b07a43',
-  plank: '#8a5a2e', // 부두 널빤지 틈
   foam: 'rgba(255, 255, 255, .6)',
   disc: '#fff6df',
   discEdge: 'rgba(70, 48, 20, .35)',
@@ -178,18 +179,22 @@ function levelOf(levels, size) {
   return level;
 }
 
-// 플레이어 성: 회색 마스크(지붕·깃발)에 플레이어 색을 곱하고 마스크 모양만 남긴 뒤, 그 아래에 기본 성을 깐다.
+// 플레이어 성: 회색 마스크(지붕·깃발)의 밝기로 플레이어 색을 밝히거나 어둡게 칠하고, 그 아래에 기본 성을 깐다.
+// 마스크 회색이 TINT_MID면 플레이어 색 그대로다. 곱하기만 하면 어두운 회색(약 100)에서 색이 탁해진다.
+const TINT_MID = 112;
 function tintCastle(castle, team, color) {
   const canvas = document.createElement('canvas');
   canvas.width = castle.width;
   canvas.height = castle.height;
   const g = canvas.getContext('2d');
   g.drawImage(team, 0, 0);
-  g.globalCompositeOperation = 'multiply';
-  g.fillStyle = color;
-  g.fillRect(0, 0, canvas.width, canvas.height);
-  g.globalCompositeOperation = 'destination-in';
-  g.drawImage(team, 0, 0);
+  const image = g.getImageData(0, 0, canvas.width, canvas.height);
+  const rgb = [1, 3, 5].map(i => parseInt(color.slice(i, i + 2), 16));
+  for (let i = 0; i < image.data.length; i += 4) {
+    const light = image.data[i] / TINT_MID;
+    for (let c = 0; c < 3; c++) image.data[i + c] = rgb[c] * light;
+  }
+  g.putImageData(image, 0, 0);
   g.globalCompositeOperation = 'destination-over';
   g.drawImage(castle, 0, 0);
   return mips(canvas);
@@ -200,7 +205,7 @@ function tintCastle(castle, team, color) {
 let art = null;
 let artLoad = null;
 export function loadMapArt() {
-  const names = [...GROUNDS, ...Object.values(OBJECTS)];
+  const names = [...GROUNDS, ...Object.values(OBJECTS), 'port'];
   const icons = RESOURCES.map(([type]) => `game/icon-${type}`);
   artLoad ??= Promise.all([...names.map(name => `map/${name}`), ...icons, 'game/castle', 'game/castle-team'].map(decode)).then(images => {
     const [castle, team] = images.splice(-2);
@@ -523,23 +528,16 @@ export function mapScreen(root, onModes) {
     const onScreen = ports.map(port => ({ port, ...signAt(port, size) }))
       .filter(({ x, y }) => Math.abs(x - camera.x) <= reachX + w && Math.abs(y - camera.y) <= reachY + w);
     if (!onScreen.length) return 0;
-    const pier = new Path2D();
-    for (const { port, x, y } of onScreen) {
-      pier.moveTo(port.mx, port.my);
-      pier.lineTo(x, y);
+    if (art) {
+      const level = levelOf(art.sprites.port, DOCK * view.dpr * zoom);
+      for (const { port } of onScreen) {
+        ctx.save();
+        ctx.translate(port.mx, port.my);
+        ctx.rotate(Math.atan2(port.ox, -port.oy));
+        ctx.drawImage(art.sprites.port[level], -DOCK / 2, -DOCK * DOCK_FOOT, DOCK, DOCK);
+        ctx.restore();
+      }
     }
-    ctx.lineCap = 'butt';
-    ctx.lineWidth = size.pier + 5;
-    ctx.strokeStyle = PALETTE.outline;
-    ctx.stroke(pier);
-    ctx.lineWidth = size.pier;
-    ctx.strokeStyle = PALETTE.pier;
-    ctx.stroke(pier);
-    ctx.setLineDash([size.pier * 0.12, size.pier * 0.5]);
-    ctx.strokeStyle = PALETTE.plank;
-    ctx.stroke(pier);
-    ctx.setLineDash([]);
-    ctx.lineCap = 'round';
     if (TILE * zoom >= DETAIL) {
       const spots = new Path2D();
       for (const { port } of onScreen) for (const { x, y } of [port.a, port.b]) {

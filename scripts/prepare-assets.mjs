@@ -102,6 +102,8 @@ const mapArt = [
   // 바닥 타일·호수: 가장 크게 확대하면 칸 그림 하나가 약 600px.
   ...['grass-1', 'grass-2', 'grass-3', 'barren', 'lake'].map(name => [`map/${name}`, image => image.resize(600, 600)]),
   ...OBJECTS.map(name => [`map/${name}`, image => image.extract({ left, top, width, height }).resize(Math.round(width * 600 / 1024)), objectsChangedAt]),
+  // 교환소 부두(원본 512px)는 판에서 110 단위로 그린다. 최대 확대 1.4배 × 2배 화면 = 308px.
+  ['map/port', image => image.resize(320)],
   // 성(원본 512px)은 판에서 120 단위로 그린다. 최대 확대 1.4배 × 2배 화면 = 336px.
   // 지붕·깃발 마스크는 테두리 없이 같은 크기로 둬 성 그림과 픽셀이 맞는다. 테두리(9.8px)는 화면에서 약 3.5~4.9 CSS px(확대 1~1.4배).
   // 원본 둘레에 투명한 곳이 40px(줄이면 26px) 넘게 있어 캔버스를 넓히지 않는다.

@@ -15,7 +15,7 @@
 .avatar { display: grid; place-items: center; flex: none; width: 44px; height: 44px; border: 3px solid var(--player); border-radius: 50%; background: var(--tint); color: var(--ink); font-size: 19px; }
 .warrior { --tint: #fbdfaa; --ink: #6e3423; }
 .mage { --tint: #e4dbfc; --ink: #513b7e; }
-.assassin { --tint: #c9ede0; --ink: #1c5957; }
+.assassin { --tint: #2b2a2e; --ink: #f4efe4; } /* 냥살자 종족 색: 검정 */
 .group-label { margin: 8px 0 0; padding-top: 6px; border-top: 1px solid var(--hud-line); color: var(--hud-soft); font-size: 11px; }
 .opponents { display: grid; margin: -2px 0 -6px; padding: 0 0 0 6px; list-style: none; }
 .opponents .player { font-size: 13px; }

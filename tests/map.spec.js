@@ -573,13 +573,13 @@ test('지형 그림과 성: 2배 화면 전체 보기와 내 성 가까이', asy
   for (let i = 0; i < 8; i++) await page.mouse.wheel(0, -400);
   await settled(page);
   await page.screenshot({ path: test.info().outputPath('map-ipad-duel-castle-2x.png') });
-  // 내 색을 곱한 지붕·깃발(마스크의 두 회색 202, 155 × #f2b33d)은 다른 그림에 없는 색이다.
+  // 내 색으로 칠한 지붕·깃발(마스크 회색 약 102·133 → #f2b33d × 102/112, × 133/112)은 다른 그림에 없는 색이다.
   // 땅에 닿는 점이 화면 가운데(꼭짓점)에 있으면 지붕은 꼭짓점보다 43~120 CSS px 위, 좌우 58 CSS px 안에만 있다.
   const roof = await page.locator('.map-canvas').evaluate(canvas => {
     const { data } = canvas.getContext('2d').getImageData(canvas.width / 2 - 180, canvas.height / 2 - 300, 360, 420);
     const count = { above: 0, near: 0 };
     for (let i = 0; i < data.length; i += 4) {
-      if (![[192, 142, 48], [147, 109, 37]].some(([r, g, b]) => Math.abs(data[i] - r) <= 6 && Math.abs(data[i + 1] - g) <= 6 && Math.abs(data[i + 2] - b) <= 6)) continue;
+      if (![[220, 163, 56], [255, 213, 72]].some(([r, g, b]) => Math.abs(data[i] - r) <= 6 && Math.abs(data[i + 1] - g) <= 6 && Math.abs(data[i + 2] - b) <= 6)) continue;
       // 가운데에서 20 CSS px 위보다 높으면 위, 그 아래(가운데 아래 60px까지)는 가까이
       count[Math.floor(i / 4 / 360) < 260 ? 'above' : 'near']++;
     }
