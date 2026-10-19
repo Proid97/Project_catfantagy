@@ -5,6 +5,8 @@ const intro = page => expect(stage(page)).toHaveAttribute('data-state', 'intro')
 const ready = page => expect(stage(page)).toHaveAttribute('data-state', 'ready');
 // 반복 연출과 횟수. 끝없이 도는 연출이 있으면 Infinity가 나와 실패한다.
 const loops = page => page.evaluate(() => document.getAnimations().filter(item => item.effect.getTiming().iterations > 1).map(item => `${item.animationName} ${item.effect.getTiming().iterations}`).sort());
+// 인트로 뒤 대기 연출. 캐릭터는 약 74초 동안, 시작 문구는 3번만 한다.
+const idleLoops = ['assassin-hover 17', 'mage-float 20', 'mage-shadow 20', 'mage-sway 14', 'staff-twinkle 15', 'start-pulse 3', 'warrior-breathe 24', 'warrior-shadow 24'];
 // 시작 문구가 나타날 자리. 연출 중 이곳을 눌러도 건너뛰기만 해야 한다.
 const startSpot = async page => { const box = await page.locator('.canvas').boundingBox(); return [box.x + box.width / 2, box.y + box.height * .94]; };
 
@@ -17,11 +19,11 @@ test('등장 순서, 자연 종료, 시작 입력과 되돌아오기', async ({ 
     name: layer.dataset.layer, delay: layer.getAnimations()[0].effect.getTiming().delay,
   })));
   expect(times.sort((a, b) => a.delay - b.delay).map(item => item.name)).toEqual([
-    'sky-tall', 'hills-tall', 'peaks', 'castle-hill', 'ground-tall', 'warrior-front', 'assassin', 'mage', 'logo',
+    'sky-tall', 'hills-tall', 'peaks', 'castle-hill', 'ground-tall', 'warrior-front-shadow', 'warrior-front', 'assassin', 'mage-shadow', 'mage', 'logo',
   ]);
   await ready(page);
   expect(await page.evaluate(() => document.getAnimations().every(item => item instanceof CSSAnimation))).toBe(true);
-  expect(await loops(page)).toEqual(['mage-float 4', 'start-pulse 3']);
+  expect(await loops(page)).toEqual(idleLoops);
   expect(await page.evaluate(() => document.fonts.check('700 24px "Catfantagy UI"'))).toBe(true);
   const start = page.getByRole('button', { name: '게임 시작' });
   expect(await start.evaluate(button => ['backgroundColor', 'boxShadow', 'borderTopWidth'].map(key => getComputedStyle(button)[key]))).toEqual(['rgba(0, 0, 0, 0)', 'none', '0px']);
@@ -181,6 +183,34 @@ test('화면이 가려진 동안 연출을 멈추고 돌아오면 이어서 재�
   expect(paused).toBe(true);
   await page.evaluate(() => { window.testHidden = false; document.dispatchEvent(new Event('visibilitychange')); });
   await ready(page);
+});
+
+test('대기 연출: 60~90초 안에 멈추고, 화면이 숨으면 멈췄다가 다시 보이면 처음부터', async ({ page }) => {
+  await page.addInitScript(() => {
+    window.testHidden = false;
+    Object.defineProperty(document, 'hidden', { get: () => window.testHidden });
+  });
+  const visible = shown => page.evaluate(shown => { window.testHidden = !shown; document.dispatchEvent(new Event('visibilitychange')); }, shown);
+  const idle = () => page.locator('.art').evaluate(art => art.getAnimations({ subtree: true }).map(item => (
+    { state: item.playState, time: item.currentTime, duration: item.effect.getTiming().duration, end: item.effect.getComputedTiming().endTime })));
+  await page.goto('/');
+  await ready(page);
+  const first = await idle();
+  expect(first).toHaveLength(7);
+  // 무한 반복이면 Infinity라 실패한다.
+  expect(first.every(item => item.state === 'running' && item.end >= 60000 && item.end <= 90000)).toBe(true);
+  await visible(false);
+  expect((await idle()).every(item => item.state === 'paused')).toBe(true);
+  await visible(true);
+  expect((await idle()).every(item => item.state === 'running')).toBe(true);
+  // 횟수를 다 마치면 남는 연출이 없어 화면을 다시 그리지 않는다.
+  await page.locator('.art').evaluate(art => { for (const item of art.getAnimations({ subtree: true })) item.currentTime = item.effect.getComputedTiming().endTime; });
+  expect(await idle()).toEqual([]);
+  await visible(false);
+  await visible(true);
+  const again = await idle();
+  expect(again).toHaveLength(7);
+  expect(again.every(item => item.state === 'running' && item.time < item.duration)).toBe(true);
 });
 
 test('움직임 설정은 다음 실행에도 유지', async ({ page }) => {

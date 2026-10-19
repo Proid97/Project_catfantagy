@@ -26,16 +26,43 @@ button:focus-visible { outline: 3px solid #ffda63; outline-offset: 6px; }
 /* 하늘은 아래끝을 고정하고 줄어든다. 커진 하늘이 언덕 아래로 삐져나오지 않는다. */
 .sky-tall { transform-origin: 50% 100%; }
 .layer img { display: block; width: 100%; height: 100%; }
+/* 코드로 그린 접지 그림자. 앞 땅 초록에 어울리는 짙은 녹청이고, 가운데만 진하고 가장자리는 흐리다. */
+.shadow { background: radial-gradient(closest-side, #0a4a3ca6, #0a4a3c66 40%, #0a4a3c00); }
+/* 법사는 떠 있어서 그림자를 옅게 한다. */
+.mage-shadow { background: radial-gradient(closest-side, #0a4a3c66, #0a4a3c00); }
+/* 전사는 두 발 사이 발바닥(핵심 영역 780, 1801)을 기준으로 눌리고 숨 쉰다. 발이 땅에서 뜨지 않는다. */
+.warrior-front { transform-origin: 51% 98.5%; }
+/* 지팡이 고리 위쪽의 작은 별빛. 대기 연출 때만 잠깐씩 빛난다. */
+.mage::after { content: ''; position: absolute; left: 1.3%; top: 2.7%; width: 7.7%; aspect-ratio: 1; opacity: 0; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M10 0Q11 9 20 10Q11 11 10 20Q9 11 0 10Q9 9 10 0Z' fill='%23fffbea'/%3E%3C/svg%3E") center / contain no-repeat; }
+/* 법사는 지팡이 고리를 축으로 흔들린다. 별빛이 고리에서 벗어나지 않는다. */
+.mage img { transform-origin: 9.2% 12.1%; }
 /* 전사 발(1802) 아래 어두운 땅 위, 핵심 영역 1925 높이에 글자 가운데를 둔다. */
 .start { position: absolute; z-index: 60; left: 50%; top: 94%; translate: -50% -50%; padding: 0 .5em 0 .62em; border: 0; color: #fff9e7; background: none; white-space: nowrap; font-size: clamp(16px, 3.5cqw, 42px); letter-spacing: .12em; text-shadow: 2px 0 #08403d, -2px 0 #08403d, 0 2px #08403d, 0 -2px #08403d, 0 4px 12px #08403d99; animation: start-fade .3s ease-out; }
 .start:active { scale: .96; }
-/* 대기 연출은 몇 번만 하고 멈춘다. 멈춘 화면은 다시 그리지 않아 저사양 기기의 발열을 막는다. */
+/* 대기 연출: 인트로 뒤 캐릭터가 살아 있는 듯 조금씩 움직인다. 주기를 서로 다르게 해 함께 움직이지 않는다.
+   전사 → 법사(0.5초 뒤) → 냥살자(1초 뒤) 차례로 시작한다. 반복마다 쉬는 자세에서 시작해 쉬는 자세로 끝나므로,
+   약 74초 뒤 횟수가 다하면 툭 끊기지 않고 멈춘다.
+   멈춘 화면은 다시 그리지 않아 저사양 기기의 발열을 막는다. transform·opacity만 움직인다. */
 .stage[data-state="ready"][data-motion="full"] .start { animation: start-rise .3s ease-out, start-pulse 2.4s ease-in-out .3s 3; }
-.stage[data-state="ready"][data-motion="full"] .mage { animation: mage-float 3.2s ease-in-out 4 alternate; }
+.stage[data-state="ready"][data-motion="full"] .warrior-front { animation: warrior-breathe 3.1s ease-in-out 24; }
+.stage[data-state="ready"][data-motion="full"] .warrior-front-shadow { animation: warrior-shadow 3.1s ease-in-out 24; }
+.stage[data-state="ready"][data-motion="full"] .assassin { animation: assassin-hover 4.3s ease-in-out 1s 17; }
+.stage[data-state="ready"][data-motion="full"] .mage { animation: mage-float 3.7s ease-in-out .5s 20; }
+.stage[data-state="ready"][data-motion="full"] .mage-shadow { animation: mage-shadow 3.7s ease-in-out .5s 20; }
+.stage[data-state="ready"][data-motion="full"] .mage img { animation: mage-sway 5.3s ease-in-out .5s 14; }
+.stage[data-state="ready"][data-motion="full"] .mage::after { animation: staff-twinkle 4.9s ease-in-out 15; }
 @keyframes start-fade { from { opacity: 0; } }
 @keyframes start-rise { from { opacity: 0; transform: translateY(35%); } }
 @keyframes start-pulse { 50% { opacity: .6; } }
-@keyframes mage-float { to { transform: translateY(-1.8%); } }
+/* 숨을 들이쉬면 발을 디딘 채 조금 커지고 좁아진다. 그림자도 따라 좁아진다. */
+@keyframes warrior-breathe { 50% { transform: scale(.99, 1.015); } }
+@keyframes warrior-shadow { 50% { transform: scaleX(.98); } }
+@keyframes assassin-hover { 50% { transform: translateY(-1.2%) rotate(1.2deg); } }
+/* 법사가 떠오르면 그림자는 작고 옅어진다. */
+@keyframes mage-float { 50% { transform: translateY(-2.6%); } }
+@keyframes mage-shadow { 50% { opacity: .55; transform: scale(.8); } }
+@keyframes mage-sway { 50% { transform: rotate(-1.4deg); } }
+@keyframes staff-twinkle { 0%, 60% { opacity: 0; transform: scale(.2); } 72% { opacity: 1; transform: scale(1) rotate(45deg); } 84%, 100% { opacity: 0; transform: scale(.2) rotate(90deg); } }
 /* 가로 화면의 가운데 기둥은 화면 오른쪽 끝에서 떨어져 있으므로, 안전 영역에서 그 거리를 뺀다(지도 HUD와 같음). */
 .controls { position: absolute; z-index: 70; top: calc(env(safe-area-inset-top) + 12px); right: max(12px, calc(env(safe-area-inset-right) + 12px - (100vw - 100%) / 2)); display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 6px 8px; }
 .controls button { padding: 0 14px; border: 1px solid #fff5; border-radius: 22px; color: white; background: #123c3eaa; font-size: 13px; opacity: .9; }

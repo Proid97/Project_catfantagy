@@ -1,9 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { animateTitle, syncIntroVisibility } from '../src/title-intro.js';
+import { animateTitle, syncIntroVisibility, syncIdleVisibility } from '../src/title-intro.js';
 
-// 겹침 순서(layout.json)와 같은 화면 속 순서
-const names = ['sky-tall', 'peaks', 'castle-hill', 'hills-tall', 'ground-tall', 'assassin', 'mage', 'warrior-front', 'logo'];
+// 겹침 순서(layout.json)와 같은 화면 속 순서. 그림자는 그 캐릭터 바로 뒤에 깐다.
+const names = ['sky-tall', 'peaks', 'castle-hill', 'hills-tall', 'ground-tall', 'assassin', 'mage-shadow', 'mage', 'warrior-front-shadow', 'warrior-front', 'logo'];
 const element = layer => ({
   dataset: { layer }, style: {},
   animate(frames, timing) { return { frames, timing, playState: 'running', pause() { this.playState = 'paused'; }, play() { this.playState = 'running'; } }; },
@@ -16,8 +16,13 @@ test('전체 연출: 지형 → 전사 → 냥살자·냥법사 → 로고 순�
   assert.deepEqual(['sky-tall', 'hills-tall', 'peaks', 'castle-hill', 'ground-tall', 'warrior-front', 'assassin', 'mage', 'logo'].map(start),
     [0, 0, 420, 600, 760, 1100, 1560, 1680, 2120]);
   assert.equal(Math.max(...Object.values(animations).map(item => item.timing.delay + item.timing.duration)), 2680);
-  // 전사는 화면 아래 밖에서 올라오고, 냥살자는 전사 쪽(오른쪽)·냥법사는 왼쪽에서 바깥으로 튀어나온다.
-  assert.equal(animations['warrior-front'].frames[0].transform, 'translateY(100vh)');
+  // 전사는 살짝 위에서 떨어져 착지하고, 냥살자는 전사 쪽(오른쪽)·냥법사는 왼쪽에서 바깥으로 튀어나온다.
+  assert.match(animations['warrior-front'].frames[0].transform, /^translateY\(-/);
+  assert.equal(animations['warrior-front'].frames.at(-1).transform, 'none');
+  // 그림자는 제 캐릭터와 함께 나타난다.
+  for (const name of ['warrior-front', 'mage']) {
+    assert.deepEqual(['delay', 'duration'].map(key => animations[name + '-shadow'].timing[key]), ['delay', 'duration'].map(key => animations[name].timing[key]));
+  }
   assert.match(animations.assassin.frames[0].transform, /^translate\(\d+%/);
   assert.match(animations.mage.frames[0].transform, /^translate\(-\d+%/);
 });
@@ -36,7 +41,7 @@ test('숨어 있다가 움직이는 순간 완전히 보이고, 하늘은 처음
 
 test('동작 줄이기: 같은 순서로 0.3초씩 나타나고 이동은 없음', () => {
   const animations = animateTitle(names.map(element), { reducedMotion: true });
-  assert.equal(animations.length, 9);
+  assert.equal(animations.length, 11);
   assert.ok(animations.every(item => item.timing.duration === 300 && item.frames.every(frame => frame.transform === 'none')));
   assert.ok(animations.every(item => item.frames[0].opacity === 0 && item.frames[1].opacity === 1));
   assert.equal(byName(animations).logo.timing.delay, 2120);
@@ -56,4 +61,17 @@ test('백그라운드에서 멈추고 복귀하면 재개, 끝난 연출은 다�
   syncIntroVisibility(animations, false);
   assert.ok(animations.slice(2).every(item => item.playState === 'running'));
   assert.deepEqual(animations.slice(0, 2).map(item => item.playState), ['finished', 'idle']);
+});
+
+test('대기 연출: 숨으면 그 자세로 멈추고, 보이면 같은 자세에서 횟수를 처음부터 센다', () => {
+  // 0.5초 기다렸다가 3.1초 주기를 13번 넘게 한 연출(40.9초), 24번을 다 마친 연출(74.9초), 아직 기다리는 연출(0.2초)
+  const idle = [40900, 74900, 200].map(currentTime => ({
+    currentTime, playState: 'running', effect: { getTiming: () => ({ delay: 500, duration: 3100 }) },
+    pause() { this.playState = 'paused'; }, play() { this.playState = 'running'; },
+  }));
+  syncIdleVisibility(idle, true);
+  assert.ok(idle.every(item => item.playState === 'paused'));
+  syncIdleVisibility(idle, false);
+  // 같은 자세(주기 안 0.1초)에서, 끝난 것은 쉬는 자세(첫 반복 시작)에서 다시 24번을 한다. 기다리던 것은 그대로.
+  assert.deepEqual(idle.map(item => [item.playState, item.currentTime]), [['running', 600], ['running', 500], ['running', 200]]);
 });

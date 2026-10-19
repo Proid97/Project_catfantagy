@@ -1,6 +1,6 @@
 import './style.css';
 import { mapScreen, loadMapArt } from './map-screen.js';
-import { animateTitle, syncIntroVisibility } from './title-intro.js';
+import { animateTitle, syncIntroVisibility, syncIdleVisibility } from './title-intro.js';
 import { systemReducedMotion, motionChoice, useReducedMotion, rememberMotion } from './motion.js';
 import layout from './generated/title-layout.json';
 
@@ -20,6 +20,7 @@ const [modeFirst, modeFour] = modes.querySelectorAll('.mode-list');
 const openMap = mapScreen(document.querySelector('#map'), () => showModes(false));
 const assetRoot = `${import.meta.env.BASE_URL}title/`;
 let animations = [];
+let idle = [];
 let loading = false;
 
 // iOS 홈 화면 앱은 CSS 화면 높이를 상태 표시줄만큼 짧게 줄 때가 있다(iPad mini 5 실측: 768 중 736).
@@ -61,6 +62,8 @@ function ready() {
   }
   stage.dataset.motion = useReducedMotion() ? 'reduced' : 'full';
   state('ready');
+  // CSS 대기 연출을 잡아 둔다. 끝난 연출은 목록에서 빠지므로, 다시 보일 때 처음부터 하려면 미리 쥐고 있어야 한다.
+  idle = art.getAnimations({ subtree: true });
 }
 
 function intro({ fullMotion = false } = {}) {
@@ -75,6 +78,20 @@ function intro({ fullMotion = false } = {}) {
   }).catch(error => { if (error.name !== 'AbortError') throw error; });
 }
 
+// 핵심 영역 좌표(layout.json)의 상자를 %로 놓는다. 첫 클래스 이름이 층 이름이다.
+function place(classes, { x, y, w, h }) {
+  const element = document.createElement('div');
+  element.className = `layer ${classes}`;
+  element.dataset.layer = classes.split(' ')[0];
+  Object.assign(element.style, {
+    left: `${x / layout.canvas.width * 100}%`,
+    top: `${y / layout.canvas.height * 100}%`,
+    width: `${w / layout.canvas.width * 100}%`,
+    height: `${h / layout.canvas.height * 100}%`,
+  });
+  return element;
+}
+
 async function load() {
   if (loading) return;
   loading = true;
@@ -85,15 +102,9 @@ async function load() {
   art.replaceChildren();
   try {
     for (const layer of layout.layers) {
-      const element = document.createElement('div');
-      element.className = `layer ${layer.name}`;
-      element.dataset.layer = layer.name;
-      Object.assign(element.style, {
-        left: `${layer.x / layout.canvas.width * 100}%`,
-        top: `${layer.y / layout.canvas.height * 100}%`,
-        width: `${layer.w / layout.canvas.width * 100}%`,
-        height: `${layer.h / layout.canvas.height * 100}%`,
-      });
+      // 코드로 그린 접지 그림자는 그 층 바로 뒤에 깐다.
+      if (layer.shadow) art.append(place(`${layer.name}-shadow shadow`, layer.shadow));
+      const element = place(layer.name, layer);
       const image = new Image();
       image.alt = '';
       image.decoding = 'async';
@@ -167,6 +178,7 @@ motionToggle.addEventListener('click', () => {
 });
 document.addEventListener('visibilitychange', () => {
   if (stage.dataset.state === 'intro') syncIntroVisibility(animations, document.hidden);
+  if (stage.dataset.state === 'ready') syncIdleVisibility(idle, document.hidden);
 });
 retry.addEventListener('click', load);
 document.addEventListener('keydown', event => {
