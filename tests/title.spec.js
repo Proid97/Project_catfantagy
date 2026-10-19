@@ -144,8 +144,8 @@ test('첫 로딩 용량', async ({ page }) => {
   expect(entries.some(item => item.name.endsWith('.woff2'))).toBe(true);
   expect(entries.some(item => item.name.includes('layout.json'))).toBe(false);
   expect(bytes).toBeGreaterThan(300000);
-  // 세로 타이틀 실측 약 0.46MB(2026-10-18, 생성 원본을 그대로 쓴 뒤). 지형을 절반 크기로 내보내 이전 가로 타이틀(약 0.72MB)보다 작다.
-  expect(bytes).toBeLessThan(500000);
+  // 세로 타이틀 실측 약 0.50MB(2026-10-19, 새 전사·대기 연출, 냥살자·냥법사 10% 확대). 지형을 절반 크기로 내보내 이전 가로 타이틀(약 0.72MB)보다 작다.
+  expect(bytes).toBeLessThan(550000);
   console.log(`첫 로딩 리소스: ${bytes} bytes`);
 });
 
