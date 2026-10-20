@@ -5,7 +5,7 @@ import { UNKNOWN, vision } from '../src/vision.js';
 const names = ['풀밭', '숲', '호수', '금광', '수정산', '바위산'];
 const COLORS = { me: [224, 69, 58], green: [31, 158, 90], blue: [58, 127, 224], yellow: [242, 194, 48] }; // 플레이어 색(나 빨강, 봇 1~3 초록·파랑·노랑)
 const RESOURCE_NAMES = { gold: '금', crystal: '수정', wood: '나무', fish: '생선' };
-const HUD = ['.hud-players', '.hud-resources', '.minimap', '.mode-change', '.dice-roll', '.hand'];
+const HUD = ['.hud-players', '.hud-resources', '.chat-toggle', '.minimap', '.mode-change', '.dice-roll', '.hand'];
 const view = page => page.locator('.minimap .minimap-view');
 const box = locator => locator.boundingBox();
 const overlaps = (a, b) => a.x < b.x + b.width && b.x < a.x + a.width && a.y < b.y + b.height && b.y < a.y + a.height;
@@ -135,6 +135,13 @@ async function roll(page) {
   expect(Number(sum)).toBe(Number(a) + Number(b));
   return [Number(a), Number(b)];
 }
+// 매크로 채팅: 정해진 말 8개(src/map-screen.js의 CHAT과 같은 순서)
+const PHRASES = ['안녕하세요', '잘 부탁해요', '감사합니다', '미안해요', '좋은 수네요!', '잠깐만요', '야옹~', '수고하셨어요'];
+const chatButton = page => page.getByRole('button', { name: '채팅' });
+const chatList = page => page.getByRole('list', { name: '말 고르기' });
+// 다른 플레이어(봇·온라인 상대)가 한 말. 앱도 같은 이벤트로 말풍선을 띄운다.
+const sayAs = (page, player, text) => page.locator('#map').evaluate((root, detail) => root.dispatchEvent(new CustomEvent('map:say', { detail })), { player, text });
+const within = (item, { width, height }) => item.x >= 0 && item.y >= 0 && item.x + item.width <= width && item.y + item.height <= height;
 function watchErrors(page) {
   const errors = [];
   page.on('pageerror', error => errors.push(error.message));
@@ -174,7 +181,7 @@ for (const [width, height, hash, players, name] of [
     // 재화 아이콘(이름은 화면 읽기용 글자)과 카드 뒷면 그림이 다 왔다.
     await expect(page.getByRole('list', { name: '보유 자원' }).getByRole('listitem')).toHaveText(['금0', '수정0', '나무0', '생선0']);
     await expect.poll(() => page.locator('.hud img').evaluateAll(images => images.filter(image => image.complete && image.naturalWidth > 0).length)).toBe(7);
-    for (const name of ['미니맵 크게 보기', '임시 모드 바꾸기', '임시 주사위 굴리기']) expect((await box(page.getByRole('button', { name }))).height).toBeGreaterThanOrEqual(44);
+    for (const name of ['미니맵 크게 보기', '임시 모드 바꾸기', '임시 주사위 굴리기', '채팅']) expect((await box(page.getByRole('button', { name }))).height).toBeGreaterThanOrEqual(44);
     // 플레이어 줄(왕성으로 가는 버튼)은 누르는 판정이 가로세로 44px 이상이고 서로 겹치지 않는다.
     const rows = await page.locator('.hud-players button').evaluateAll(buttons => buttons.map(button => button.getBoundingClientRect().toJSON()));
     expect(rows).toHaveLength(players);
@@ -790,5 +797,201 @@ for (const [width, height] of [[768, 1024], [390, 844], [1024, 768]]) {
     expect(ffa.x + ffa.width).toBeLessThanOrEqual(team.x);
     expect(Math.min(ffa.height, team.height, ffa.width)).toBeGreaterThanOrEqual(44);
     await page.screenshot({ path: test.info().outputPath(`modes-${width}x${height}.png`) });
+  });
+}
+
+test('매크로 채팅: 단추로 말 8개를 열고, 하나를 고르면 닫히고 내 줄 오른쪽에 말풍선이 뜸', async ({ page }) => {
+  const errors = watchErrors(page);
+  const size = { width: 768, height: 1024 };
+  await page.setViewportSize(size);
+  await open(page);
+  const toggle = chatButton(page);
+  await expect(toggle).toHaveAttribute('aria-expanded', 'false');
+  await expect(toggle).toHaveAttribute('aria-controls', 'chat-list');
+  await expect(chatList(page)).toBeHidden();
+  // 단추는 재화 칸 아래, 오른쪽 끝에 맞춘다.
+  const [resources, button] = await Promise.all([box(page.locator('.hud-resources')), box(toggle)]);
+  expect(button.y).toBeGreaterThanOrEqual(resources.y + resources.height);
+  expect(button.x + button.width).toBeCloseTo(resources.x + resources.width, 0);
+  expect(Math.min(button.width, button.height)).toBeGreaterThanOrEqual(44);
+  await toggle.click();
+  await expect(toggle).toHaveAttribute('aria-expanded', 'true');
+  const lines = chatList(page).getByRole('button');
+  await expect(lines).toHaveText(PHRASES);
+  // 목록은 단추의 왼쪽 옆, 줄마다 높이 44px 이상
+  const list = await box(chatList(page));
+  expect(list.x + list.width).toBeLessThanOrEqual(button.x);
+  for (const line of await lines.all()) expect((await box(line)).height).toBeGreaterThanOrEqual(44);
+  await page.getByRole('button', { name: '감사합니다' }).click();
+  await expect(chatList(page)).toBeHidden();
+  await expect(toggle).toHaveAttribute('aria-expanded', 'false');
+  // 말풍선: 내 줄의 오른쪽 옆(줄 높이 안), 화면 안, 목록 판 밖. 화면 읽기 프로그램에는 알림으로 읽힌다.
+  const bubble = page.locator('.bubble');
+  await expect(bubble).toHaveText('감사합니다');
+  const [mine, bubbleBox, panel] = await Promise.all([box(page.locator('.hud-players [data-player="0"]')), box(bubble), box(page.locator('.hud-players'))]);
+  expect(bubbleBox.x).toBeGreaterThanOrEqual(mine.x + mine.width);
+  expect(bubbleBox.y + bubbleBox.height / 2).toBeGreaterThan(mine.y);
+  expect(bubbleBox.y + bubbleBox.height / 2).toBeLessThan(mine.y + mine.height);
+  expect(within(bubbleBox, size)).toBe(true);
+  expect(overlaps(bubbleBox, panel)).toBe(false);
+  await expect(page.locator('#map [role="status"]')).toHaveText('나: 감사합니다');
+  expect(errors).toEqual([]);
+});
+
+test('매크로 채팅: 보낸 뒤 5초는 단추를 못 누르고(줄어드는 막대), 말풍선은 3초쯤 뒤 사라져 DOM에서 빠짐', async ({ page }) => {
+  const errors = watchErrors(page);
+  await open(page);
+  const toggle = chatButton(page);
+  await toggle.click();
+  await page.getByRole('button', { name: '잠깐만요' }).click();
+  const sent = Date.now();
+  await expect(toggle).toBeDisabled();
+  // 막대: 단추 안 ::after의 transform 애니메이션. 5초, 일정한 속도, 가로로 줄어든다.
+  const bar = await page.evaluate(() => {
+    const { effect } = document.getAnimations().find(a => a.effect.pseudoElement === '::after' && a.effect.target.classList.contains('chat-toggle'));
+    return { duration: effect.getTiming().duration, easing: effect.getTiming().easing, to: effect.getKeyframes().at(-1).transform };
+  });
+  expect(bar).toEqual({ duration: 5000, easing: 'linear', to: 'scaleX(0)' });
+  await expect(page.locator('.bubble')).toHaveText('잠깐만요');
+  // 3초 전에는 또렷하고, 약 3.3초 뒤에는 DOM에서도 없다.
+  await page.waitForTimeout(2500);
+  await expect(page.locator('.bubble')).toHaveCSS('opacity', '1');
+  await expect(page.locator('.bubble')).toHaveCount(0, { timeout: 2000 });
+  const gone = Date.now() - sent;
+  expect(gone).toBeGreaterThan(3000);
+  expect(gone).toBeLessThan(4000);
+  await expect(toggle).toBeDisabled();
+  await expect(toggle).toBeEnabled({ timeout: 3000 });
+  expect(Date.now() - sent).toBeGreaterThanOrEqual(4800);
+  // 다시 보낼 수 있다.
+  await toggle.click();
+  await page.getByRole('button', { name: '야옹~' }).click();
+  await expect(page.locator('.bubble')).toHaveText('야옹~');
+  expect(errors).toEqual([]);
+});
+
+test('매크로 채팅: 단추·바깥 누름·Esc로 닫히고, 바깥을 끌어도 지도가 움직임. 닫혀 있을 땐 문서에 듣는 것이 없음', async ({ page }) => {
+  await open(page);
+  const toggle = chatButton(page);
+  const [x, y] = await center(page);
+  // 문서에 더한 pointerdown·keydown 듣기의 순 개수(더함 +1, 뺌 -1). 열렸을 때 1, 닫혔을 때 0이어야 한다.
+  await page.evaluate(() => {
+    window.live = { pointerdown: 0, keydown: 0 };
+    for (const [method, step] of [['addEventListener', 1], ['removeEventListener', -1]]) {
+      const original = document[method].bind(document);
+      document[method] = (type, ...rest) => {
+        if (type in window.live) window.live[type] += step;
+        return original(type, ...rest);
+      };
+    }
+  });
+  const live = () => page.evaluate(() => window.live);
+  const closed = { pointerdown: 0, keydown: 0 };
+  const opened = { pointerdown: 1, keydown: 1 };
+  expect(await live()).toEqual(closed);
+  await toggle.click();
+  await expect(chatList(page)).toBeVisible();
+  expect(await live()).toEqual(opened);
+  await toggle.click();
+  await expect(chatList(page)).toBeHidden();
+  expect(await live()).toEqual(closed);
+  await toggle.click();
+  await page.keyboard.press('Escape');
+  await expect(chatList(page)).toBeHidden();
+  await expect(toggle).toBeFocused();
+  await expect(toggle).toHaveAttribute('aria-expanded', 'false');
+  expect(await live()).toEqual(closed);
+  // 열린 목록 밖(지도)을 끌면 닫히고, 끌기는 그대로 된다.
+  await page.mouse.move(x, y);
+  await page.mouse.wheel(0, -300);
+  await settled(page);
+  await toggle.click();
+  await expect(chatList(page)).toBeVisible();
+  const start = await box(view(page));
+  await page.mouse.move(x, y);
+  await page.mouse.down();
+  await page.mouse.move(x + 120, y + 80, { steps: 6 });
+  await page.mouse.up();
+  await expect(chatList(page)).toBeHidden();
+  await expect.poll(async () => (await box(view(page))).x).not.toBe(start.x);
+  expect(await live()).toEqual(closed);
+  // 지도를 한 번 눌러도 닫힌다.
+  await toggle.click();
+  await page.mouse.click(x, y);
+  await expect(chatList(page)).toBeHidden();
+  expect(await live()).toEqual(closed);
+});
+
+test('매크로 채팅: 상대 줄 옆에도 뜨고, 같은 플레이어의 새 말은 이전 말풍선을 바꾸고, 판을 다시 열면 지움', async ({ page }) => {
+  const errors = watchErrors(page);
+  await page.setViewportSize({ width: 768, height: 1024 });
+  await open(page, '#map-team');
+  await sayAs(page, 2, '안녕하세요');
+  await sayAs(page, 2, '미안해요');
+  await sayAs(page, 9, '없는 플레이어');
+  const bubbles = page.locator('.bubble');
+  await expect(bubbles).toHaveText(['미안해요']);
+  const [row, bubble] = await Promise.all([box(page.locator('.hud-players [data-player="2"]')), box(bubbles)]);
+  expect(bubble.x).toBeGreaterThanOrEqual(row.x + row.width);
+  expect(Math.abs(bubble.y + bubble.height / 2 - (row.y + row.height / 2))).toBeLessThan(1);
+  await expect(page.locator('#map [role="status"]')).toHaveText('봇 2: 미안해요');
+  // 다른 플레이어의 말풍선은 따로 뜬다.
+  await sayAs(page, 0, '야옹~');
+  await expect(bubbles).toHaveCount(2);
+  // 모드를 바꿔 판을 다시 열면 예전 말풍선이 남지 않는다.
+  await page.getByRole('button', { name: '임시 모드 바꾸기' }).click();
+  await page.getByRole('button', { name: /^1대1 매치/ }).click();
+  await settled(page);
+  await expect(bubbles).toHaveCount(0);
+  expect(errors).toEqual([]);
+});
+
+test('매크로 채팅: 움직임 줄임에서는 커지지 않고 투명도만 바뀜', async ({ page }) => {
+  // 말을 보낸 바로 그 자리에서 나타나는 애니메이션의 시작(0ms) 모습을 본다. 따로 부르면 150ms가 지나 버릴 수 있다.
+  const start = () => page.evaluate(() => {
+    document.querySelector('.chat-toggle').click();
+    [...document.querySelectorAll('.chat-list button')].find(line => line.textContent === '수고하셨어요').click();
+    const bubble = document.querySelector('.bubble');
+    const animation = bubble.getAnimations()[0];
+    animation.pause();
+    animation.currentTime = 0;
+    return [getComputedStyle(bubble).scale, getComputedStyle(bubble).opacity];
+  });
+  await open(page);
+  expect(await start()).toEqual(['0.85', '0']);
+  await page.reload();
+  await settled(page);
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await settled(page); // WebKit은 미디어 질의 값을 다음 그리기에서 갱신한다
+  expect(await start()).toEqual(['1', '0']);
+});
+
+for (const [width, height] of [[768, 1024], [393, 852]]) {
+  test(`매크로 채팅 ${width}×${height}: 단추·목록·말풍선이 서로 겹치거나 화면 밖으로 나가지 않음`, async ({ page }) => {
+    const errors = watchErrors(page);
+    const size = { width, height };
+    await page.setViewportSize(size);
+    await open(page, '#map-ffa');
+    const fixed = ['.hud-players', '.hud-resources', '.chat-toggle'];
+    const boxesOf = selectors => Promise.all(selectors.map(async selector => [selector, await box(page.locator(selector))]));
+    const expectApart = boxes => {
+      for (const [name, item] of boxes) expect(within(item, size), `${name}가 화면 밖`).toBe(true);
+      for (const [i, [a, first]] of boxes.entries()) for (const [b, second] of boxes.slice(i + 1)) expect(overlaps(first, second), `${a}와 ${b}가 겹침`).toBe(false);
+    };
+    await chatButton(page).click();
+    expectApart([...await boxesOf(fixed), ['.chat-list', await box(chatList(page))]]);
+    await page.screenshot({ path: test.info().outputPath(`chat-list-${width}x${height}.png`) });
+    // 가장 긴 말로 내 말풍선, 상대 셋의 말풍선도 함께 띄운다. 모두 제자리(줄 옆)에 있고 서로 겹치지 않는다.
+    await page.getByRole('button', { name: '수고하셨어요' }).click();
+    for (const player of [1, 2, 3]) await sayAs(page, player, '좋은 수네요!');
+    await expect(page.locator('.bubble')).toHaveCount(4);
+    const bubbles = await page.locator('.bubble').evaluateAll(list => list.map(bubble => [bubble.dataset.player, bubble.getBoundingClientRect().toJSON(), bubble.querySelector('span').scrollWidth > bubble.querySelector('span').clientWidth]));
+    expectApart([...await boxesOf(fixed), ...bubbles.map(([player, item]) => [`말풍선 ${player}`, item])]);
+    for (const [player, item] of bubbles) {
+      const row = await box(page.locator(`.hud-players [data-player="${player}"]`));
+      expect(item.x).toBeGreaterThanOrEqual(row.x + row.width);
+    }
+    await page.screenshot({ path: test.info().outputPath(`chat-bubbles-${width}x${height}.png`) });
+    expect(errors).toEqual([]);
   });
 }

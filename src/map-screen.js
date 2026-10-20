@@ -96,6 +96,12 @@ const PALETTE = {
 };
 const RESOURCES = [['gold', '금'], ['crystal', '수정'], ['wood', '나무'], ['fish', '생선']];
 const RESOURCE_NAMES = Object.fromEntries(RESOURCES);
+// 매크로 채팅: 자유 채팅 없이 정해진 말만 고른다. 임시 수치는 설계서 "게임 화면"과 같다.
+const CHAT = ['안녕하세요', '잘 부탁해요', '감사합니다', '미안해요', '좋은 수네요!', '잠깐만요', '야옹~', '수고하셨어요'];
+const CHAT_COOLDOWN = 5000; // 보낸 뒤 다시 보낼 수 있을 때까지(ms). 단추 안 막대가 이 시간 동안 줄어든다
+const BUBBLE_SHOW = 3000; // 말풍선이 또렷하게 보이는 시간(ms)
+const BUBBLE_FADE = 300; // 그 뒤 흐려지며 사라지는 시간(ms). map.css의 .bubble transition과 같다
+const BUBBLE_TAIL = 8; // 말풍선 꼬리 길이(px). map.css와 같다
 const GROUND_NAMES = { grass: '풀밭', barren: '빈 땅', lake: '호수' }; // 안개 속 칸은 바닥만 알린다
 const CORNERS = hexCorners(0, 0, TILE);
 // 꼭짓점 i와 i+1 사이 변 너머의 이웃
@@ -231,7 +237,13 @@ export function mapScreen(root, onModes) {
     <p class="sr-only" role="status"></p>
     <div class="hud">
       <div class="hud-panel hud-players"></div>
-      <ul class="hud-panel hud-resources" aria-label="보유 자원">${RESOURCES.map(([type, name]) => `<li><img src="${source(`game/icon-${type}`)}" alt="" loading="lazy"><span class="sr-only">${name}</span><span>0</span></li>`).join('')}</ul>
+      <div class="hud-corner">
+        <ul class="hud-panel hud-resources" aria-label="보유 자원">${RESOURCES.map(([type, name]) => `<li><img src="${source(`game/icon-${type}`)}" alt="" loading="lazy"><span class="sr-only">${name}</span><span>0</span></li>`).join('')}</ul>
+        <div class="chat">
+          <button class="hud-panel chat-toggle" aria-label="채팅" aria-expanded="false" aria-controls="chat-list"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M5 4h14a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-6l-4.5 4v-4H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z"/><path d="M8.5 10.5h.01M12 10.5h.01M15.5 10.5h.01" stroke-linecap="round" stroke-width="2.4"/></svg></button>
+          <ul id="chat-list" class="hud-panel chat-list" aria-label="말 고르기" hidden>${CHAT.map(text => `<li><button>${text}</button></li>`).join('')}</ul>
+        </div>
+      </div>
       <button class="minimap" aria-label="미니맵 크게 보기"><canvas></canvas><span class="minimap-view"></span></button>
       <button class="mode-change"><small>임시</small>모드 바꾸기</button>
       <button class="dice-roll"><small>임시</small>주사위 굴리기</button>
@@ -250,6 +262,8 @@ export function mapScreen(root, onModes) {
   const dialog = root.querySelector('dialog');
   const [bigCanvas, bigView] = dialog.children;
   const retry = root.querySelector('.map-retry');
+  const hud = root.querySelector('.hud');
+  const players = root.querySelector('.hud-players');
   const view = { w: 0, h: 0, left: 0, top: 0, dpr: 1 };
   const pointers = new Map();
   const fog = document.createElement('canvas');
@@ -719,7 +733,7 @@ export function mapScreen(root, onModes) {
     dialog.close();
   });
   dialog.addEventListener('close', () => minimap.focus());
-  root.querySelector('.hud-players').addEventListener('click', event => {
+  players.addEventListener('click', event => {
     const button = event.target.closest('[data-player]');
     if (button) goToCastle(Number(button.dataset.player));
   });
@@ -742,6 +756,59 @@ export function mapScreen(root, onModes) {
       if (refocus && document.activeElement === document.body) diceButton.focus({ preventScroll: true });
     });
   });
+  // 매크로 채팅. 말 목록이 열려 있을 때만 바깥 누름과 Esc를 들어, 닫혀 있을 땐 지도 끌기에 끼어들지 않는다.
+  const toggle = root.querySelector('.chat-toggle');
+  const list = root.querySelector('.chat-list');
+  const onOutside = event => { if (!event.target.closest('.chat')) setChat(false); };
+  const onKey = event => {
+    if (event.key !== 'Escape') return;
+    setChat(false);
+    toggle.focus();
+  };
+  function setChat(open) {
+    list.hidden = !open;
+    toggle.setAttribute('aria-expanded', open);
+    const listen = open ? 'addEventListener' : 'removeEventListener';
+    document[listen]('pointerdown', onOutside);
+    document[listen]('keydown', onKey);
+  }
+
+  // 그 플레이어 줄의 오른쪽(목록 판 바깥)에 꼬리를 줄 쪽으로 두고 띄운다. 가로는 재화 칸 앞까지만 늘고 넘치면 말줄임이다.
+  // 온라인 상대와 봇도 같은 길을 쓴다: root.dispatchEvent(new CustomEvent('map:say', { detail: { player, text } }))
+  function say(player, text) {
+    const row = players.querySelector(`[data-player="${player}"]`);
+    if (!row) return;
+    hud.querySelector(`.bubble[data-player="${player}"]`)?.remove();
+    const [at, panel, line, corner] = [hud, players, row, root.querySelector('.hud-corner')].map(element => element.getBoundingClientRect());
+    const bubble = document.createElement('div');
+    bubble.className = useReducedMotion() ? 'hud-panel bubble calm' : 'hud-panel bubble';
+    bubble.dataset.player = player;
+    bubble.style.cssText = `left: ${panel.right - at.left + BUBBLE_TAIL}px; top: ${line.top + line.height / 2 - at.top}px; max-width: ${Math.max(0, corner.left - panel.right - 2 * BUBBLE_TAIL)}px`;
+    bubble.append(Object.assign(document.createElement('span'), { textContent: text }));
+    bubble.setAttribute('aria-hidden', 'true'); // 읽어 주는 건 아래 알림이 맡는다
+    hud.append(bubble);
+    status.textContent = `${PLAYERS[player].name}: ${text}`;
+    setTimeout(() => {
+      bubble.classList.add('out');
+      setTimeout(() => bubble.remove(), BUBBLE_FADE);
+    }, BUBBLE_SHOW);
+  }
+  root.addEventListener('map:say', ({ detail }) => say(detail.player, detail.text));
+  toggle.style.setProperty('--cooldown', `${CHAT_COOLDOWN}ms`);
+  toggle.addEventListener('click', () => setChat(list.hidden));
+  list.addEventListener('click', event => {
+    const button = event.target.closest('button');
+    if (!button) return;
+    const refocus = list.contains(document.activeElement);
+    setChat(false);
+    say(0, button.textContent);
+    toggle.disabled = true;
+    setTimeout(() => {
+      toggle.disabled = false;
+      // 키보드로 보냈는데 그 사이 초점이 빠졌다면 단추로 돌려준다.
+      if (refocus && document.activeElement === document.body) toggle.focus({ preventScroll: true });
+    }, CHAT_COOLDOWN);
+  });
   // 창 크기 이벤트가 아니라 그림판의 실제 크기 변화를 본다. iOS 홈 화면 앱의 높이 보정(main.js)보다 먼저 재는 일이 없다.
   new ResizeObserver(resize).observe(canvas);
 
@@ -755,7 +822,8 @@ export function mapScreen(root, onModes) {
     const [me, ...others] = PLAYERS.slice(0, board.starts.length);
     // 팀전은 0·1번이 한 팀이라 같은 팀(봇 1)을 먼저 보인다.
     const groups = mode === 'team' ? [['같은 팀', others.slice(0, 1)], ['상대 팀', others.slice(1)]] : [['상대', others]];
-    root.querySelector('.hud-players').innerHTML = `
+    hud.querySelectorAll('.bubble').forEach(bubble => bubble.remove());
+    players.innerHTML = `
       ${playerButton(me, 0, 'strong')}
       ${groups.map(([label, list]) => `<p class="group-label" aria-hidden="true">${label}</p><ul class="opponents" aria-label="${label}">${list.map(player => `<li>${playerButton(player, PLAYERS.indexOf(player))}</li>`).join('')}</ul>`).join('')}`;
     heading.textContent = `냥국 지도 · ${MODES[mode].name}`;
