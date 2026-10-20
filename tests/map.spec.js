@@ -3,7 +3,7 @@ import { TERRAIN, createBoard, hexToPixel, hexDistance, portSpots } from '../src
 import { UNKNOWN, vision } from '../src/vision.js';
 
 const names = ['풀밭', '숲', '호수', '금광', '수정산', '바위산'];
-const COLORS = { me: [242, 179, 61], blue: [63, 127, 224], red: [224, 82, 74], purple: [154, 90, 214] }; // 플레이어 색(나, 봇 1~3)
+const COLORS = { me: [224, 69, 58], green: [31, 158, 90], blue: [58, 127, 224], yellow: [242, 194, 48] }; // 플레이어 색(나 빨강, 봇 1~3 초록·파랑·노랑)
 const RESOURCE_NAMES = { gold: '금', crystal: '수정', wood: '나무', fish: '생선' };
 const HUD = ['.hud-players', '.hud-resources', '.minimap', '.mode-change', '.dice-roll', '.hand'];
 const view = page => page.locator('.minimap .minimap-view');
@@ -225,7 +225,7 @@ test('플레이어를 누르면 그 왕성으로 시점이 감(안개 속 상대
   // 전체 보기에서 팀원(봇 1)을 누르면 기본 배율까지 확대하며 그 성으로 간다. 끝나면 다시 그리지 않는다.
   await page.getByRole('button', { name: '봇 1의 왕성으로 이동' }).click();
   await glided(page);
-  await expectAt(COLORS.blue);
+  await expectAt(COLORS.green);
   expect(await zoom()).toBeCloseTo(NATURAL, 3);
   const before = await page.evaluate(() => window.rafCalls);
   await page.waitForTimeout(1000);
@@ -252,7 +252,7 @@ test('플레이어를 누르면 그 왕성으로 시점이 감(안개 속 상대
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.getByRole('button', { name: '봇 1의 왕성으로 이동' }).click();
   await settled(page);
-  await expectAt(COLORS.blue);
+  await expectAt(COLORS.green);
 });
 
 test('타이틀에서 고른 "움직임 줄임"이 지도의 시점 이동에도 적용됨', async ({ page }) => {
@@ -559,7 +559,7 @@ test('지형 그림과 성: 2배 화면 전체 보기와 내 성 가까이', asy
     const { data } = canvas.getContext('2d').getImageData(0, 0, canvas.width, canvas.height);
     let x = 0, y = 0, count = 0;
     for (let i = 0; i < data.length; i += 4) {
-      if (data[i] !== 242 || data[i + 1] !== 179 || data[i + 2] !== 61) continue;
+      if (data[i] !== 224 || data[i + 1] !== 69 || data[i + 2] !== 58) continue;
       x += i / 4 % canvas.width;
       y += Math.floor(i / 4 / canvas.width);
       count++;
@@ -573,13 +573,13 @@ test('지형 그림과 성: 2배 화면 전체 보기와 내 성 가까이', asy
   for (let i = 0; i < 8; i++) await page.mouse.wheel(0, -400);
   await settled(page);
   await page.screenshot({ path: test.info().outputPath('map-ipad-duel-castle-2x.png') });
-  // 내 색으로 칠한 지붕·깃발(마스크 회색 약 102·133 → #f2b33d × 102/112, × 133/112)은 다른 그림에 없는 색이다.
+  // 내 색으로 칠한 지붕·깃발(마스크 회색 약 102·133 → #e0453a × 102/112, × 133/112)은 다른 그림에 없는 색이다.
   // 땅에 닿는 점이 화면 가운데(꼭짓점)에 있으면 지붕은 꼭짓점보다 43~120 CSS px 위, 좌우 58 CSS px 안에만 있다.
   const roof = await page.locator('.map-canvas').evaluate(canvas => {
     const { data } = canvas.getContext('2d').getImageData(canvas.width / 2 - 180, canvas.height / 2 - 300, 360, 420);
     const count = { above: 0, near: 0 };
     for (let i = 0; i < data.length; i += 4) {
-      if (![[220, 163, 56], [255, 213, 72]].some(([r, g, b]) => Math.abs(data[i] - r) <= 6 && Math.abs(data[i + 1] - g) <= 6 && Math.abs(data[i + 2] - b) <= 6)) continue;
+      if (![[204, 63, 53], [255, 82, 69]].some(([r, g, b]) => Math.abs(data[i] - r) <= 6 && Math.abs(data[i + 1] - g) <= 6 && Math.abs(data[i + 2] - b) <= 6)) continue;
       // 가운데에서 20 CSS px 위보다 높으면 위, 그 아래(가운데 아래 60px까지)는 가까이
       count[Math.floor(i / 4 / 360) < 260 ? 'above' : 'near']++;
     }
@@ -607,7 +607,7 @@ test('지형 그림과 성: 2배 화면 전체 보기와 내 성 가까이', asy
       if (index >= 0) count[index]++;
     }
     return count;
-  }, ['#f2b33d', '#3f7fe0', '#e0524a', '#9a5ad6']);
+  }, ['#e0453a', '#1f9e5a', '#3a7fe0', '#f2c230']);
   expect(discs[0]).toBeGreaterThan(300);
   expect(discs[1]).toBeGreaterThan(300);
   expect(discs.slice(2)).toEqual([0, 0]);
@@ -630,7 +630,7 @@ test('안개: 모르는 칸의 오브젝트·숫자와 상대 왕성은 그리�
   expect(board.tiles.filter(t => !['grass', 'lake'].includes(t.type)).length).toBeGreaterThan(objects + 20);
   // 미니맵에도 내 성만 찍힌다.
   expect(await colorCount(page.locator('.minimap canvas'), COLORS.me)).toBeGreaterThan(0);
-  expect(await colorCount(page.locator('.minimap canvas'), COLORS.blue)).toBe(0);
+  expect(await colorCount(page.locator('.minimap canvas'), COLORS.green)).toBe(0);
   // 끌고, 확대하고, 화면을 돌려도 안개 그림은 다시 만들지 않는다.
   const [x, y] = await center(page);
   await page.mouse.move(x, y);
@@ -649,7 +649,7 @@ test('안개: 모르는 칸의 오브젝트·숫자와 상대 왕성은 그리�
   await settled(ffa);
   expect((await lastRender(ffa)).castles).toBe(1);
   expect(await colorCount(ffa.locator('.map-canvas'), COLORS.me)).toBeGreaterThan(300);
-  for (const rgb of [COLORS.blue, COLORS.red, COLORS.purple]) {
+  for (const rgb of [COLORS.green, COLORS.blue, COLORS.yellow]) {
     expect(await colorCount(ffa.locator('.minimap canvas'), rgb)).toBe(0);
     expect(await colorCount(ffa.locator('.map-canvas'), rgb)).toBeLessThan(20);
   }

@@ -92,7 +92,7 @@ const PALETTE = {
   outline: '#000', // 코드로 그리는 교환소 표지·성 받침 테두리
   select: '#ffda63',
   selectEdge: 'rgba(40, 28, 8, .55)',
-  players: ['#f2b33d', '#3f7fe0', '#e0524a', '#9a5ad6'], // 나(따뜻한 금색), 파랑, 빨강, 보라. 성 지붕·깃발에 곱한다
+  players: ['#e0453a', '#1f9e5a', '#3a7fe0', '#f2c230'], // 빨강, 초록(풀밭과 갈리게 푸른 쪽), 파랑, 노랑. 판 위 말과 프로필 틀에 쓴다. 지금은 목록 순서대로(나 빨강)
 };
 const RESOURCES = [['gold', '금'], ['crystal', '수정'], ['wood', '나무'], ['fish', '생선']];
 const RESOURCE_NAMES = Object.fromEntries(RESOURCES);

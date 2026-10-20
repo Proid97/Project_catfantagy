@@ -11,11 +11,8 @@
    그래서 상대 줄 사이 간격만 4px에서 12px로 넓어졌다(36px 간격으로는 겹치지 않는 44px 판정을 둘 수 없다). */
 .player { display: flex; align-items: center; gap: 8px; width: 100%; min-height: 44px; margin: 0; padding: 0; border: 0; border-radius: 22px; background: none; color: inherit; font-size: 16px; text-align: start; white-space: nowrap; pointer-events: auto; touch-action: manipulation; }
 .player:focus-visible { outline-color: var(--hud-ink); outline-offset: 2px; }
-/* 테두리는 판 위 성과 같은 플레이어 색, 안쪽은 종족 색 */
-.avatar { display: grid; place-items: center; flex: none; width: 44px; height: 44px; border: 3px solid var(--player); border-radius: 50%; background: var(--tint); color: var(--ink); font-size: 19px; }
-.warrior { --tint: #fbdfaa; --ink: #6e3423; }
-.mage { --tint: #e4dbfc; --ink: #513b7e; }
-.assassin { --tint: #2b2a2e; --ink: #f4efe4; } /* 냥살자 종족 색: 검정 */
+/* 같은 종족끼리도 갈리게 테두리와 안쪽 모두 판 위 성과 같은 플레이어 색. 종족 색은 카드에만 쓴다 */
+.avatar { display: grid; place-items: center; flex: none; width: 44px; height: 44px; border: 3px solid var(--player); border-radius: 50%; background: color-mix(in srgb, var(--player) 22%, #fff); color: var(--hud-ink); font-size: 19px; }
 .group-label { margin: 8px 0 0; padding-top: 6px; border-top: 1px solid var(--hud-line); color: var(--hud-soft); font-size: 11px; }
 .opponents { display: grid; margin: -2px 0 -6px; padding: 0 0 0 6px; list-style: none; }
 .opponents .player { font-size: 13px; }
