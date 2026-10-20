@@ -1,0 +1,54 @@
+{
+  "style_reference": "assets/concepts/style-reference-warrior.png",
+  "generation_method": "ChatGPT imagegen",
+  "processing": "none; PNG bytes are preserved. Resizing/compositing is only used in docs/images review sheets.",
+  "status": "draft-rejected; do not use in game or make color variants",
+  "assets": [
+    {
+      "file": "assets/cards/frame-warrior.png",
+      "requested_size": [
+        750,
+        1050
+      ],
+      "size": [
+        1060,
+        1484
+      ],
+      "sha256": "d0b38fab54139bb183af6247a98b3c2c213c91ddf2c64fe1f4eab0f051047244",
+      "transparent_generation": true,
+      "references": [
+        "assets/concepts/style-reference-warrior.png",
+        "assets/game/card-back.png",
+        "docs/images/card-frame-guide.png"
+      ],
+      "reference_delivery": "Conversation images; imagegen rejected Windows local paths.",
+      "prompt": "Use case: game UI art. Create ONE playing-card FRONT FRAME for a cute cat fantasy board game. EXACT output canvas 750×1050 pixels PNG (5:7), upright, no tilt or perspective, full card fills the canvas without outer padding. Reference 1 defines the clean angular flat illustration style; reference 2 is the card BACK and defines only the outer silhouette and clipped inner corners (do NOT draw its central diamond); reference 3 is a technical layout guide, use ONLY its two solid panel outlines and outer shape. Never copy any lettering, red dashed line, symbols or labels from the guide.\nSame outer silhouette as the attached card back: rounded outer corners radius about 40 px, transparency ONLY outside those rounded corners, every pixel inside the card fully opaque. A darker brown-gold outer border band about 14 px, NOT a black outline; inner face warm yellow #E7B23A, with inner corners cut diagonally like the gold line on the card back. Flat illustration, not a photographed or 3D card.\nPrecisely follow these coordinates on the 750×1050 canvas: upper illustration window outer rectangle x36 y126 width678 height398, with a 7 px dark gold #96661A border and corner radius about12px, interior one solid pale warm yellow #FFF1CC. Lower description panel outer rectangle x36 y584 width678 height430, 7px dark gold border and rounded corners about12px, interior one uniform solid parchment #FBF6E8. These two panels are the ONLY inset panels.\nThe name area at the top, cost area top-left, dice area top-right, type line between the two panels, and all of the description panel including its bottom stat area MUST stay entirely empty. Do NOT draw frames, badges, circles, notches, dividers, dashed lines or icons for those code-supplied fields. The illustration window is wholly empty and opaque, no artwork or character. The whole description panel is wholly empty and opaque, no ornament or divider.\nSmall flat faceted gem-cut planes in 2–3 tones are allowed ONLY along the outer border band and the narrow empty perimeter outside the field positions. Keep the large top name strip, gap between panels and both panel interiors as absolutely uniform flat colors. Restrained sharp corner facet accents, broad clean geometry; no texture or shading inside plain surfaces. No text, letters, numbers, icons, symbols, paw prints, gems, diamonds, watermark or signature anywhere. No external shadow. Light source upper left.\nClean indie flat vector illustration matching the style reference warrior exactly: angular faceted planes with straight hard edges, like folded paper or cut gems, two to four tones per material, single light source from the upper left. Bold dramatic silhouette, same body proportions and exaggeration as the reference. No rounded blobby shapes, no gradients, no texture, no grain, no noise, no glow, no blur, no black outlines. Crisp clean edges, transparent only outside the rounded corners. Simple eyes like the reference with one clear white highlight at the upper left. Smallest details at least 10 px wide.",
+      "review": {
+        "size": "FAIL: expected 750x1050, received 1060x1484. Aspect ratio 5:7 matches.",
+        "flat_fills": "FAIL: visible gradients and cloud-like patches in yellow face and panels.",
+        "alpha": "FAIL: only 3 fully opaque pixels; 1569407 partial-alpha pixels and 3630 transparent pixels. Inner inset60px has 1279857 non-opaque pixels.",
+        "text": "No text, numbers or icons visible.",
+        "layout": "Two panels and blank code fields present. Pixel tolerances not accepted while resolution is wrong.",
+        "decision": "Keep as draft evidence only. Regenerate; do not recolor or postprocess.",
+        "preview": "docs/images/card-frame-preview.png",
+        "zoom": "docs/images/card-frame-check.png"
+      },
+      "attempts": [
+        {
+          "attempt": 1,
+          "result": "Retained as review draft; failed resolution, uniform colors and inner opacity."
+        },
+        {
+          "attempt": 2,
+          "prompt": "Edit the previous yellow card front frame. Preserve its exact 5:7 outer silhouette and existing two-panel arrangement, but fix ONLY the flat colors and material finish. The previous image fails because ALL large fields have visible GRADIENTS, cloudy PATCHES and light vignettes. They must be perfectly smooth single SOLID colors, not shaded objects. This is flat 2D UI artwork, NOT gold metal, NOT a physical card, NOT a 3D render. NO metallic finish.\nRequired PNG canvas EXACTLY 750 pixels wide and 1050 pixels tall. Generate at this canvas size directly without any postprocessing. Fill from x0 to x749 and y0 to y1049. Radius40 rounded outer corners, transparency only in the corner exterior, absolutely opaque card interior. Outside band14px dark ochre #96661A. Inside face constant solid #E7B23A everywhere, including the whole top title strip and the separator strip. Upper window outer rectangle x36 y126 w678 h398, 7px dark ochre #96661A border, solid light tint #FFF1CC inside. Lower panel outer rectangle x36 y584 w678 h430, 7px dark ochre #96661A border, solid parchment #FBF6E8 inside. Rounded panel corners about12px. The exact same RGB color at every interior point of each of these large plain fields. NO center brightening, edge darkening, cloudy warm patches, lens lighting, reflections, specular highlights or paper grain. Strict flat digital fills.\nKeep only a few angular triangular facets restricted to the very narrow outermost 14px border and four outside corners, with two or three SOLID shades and the light upper left. The card name, costs, dice, type, and stats will be drawn later in code, so ALL those positions remain blank flat face or panel color. Only TWO large rounded rectangular panels exist, no other boxes, marks, dividers or badges. No characters or illustration. No text, letters, numerals, icons, symbols, diamond or paw anywhere. Crisp antialiased 1–2px boundaries; no black outline, external shadow, internal transparency or drawn checkerboard. Preserve the same graphic cut-paper language as the cat warrior reference.\nClean indie flat vector illustration matching the style reference warrior exactly: angular faceted planes with straight hard edges, like folded paper or cut gems, two to four tones per material, single light source from the upper left. Bold dramatic silhouette, same body proportions and exaggeration as the reference. No rounded blobby shapes, no gradients, no texture, no grain, no noise, no glow, no blur, no black outlines. Crisp clean edges, transparent only outside the rounded corners. Simple eyes like the reference with one clear white highlight at the upper left. Smallest details at least 10 px wide.",
+          "result": "Rejected; gradient remained and illustration panel gained a large noisy transparency blemish. Not retained in repository."
+        },
+        {
+          "attempt": 3,
+          "prompt": "Create a NEW flat 2D card template from scratch, not an edit of either previous gold render. The previous two renders are rejected; do not reproduce their gradients, metal texture or cloudy centers.\nUse the original warrior as stylistic reference, the teal card back for the rounded silhouette only, and the annotated layout guide for layout only. Do not copy labels from guide. Ignore the two rejected metallic-looking frames.\nONE 750×1050 PNG, 5:7 upright card occupying the whole canvas. Card shape: outer rounded rectangle radius40. Dark ochre border #96661A 14 pixels thick, uniformly flat golden yellow #E7B23A main face. Inner corners diagonally clipped. Transparency exclusively outside rounded corners.\nOnly two empty panels: upper x36 y126 width678 height398, solid #FFF1CC; lower x36 y584 width678 height430, solid #FBF6E8. Each panel has a7px #96661A border and12px rounded corners. No other panels. Top126px is completely blank yellow, gap between panels blank yellow. Absolutely no artwork, text, numerals, icons, decorations, cost badges, dice or stat fields. Two empty rectangles on yellow.\nColors must resemble a clean SVG UI export: each field filled with just ONE perfectly uniform RGB color. No lighting simulation across a surface. Tiny simple flat angular facets only at outermost corners, left upper facet lighter and right lower facet darker. Minimal broad planes. This is an EMPTY UI frame for later text, not an illustration of a real object.\nClean indie flat vector illustration matching the style reference warrior exactly: angular faceted planes with straight hard edges, like folded paper or cut gems, two to four tones per material, single light source from the upper left. Bold dramatic silhouette, same body proportions and exaggeration as the reference. No rounded blobby shapes, no gradients, no texture, no grain, no noise, no glow, no blur, no black outlines. Crisp clean edges, transparent only outside the rounded corners. Simple eyes like the reference with one clear white highlight at the upper left. Smallest details at least10 px wide.",
+          "result": "Rejected; gradient remained, layout shifted and title area gained a large noisy transparency blemish. Not retained in repository."
+        }
+      ]
+    }
+  ]
+}
