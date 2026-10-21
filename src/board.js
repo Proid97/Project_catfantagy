@@ -226,7 +226,7 @@ function startVertices({ hex, px, ring }, land, kind, number) {
 // 두 시작 자리에 붙은 칸끼리 가장 가까운 칸 수
 const gap = (a, b) => Math.min(...a.hexes.flatMap(h => b.hexes.map(g => hexDistance(h, g))));
 
-// 임시 거리 규칙: 서로 10칸 이상. 팀전은 0·1번이 왼쪽 반, 2·3번이 오른쪽 반에 서고 팀원끼리 7~11칸, 적과 12칸 이상.
+// 임시 거리 규칙: 서로 10칸 이상. 팀전은 한 팀이 왼쪽 반, 다른 팀이 오른쪽 반에 서고 팀원끼리 7~11칸, 적과 12칸 이상(어느 팀이 어느 쪽인지는 나중에 섞는다).
 function fits(mode, player, v, chosen, midX) {
   if (mode !== 'team') return chosen.every(o => gap(o, v) >= 10);
   if ((player < 2) !== (v.x < midX)) return false;
@@ -289,8 +289,13 @@ export function createBoard({ mode = 'duel', seed = Math.floor(Math.random() * 2
     const numbers = shuffle(resource.map((_, k) => NUMBER_BASE[k % NUMBER_BASE.length]), rng);
     const number = [];
     resource.forEach((i, k) => { number[i] = numbers[k]; });
-    const chosen = placeStarts(mode, startVertices(grid, land, kind, number), grid.midX, rng);
-    if (!chosen) continue;
+    const found = placeStarts(mode, startVertices(grid, land, kind, number), grid.midX, rng);
+    if (!found) continue;
+    // 고른 자리에 누가 설지 섞는다. 먼저 고른 자리는 판 어디든, 나중 자리는 떨어진 가장자리로 밀리기 쉬워
+    // 0번(사람)이 늘 좋은 자리를 받았다(2026-10-22 봇 대전 300판: 0번 자리 승률 57%). 팀전은 팀원 짝과 왼쪽·오른쪽 반을 섞는다.
+    const chosen = mode === 'team'
+      ? (rng() < 0.5 ? [found.slice(0, 2), found.slice(2)] : [found.slice(2), found.slice(0, 2)]).flatMap(pair => shuffle(pair, rng))
+      : shuffle([...found], rng);
     // 교환소는 시작 자리를 정한 뒤에 놓는다. 시작 왕성이 교환소 자리에 걸리는 것도 운이다.
     const ports = placePorts(grid, land, PORT_GAP[mode], rng);
     if (!ports) continue;

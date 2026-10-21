@@ -143,10 +143,11 @@ for (const [mode, { cols, rows, land: target, players }] of Object.entries(MODES
         const resource = hexes.filter(t => TERRAIN[t.type].resource);
         assert.ok(resource.length >= 2, why);
         assert.ok(resource.reduce((sum, t) => sum + 6 - Math.abs(7 - t.number), 0) >= 6, why);
-        // 팀전: 0·1번은 왼쪽 반, 2·3번은 오른쪽 반
+        // 팀전: 팀원(0·1번, 2·3번)은 같은 반, 두 팀은 서로 다른 반(어느 팀이 왼쪽인지는 판마다 섞음)
         if (mode === 'team') {
-          const x = mean(start.hexes.map(h => hexToPixel(h.q, h.r, 1).x));
-          assert.ok(i < 2 ? x < midX : x >= midX, `${why}: 팀 위치`);
+          const left = s => mean(s.hexes.map(h => hexToPixel(h.q, h.r, 1).x)) < midX;
+          assert.equal(left(start), left(starts[i ^ 1]), `${why}: 팀원은 같은 반`);
+          assert.notEqual(left(start), left(starts[i < 2 ? 2 : 0]), `${why}: 두 팀은 다른 반`);
         }
       });
 
@@ -254,5 +255,18 @@ test('4인 판 하나를 만드는 데 평균 100ms 미만', () => {
     for (let seed = 1001; seed <= 1050; seed++) createBoard({ mode, seed });
     const average = (performance.now() - start) / 50;
     assert.ok(average < 100, `${mode} 평균 ${average.toFixed(1)}ms`);
+  }
+});
+
+test('시작 자리는 순번에 따라 치우치지 않음(가운데에서 떨어진 평균 거리가 자리마다 비슷함)', () => {
+  // 고르는 순서대로 배정하면 뒤 순번이 가장자리로 밀려 0번(사람)이 늘 유리했다(2026-10-22). 자리를 고른 뒤 배정을 섞는다.
+  for (const mode of ['duel', 'ffa', 'team']) {
+    const boards = boardsOf(mode);
+    const center = centerOf(boards[0]);
+    const away = boards[0].starts.map((_, i) => mean(boards.map(b => {
+      const p = b.starts[i].hexes.map(h => hexToPixel(h.q, h.r, 1));
+      return Math.hypot(mean(p.map(q => q.x)) - center.x, mean(p.map(q => q.y)) - center.y);
+    })));
+    assert.ok(Math.max(...away) - Math.min(...away) < 1.2, `${mode}: ${away.map(v => v.toFixed(2)).join(', ')}`);
   }
 });

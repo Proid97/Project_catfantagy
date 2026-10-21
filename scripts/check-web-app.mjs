@@ -19,7 +19,8 @@ for (const [name, size] of [['icons/app-192.png', 192], ['icons/app-512.png', 51
   assert.equal(meta.height, size);
   assert.equal(meta.hasAlpha, false);
 }
-const css = await readFile(new URL((await readdir(new URL('assets/', dist))).find(name => name.endsWith('.css')), new URL('assets/', dist)), 'utf8');
+// 첫 화면 CSS(index-). 게임 화면 CSS는 첫 판을 열 때 따로 받는다.
+const css = await readFile(new URL((await readdir(new URL('assets/', dist))).find(name => name.startsWith('index-') && name.endsWith('.css')), new URL('assets/', dist)), 'utf8');
 assert.ok(css.includes('safe-area-inset-top'));
 for (const path of ['./', './Project_catfantagy/']) {
   const root = new URL(path, 'https://example.invalid/');

@@ -50,6 +50,17 @@ const TOKEN_SCALE = 1024 / (2 * TK.rim); // 동전 지름 → 그림 폭
 const TOKEN_FAR = 26; // 멀리 볼 때도 동전이 화면에서 이 CSS px보다 작아지지 않게 한다
 const TOKEN_UP = 22; // 동전을 칸 가운데보다 위로 올려 아래쪽 숫자 패를 덜 가린다(숫자 패는 말 위에 그린다)
 const STATS = Object.fromEntries(cards.filter(card => card.type === 'unit').map(card => [card.id, card.stats]));
+// 가독성(2026-10-22): 동전이 화면에서 COIN_DETAIL CSS px보다 작으면(멀리 볼 때) 그림 대신 플레이어 색 점으로 그린다.
+// 그 이상이면 동전 아래 체력 막대와, 상대 동전 오른쪽 위에 칼 표시(색으로 구분이 어려운 사람용)를 그린다.
+const COIN_DETAIL = 36;
+const DOT = 9; // 멀리 볼 때 유닛 점의 반지름(CSS px)
+// 유닛이 선 칸의 숫자 패는 오른쪽 아래 구석으로 작게 비켜 동전에 가리지 않게 한다(동전과 겹치지 않는 가장 큰 자리)
+const DISC_MOVED = { x: 0.46 * TILE, y: 0.34 * TILE, r: 0.21 * TILE };
+const ROAD = 15; // 길 굵기(월드 단위). 짙은 테두리를 더 굵게 깐다
+const MARK = { move: '#ffda63', place: '#ffda63', attack: '#ff5a4a', ally: '#7ee08a' }; // 고를 수 있는 곳 표시 색
+const HEART = new Path2D('M0 .38C-.55 0-.5-.42-.22-.42C-.09-.42 0-.32 0-.22C0-.32.09-.42.22-.42C.5-.42.55 0 0 .38Z'); // 하트(크기 1 기준)
+// 칼 표시(반지름 1 기준, 세운 칼을 45도 눕혀 그린다): 칼날, 가드, 손잡이, 끝 구슬
+const SWORD = new Path2D('M0-.62L.1-.46V.12H-.1V-.46ZM-.3.12H.3V.24H-.3ZM-.065.24H.065V.46H-.065ZM.09.54A.09.09 0 1 1-.09.54A.09.09 0 1 1 .09.54Z');
 const GLIDE = 300; // 왕성으로 가는 시점 이동 시간(ms)
 const FOAM = 26; // 해안 거품 굵기. 절반은 육지 그림에 덮인다
 // 임시 · 안개(볼류메트릭): 짙은 회색으로 판 상자 전체(바다 포함)를 덮어, 보이는 곳(내 성·말 둘레)에 눈이 가게 한다.
@@ -276,7 +287,7 @@ export function loadMapArt() {
 // 프로필 얼굴: 종족 전설 유닛의 얼굴(구운 그림)에 플레이어 색 테두리
 const avatar = (player, index) => `<span class="avatar ${player.classId}" style="--player: ${PALETTE.players[index]}" aria-hidden="true"><img src="${source(`ui/avatar-${player.classId}`)}" alt=""></span>`;
 // 누르면 그 플레이어의 왕성으로 시점이 간다. 종족 이름은 버튼 밖에 둬 버튼 이름은 할 일만 말한다(눈에 보이는 종족 글자는 읽지 않게 숨김).
-const playerButton = (player, index, tag = 'span') => `<button class="player" data-player="${index}" style="--player: ${PALETTE.players[index]}" aria-label="${index ? `${player.name}의` : '내'} 왕성으로 이동">${avatar(player, index)}<span class="who"><${tag}>${player.name}</${tag}><small class="${player.classId}" aria-hidden="true">${CLASS_NAMES[player.classId]}</small></span></button><span class="sr-only">${CLASS_NAMES[player.classId]}</span>`;
+const playerButton = (player, index, tag = 'span') => `<button class="player" data-player="${index}" style="--player: ${PALETTE.players[index]}" aria-label="${index ? `${player.name}의` : '내'} 왕성으로 이동">${avatar(player, index)}<span class="who"><${tag}>${player.name}</${tag}><small class="${player.classId}" aria-hidden="true">${CLASS_NAMES[player.classId]}</small><span class="player-stat" data-stat="${index}"></span></span></button><span class="sr-only">${CLASS_NAMES[player.classId]}</span>`;
 
 export function mapScreen(root, onModes) {
   // HUD 그림은 loading="lazy"라 지도 화면이 보일 때 받는다. 타이틀 첫 로딩과 겹치지 않는다.
@@ -319,8 +330,16 @@ export function mapScreen(root, onModes) {
   const pointers = new Map();
   const fog = document.createElement('canvas');
   let board, sight, camera, bounds, paths, sprites, numbers, castles, shown, ports, tiles, selected, minZoom, mini, big, tap, glide;
-  let pieces = []; // 판 위 건물·유닛(지금은 #map-demo의 보기용만)
+  let pieces = []; // 판 위 건물·유닛(게임 장면이나 #map-demo의 보기용)
   let seenPieces = []; // 그중 내가 볼 수 있는 것(그릴 자리와 그림 경로를 붙여 둠)
+  let roster = PLAYERS; // 이 판의 플레이어(이름·종족). 게임이 넘긴다
+  // 게임 장면(src/game-screen.js가 setScene으로 넘김): 시야, 왕성 체력, 길, 고를 수 있는 곳 표시, 누름 처리. 없으면 보기용 판이다.
+  let scene = null;
+  let sightKey = ''; // 시야가 실제로 바뀔 때만 안개를 다시 만든다
+  let sceneDraw = null; // 장면에서 미리 만든 길·표시 경로
+  const floats = []; // 잠깐 떠오르는 글자(피해 수치 등)
+  const motions = new Map(); // 유닛 id → 움직이는 중인 길(월드 점들)
+  const bumps = new Map(); // 유닛 id → 부딪히는 연출
   let frame = 0;
   let renders = 0;
   let fogBuilds = 0;
@@ -372,25 +391,79 @@ export function mapScreen(root, onModes) {
   // 시야가 바뀔 때만(지금은 판을 열 때, 나중에는 말이 움직일 때) 부른다. 칸 단계에 맞춰 숫자 패, 지형 색 경로(미니맵·대체 그림),
   // 보이는 성, 안개 그림을 다시 만든다. 모르는 칸은 오브젝트·숫자 없이 바닥 색만 쓴다.
   function applyVision() {
-    paths.disc = new Path2D();
     paths.fill = {};
     paths.mist = { [UNKNOWN]: new Path2D(), [KNOWN]: new Path2D() };
-    numbers = [];
     for (const tile of sprites) {
       tile.state = sight.state.get(`${tile.q},${tile.r}`);
       polygon(paths.fill[tile.state === UNKNOWN ? 'unknown' : tile.type] ??= new Path2D(), tile.x, tile.y, CORNERS);
       if (tile.state !== VISIBLE) polygon(paths.mist[tile.state], tile.x, tile.y, CORNERS);
-      if (tile.number === null || tile.state === UNKNOWN) continue;
-      paths.disc.moveTo(tile.x + DISC_R, tile.y + DISC_Y);
-      paths.disc.arc(tile.x, tile.y + DISC_Y, DISC_R, 0, Math.PI * 2);
-      numbers.push(tile);
     }
-    shown = castles.filter(({ player }) => castleKnown(player));
+    buildFog();
+    placePieces();
+  }
+
+  // 말이 바뀔 때마다(시야가 그대로여도) 부른다: 보이는 성·말, 숫자 패(유닛이 선 칸은 비킴), 길과 고를 수 있는 곳 표시.
+  function placePieces() {
+    const hp = scene?.castleHp;
+    shown = castles.filter(({ player }) => castleKnown(player) && (!hp || hp[player] > 0)).map(c => ({ ...c, hp: hp?.[c.player] }));
     const myTeam = board.starts[0].team;
     seenPieces = pieces.filter(p => board.starts[p.player].team === myTeam || pieceSeen(sight.state, p.hexes)).map(p => ({
-      ...p, path: `${p.kind === 'unit' ? 'tokens' : 'pieces'}/${p.id}`, anchor: bakedArt.pieces[`${p.id}@anchor`], ...(p.kind === 'unit' ? STATS[p.id] : {}),
+      ...(p.hexes.length === 1 ? hexToPixel(p.hexes[0].q, p.hexes[0].r, TILE) : vertexAt(p.hexes)),
+      ...p, path: `${p.kind === 'unit' ? 'tokens' : 'pieces'}/${p.id}`, anchor: bakedArt.pieces[`${p.id}@anchor`], ...(p.kind === 'unit' ? { ...STATS[p.id], ...p } : {}),
+      enemy: board.starts[p.player].team !== myTeam,
     }));
-    buildFog();
+    const occupied = new Set(seenPieces.filter(p => p.kind === 'unit').map(p => `${p.hexes[0].q},${p.hexes[0].r}`));
+    paths.disc = new Path2D();
+    numbers = [];
+    for (const tile of sprites) {
+      if (tile.number === null || tile.state === UNKNOWN) continue;
+      const moved = occupied.has(`${tile.q},${tile.r}`);
+      Object.assign(tile, moved ? { dx: DISC_MOVED.x, dy: DISC_MOVED.y, dr: DISC_MOVED.r } : { dx: 0, dy: DISC_Y, dr: DISC_R });
+      paths.disc.moveTo(tile.x + tile.dx + tile.dr, tile.y + tile.dy);
+      paths.disc.arc(tile.x + tile.dx, tile.y + tile.dy, tile.dr, 0, Math.PI * 2);
+      numbers.push(tile);
+    }
+    sceneDraw = scene && prepareScene();
+  }
+
+  // 길(플레이어마다 경로 하나)과 고를 수 있는 곳 표시(종류마다 경로 하나)를 만든다. 그릴 때는 채우기만 한다.
+  function prepareScene() {
+    const edgeLine = (path, key) => {
+      const [a, b] = key.split('~').map(k => k.split(',').map(Number));
+      const i = EDGE_DIRS.findIndex(([dq, dr]) => a[0] + dq === b[0] && a[1] + dr === b[1]);
+      const c = hexToPixel(a[0], a[1], TILE);
+      const [p, q] = [CORNERS[i], CORNERS[(i + 1) % 6]];
+      path.moveTo(c.x + p[0], c.y + p[1]);
+      path.lineTo(c.x + q[0], c.y + q[1]);
+    };
+    const roads = new Map();
+    for (const { player, edge } of scene.roads ?? []) edgeLine(roads.get(player) ?? roads.set(player, new Path2D()).get(player), edge);
+    const marks = {};
+    const get = (kind, shape) => (marks[`${shape}:${kind}`] ??= { kind, shape, path: new Path2D() }).path;
+    for (const [key, kind] of scene.marks?.tiles ?? []) { const t = tiles.get(key); if (t) polygon(get(kind, 'tile'), t.x, t.y, CORNERS.map(([x, y]) => [x * 0.9, y * 0.9])); }
+    for (const [key, kind] of scene.marks?.edges ?? []) edgeLine(get(kind, 'edge'), key);
+    for (const [key, kind] of scene.marks?.vertices ?? []) {
+      const { x, y } = vertexAt(key.split('|').map(k => { const [q, r] = k.split(',').map(Number); return { q, r }; }));
+      (marks[`vertex:${kind}`] ??= { kind, shape: 'vertex', points: [] }).points.push({ x, y });
+    }
+    const traps = new Path2D();
+    for (const key of scene.traps ?? []) {
+      const t = tiles.get(key);
+      if (!t) continue;
+      const [x, y] = [t.x - 0.46 * TILE, t.y + 0.34 * TILE];
+      traps.moveTo(x, y - 16); traps.lineTo(x + 15, y + 11); traps.lineTo(x - 15, y + 11); traps.closePath();
+    }
+    return { roads: [...roads], marks: Object.values(marks), traps };
+  }
+
+  // 게임 장면을 받는다. 시야가 바뀌었을 때만 안개를 다시 만든다.
+  function setScene(next) {
+    scene = next;
+    sight = next.sight;
+    pieces = next.pieces;
+    const key = [...sight.state.values()].join('');
+    if (key !== sightKey) { sightKey = key; applyVision(); } else placePieces();
+    requestRender();
   }
 
   // 안개 그림(둘레 FOG_MARGIN을 더한 판 상자를 FOG_SCALE분의 1로 줄인 크기). 전체를 모르는 곳 짙기로 칠하고 아는 칸·보이는 칸 둘레를 흐리게 걷어 낸다.
@@ -541,6 +614,7 @@ export function mapScreen(root, onModes) {
     ctx.drawImage(fog, fx, fy, fw, fh);
     ctx.setTransform(k, 0, 0, k, ox, oy);
     const signs = drawPorts(zoom, reachX, reachY);
+    if (sceneDraw) drawScene(zoom);
     if (selected) {
       // 밝은 칸에서도 보이게 어두운 테두리를 먼저 깐다.
       const width = Math.max(7, 3 / zoom);
@@ -568,11 +642,15 @@ export function mapScreen(root, onModes) {
       for (const tile of numbers) {
         if (Math.abs(tile.x - cx) > reachX || Math.abs(tile.y - cy) > reachY) continue;
         ctx.fillStyle = tile.number === 6 || tile.number === 8 ? PALETTE.hot : PALETTE.number;
-        ctx.fillText(tile.text, tile.x, tile.y + DISC_Y + 1);
+        if (tile.dr !== DISC_R) ctx.font = `700 ${Math.round(30 * tile.dr / DISC_R)}px "Catfantagy UI", sans-serif`;
+        ctx.fillText(tile.text, tile.x + tile.dx, tile.y + tile.dy + 1);
+        if (tile.dr !== DISC_R) ctx.font = NUMBER_FONT;
         texts++;
       }
     }
     if (above) drawCastles(size, k);
+    if (floats.length) drawFloats(start);
+    if (floats.length || motions.size || bumps.size) requestRender();
     placeView(miniView, mini);
     // 시험용 수: 그린 타일·오브젝트·숫자·성·교환소 표지, 안개 그림을 만든 횟수
     performance.measure('map-render', { start, detail: { tiles: drawn, objects, numbers: texts, castles: shown.length, ports: signs, fog: fogBuilds } });
@@ -587,26 +665,82 @@ export function mapScreen(root, onModes) {
     // 플레이어 색 받침과 외곽선은 그림에 구워져 있다(전체 보기에서도 그대로 찾기 쉽다).
     const w = size * CASTLE_W, h = w * CASTLE_RATIO;
     const level = levelOf(art.castles[0], w * k);
-    const coin = Math.max(TOKEN_D, TOKEN_FAR / camera.zoom), tw = coin * TOKEN_SCALE;
+    const zoom = camera.zoom;
+    const coin = Math.max(TOKEN_D, TOKEN_FAR / zoom), tw = coin * TOKEN_SCALE;
+    const detail = coin * zoom >= COIN_DETAIL;
+    const now = performance.now();
     const items = [...shown.map(c => ({ ...c, kind: 'castle' })), ...seenPieces];
+    for (const item of items) if (item.kind === 'unit') Object.assign(item, unitAt(item, now));
     items.sort((a, b) => a.y - b.y);
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.lineJoin = 'round';
     for (const item of items) {
-      if (item.kind === 'castle') { ctx.drawImage(art.castles[item.player][level], item.x - w * CASTLE_AX, item.y - h * CASTLE_AY, w, h); continue; }
+      if (item.kind === 'castle') {
+        ctx.drawImage(art.castles[item.player][level], item.x - w * CASTLE_AX, item.y - h * CASTLE_AY, w, h);
+        if (item.hp !== undefined) badge(item.x, item.y - h * CASTLE_AY - w * 0.1, w * 0.22, item.hp, '#e0453a');
+        continue;
+      }
+      if (item.kind === 'unit' && !detail) {
+        // 멀리 볼 때: 플레이어 색 점. 상대는 흰 테두리를 두껍게 해 색을 구분하기 어려워도 알아본다.
+        const r = DOT / zoom;
+        ctx.beginPath();
+        ctx.arc(item.x, item.y, r, 0, Math.PI * 2);
+        ctx.fillStyle = PALETTE.players[item.player];
+        ctx.fill();
+        ctx.lineWidth = (item.enemy ? 3.2 : 2) / zoom;
+        ctx.strokeStyle = item.enemy ? '#fff' : PALETTE.outline;
+        ctx.stroke();
+        continue;
+      }
       const levels = pieceImage(item.path, item.player, requestRender);
       if (!levels) continue;
       if (item.kind === 'building') {
+        // 파손된 건물은 흐리게(수급·효과가 멈춤)
+        if (item.damaged) ctx.globalAlpha = 0.5;
         ctx.drawImage(levels[levelOf(levels, w * k)], item.x - w * item.anchor[0], item.y - h * item.anchor[1], w, h);
+        ctx.globalAlpha = 1;
+        if (item.hp !== undefined && item.hp !== null) badge(item.x, item.y - h * item.anchor[1] + h * 0.12, w * 0.13, item.hp, '#e0453a');
         continue;
       }
       const left = item.x - tw * TK.cx / 1024, top = item.y - TOKEN_UP - tw * TK.cy / 1024;
+      if (item.done) ctx.globalAlpha = 0.72; // 이번 턴 행동을 다 한 내 유닛
       ctx.drawImage(levels[levelOf(levels, tw * k)], left, top, tw, tw);
+      ctx.globalAlpha = 1;
+      const cx = item.x, cy = item.y - TOKEN_UP, r = coin / 2;
+      if (item.chosen) {
+        ctx.lineWidth = Math.max(6, 3 / zoom);
+        ctx.strokeStyle = PALETTE.select;
+        ctx.beginPath();
+        ctx.arc(cx, cy, r + 6, 0, Math.PI * 2);
+        ctx.stroke();
+      }
+      // 체력 막대: 동전 아래. 많으면 초록, 반 이하 노랑, 1/4 이하 빨강
+      const max = item.maxHp ?? STATS[item.id].hp, ratio = Math.max(0, item.hp) / max;
+      const bw = coin * 0.72, bh = coin * 0.1, bx = cx - bw / 2, by = cy + r + coin * 0.02;
+      ctx.fillStyle = '#1f1712';
+      ctx.fillRect(bx - 2, by - 2, bw + 4, bh + 4);
+      ctx.fillStyle = ratio > 0.5 ? '#5bd36a' : ratio > 0.25 ? '#ffd54a' : '#ff5a4a';
+      ctx.fillRect(bx, by, bw * ratio, bh);
+      // 상대: 오른쪽 위 칼 표시
+      if (item.enemy) {
+        const sr = coin * 0.17, sx = cx + r * 0.74, sy = cy - r * 0.74;
+        ctx.beginPath();
+        ctx.arc(sx, sy, sr, 0, Math.PI * 2);
+        ctx.fillStyle = '#1f1712';
+        ctx.fill();
+        ctx.save();
+        ctx.translate(sx, sy);
+        ctx.scale(sr, sr);
+        ctx.rotate(Math.PI / 4);
+        ctx.fillStyle = '#fff';
+        ctx.fill(SWORD);
+        ctx.restore();
+      }
       // 체력·마나 숫자: 동전이 화면에서 44 CSS px 이상일 때만(작으면 읽히지 않고 그리기만 늘어난다)
-      if (coin * camera.zoom < 44) continue;
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.lineJoin = 'round';
-      for (const [[x, y, r], value] of [[TK.hp, item.hp], [TK.mana, item.mana]]) {
-        const px = left + tw * x / 1024, py = top + tw * y / 1024, fs = tw * r / 1024;
+      if (coin * zoom < 44) continue;
+      for (const [[x, y, rr], value] of [[TK.hp, item.hp], [TK.mana, item.mana]]) {
+        const px = left + tw * x / 1024, py = top + tw * y / 1024, fs = tw * rr / 1024;
         ctx.font = `700 ${fs}px "Catfantagy UI", sans-serif`;
         ctx.lineWidth = fs * 0.22;
         ctx.strokeStyle = '#1f1712';
@@ -615,6 +749,112 @@ export function mapScreen(root, onModes) {
         ctx.fillText(value, px, py + fs * 0.06);
       }
     }
+  }
+
+  // 하트 숫자 패(왕성·공격타워 체력). size는 패 높이(월드 단위)
+  function badge(x, y, size, value, color) {
+    const wBadge = size * 1.9;
+    ctx.beginPath();
+    ctx.roundRect(x - wBadge / 2, y - size / 2, wBadge, size, size / 2);
+    ctx.fillStyle = '#1f1712';
+    ctx.fill();
+    ctx.lineWidth = size * 0.1;
+    ctx.strokeStyle = '#fff6e6';
+    ctx.stroke();
+    ctx.save();
+    ctx.translate(x - wBadge * 0.24, y);
+    ctx.scale(size * 0.8, size * 0.8);
+    ctx.fillStyle = color;
+    ctx.fill(HEART);
+    ctx.restore();
+    ctx.font = `700 ${size * 0.72}px "Catfantagy UI", sans-serif`;
+    ctx.fillStyle = '#fff';
+    ctx.fillText(value, x + wBadge * 0.2, y + size * 0.04);
+  }
+
+  // 움직이는 유닛의 지금 자리와 부딪히는 연출
+  function unitAt(item, now) {
+    let { x, y } = item;
+    const motion = motions.get(item.unitId);
+    if (motion) {
+      const t = Math.min((now - motion.start) / motion.duration, 1);
+      const f = t * (motion.points.length - 1), i = Math.min(Math.floor(f), motion.points.length - 2), u = f - i;
+      const [a, b] = [motion.points[i], motion.points[i + 1]];
+      x = a.x + (b.x - a.x) * u; y = a.y + (b.y - a.y) * u;
+      if (t >= 1) { motions.delete(item.unitId); motion.done(); }
+    }
+    const bump = bumps.get(item.unitId);
+    if (bump) {
+      const t = Math.min((now - bump.start) / bump.duration, 1), s = Math.sin(t * Math.PI) * 0.35;
+      x += (bump.x - x) * s; y += (bump.y - y) * s;
+      if (t >= 1) { bumps.delete(item.unitId); bump.done(); }
+    }
+    return { x, y };
+  }
+
+  // 길(플레이어 색), 고를 수 있는 곳(칸·꼭짓점·변), 내 함정. 안개 위에 그려 또렷하다.
+  function drawScene(zoom) {
+    ctx.lineCap = 'round';
+    // 멀리 볼 때도 길·표시가 화면에서 너무 가늘거나 작아지지 않게 한다
+    const road = Math.max(ROAD, 5 / zoom), outline = Math.max(8, 3 / zoom);
+    for (const [player, path] of sceneDraw.roads) {
+      ctx.lineWidth = road + outline;
+      ctx.strokeStyle = PALETTE.outline;
+      ctx.stroke(path);
+      ctx.lineWidth = road;
+      ctx.strokeStyle = PALETTE.players[player];
+      ctx.stroke(path);
+    }
+    const edge = Math.max(5, 2.5 / zoom);
+    for (const { kind, shape, path, points } of sceneDraw.marks) {
+      ctx.strokeStyle = MARK[kind];
+      ctx.fillStyle = MARK[kind];
+      if (shape === 'tile') {
+        ctx.globalAlpha = 0.28;
+        ctx.fill(path);
+        ctx.globalAlpha = 1;
+        ctx.lineWidth = edge;
+        ctx.stroke(path);
+      } else if (shape === 'edge') {
+        ctx.lineWidth = road + 2 + outline;
+        ctx.strokeStyle = PALETTE.outline;
+        ctx.stroke(path);
+        ctx.lineWidth = road + 2;
+        ctx.strokeStyle = MARK[kind];
+        ctx.stroke(path);
+      } else {
+        // 꼭짓점: 화면에서 지름 22px 이상인 동그라미
+        const r = Math.max(22, 11 / zoom), dots = new Path2D();
+        for (const { x, y } of points) { dots.moveTo(x + r, y); dots.arc(x, y, r, 0, Math.PI * 2); }
+        ctx.globalAlpha = 0.9;
+        ctx.fill(dots);
+        ctx.globalAlpha = 1;
+        ctx.lineWidth = edge;
+        ctx.strokeStyle = PALETTE.outline;
+        ctx.stroke(dots);
+      }
+    }
+    ctx.fillStyle = '#ff5a4a';
+    ctx.fill(sceneDraw.traps);
+    ctx.lineWidth = 4;
+    ctx.strokeStyle = PALETTE.outline;
+    ctx.stroke(sceneDraw.traps);
+  }
+
+  // 피해·회복 숫자가 0.8초 동안 위로 떠오르며 사라진다
+  function drawFloats(now) {
+    ctx.font = '700 34px "Catfantagy UI", sans-serif';
+    ctx.lineWidth = 7;
+    ctx.strokeStyle = '#1f1712';
+    for (let i = floats.length - 1; i >= 0; i--) {
+      const f = floats[i], t = (now - f.start) / 800;
+      if (t >= 1) { floats.splice(i, 1); continue; }
+      ctx.globalAlpha = t < 0.7 ? 1 : (1 - t) / 0.3;
+      ctx.strokeText(f.text, f.x, f.y - 40 - t * 50);
+      ctx.fillStyle = f.color;
+      ctx.fillText(f.text, f.x, f.y - 40 - t * 50);
+    }
+    ctx.globalAlpha = 1;
   }
 
   // 교환소: 부두(나무 판 + 널빤지 틈) → 자리 표시(가까이 볼 때만) → 표지(두 자원 아이콘과 ⇄). 처음부터 아는 칸이라 안개 위에 그린다.
@@ -693,7 +933,7 @@ export function mapScreen(root, onModes) {
     const castle = castles.find(item => item.player === player);
     if (!castle) return;
     if (!castleKnown(player)) {
-      status.textContent = `${PLAYERS[player].name}의 왕성은 아직 안개 속에 있어요`;
+      status.textContent = `${roster[player].name}의 왕성은 아직 안개 속에 있어요`;
       return;
     }
     const zoom = Math.max(camera.zoom, NATURAL);
@@ -740,6 +980,7 @@ export function mapScreen(root, onModes) {
   function select(x, y) {
     const wx = camera.x + (x - view.w / 2) / camera.zoom;
     const wy = camera.y + (y - view.h / 2) / camera.zoom;
+    if (scene?.tap && scene.tap(hitAt(wx, wy))) { selected = null; return requestRender(); }
     const port = portAt(wx, wy);
     const { q, r } = pixelToHex(wx, wy, TILE);
     const tile = port ? null : tiles.get(`${q},${r}`);
@@ -750,6 +991,28 @@ export function mapScreen(root, onModes) {
     else if (tile.state === UNKNOWN) status.textContent = '선택: 안개 속 칸';
     else status.textContent = `선택: ${TERRAIN[tile.type].name}${tile.number === null ? '' : ` ${tile.number}`}`;
     requestRender();
+  }
+
+  // 누른 월드 점의 칸, 가장 가까운 꼭짓점과 변(엔진 key 꼴)과 그 거리. near는 꼭짓점·변으로 칠 거리(화면 22px 이상).
+  // 동전은 칸 가운데보다 위에 그려지므로, 동전을 누르면 그 칸이 되게 동전 높이만큼 내려서 칸을 찾는다.
+  function hitAt(wx, wy) {
+    const key = ({ q, r }) => `${q},${r}`;
+    const coinTile = pixelToHex(wx, wy + TOKEN_UP, TILE);
+    const hex = pixelToHex(wx, wy, TILE);
+    const c = hexToPixel(hex.q, hex.r, TILE);
+    let vertex = null, edge = null;
+    CORNERS.forEach(([px, py], i) => {
+      const [nx, ny] = CORNERS[(i + 1) % 6];
+      const dv = Math.hypot(wx - c.x - px, wy - c.y - py);
+      const de = Math.hypot(wx - c.x - (px + nx) / 2, wy - c.y - (py + ny) / 2);
+      if (!vertex || dv < vertex.d) {
+        const [a, b] = [EDGE_DIRS[(i + 5) % 6], EDGE_DIRS[i]];
+        vertex = { d: dv, key: [hex, { q: hex.q + a[0], r: hex.r + a[1] }, { q: hex.q + b[0], r: hex.r + b[1] }].map(key).sort().join('|') };
+      }
+      if (!edge || de < edge.d) edge = { d: de, key: [key(hex), key({ q: hex.q + EDGE_DIRS[i][0], r: hex.r + EDGE_DIRS[i][1] })].sort().join('~') };
+    });
+    const on = h => (tiles.has(key(h)) ? key(h) : null);
+    return { tile: on(hex), coinTile: on(coinTile), vertex: vertex.key, vertexDist: vertex.d, edge: edge.key, edgeDist: edge.d, near: Math.max(38, 22 / camera.zoom) };
   }
 
   function showArt() {
@@ -822,6 +1085,8 @@ export function mapScreen(root, onModes) {
   });
   retry.addEventListener('click', showArt);
   root.querySelector('.mode-change').addEventListener('click', () => {
+    scene?.leave?.();
+    scene = null;
     root.hidden = true;
     onModes();
   });
@@ -829,6 +1094,7 @@ export function mapScreen(root, onModes) {
   // shortcut: Math.random이라 다시 만들 수 없다. 턴 규칙을 만들 때 판 시드로 이어지는 주사위로 바꾼다.
   const diceButton = root.querySelector('.dice-roll');
   diceButton.addEventListener('click', () => {
+    if (scene) return; // 게임에서는 게임 화면(src/game-screen.js)이 맡는다
     const values = [1 + Math.floor(Math.random() * 6), 1 + Math.floor(Math.random() * 6)];
     const refocus = document.activeElement === diceButton;
     diceButton.disabled = true;
@@ -870,7 +1136,7 @@ export function mapScreen(root, onModes) {
     bubble.append(Object.assign(document.createElement('span'), { textContent: text }));
     bubble.setAttribute('aria-hidden', 'true'); // 읽어 주는 건 아래 알림이 맡는다
     hud.append(bubble);
-    status.textContent = `${PLAYERS[player].name}: ${text}`;
+    status.textContent = `${roster[player].name}: ${text}`;
     setTimeout(() => {
       bubble.classList.add('out');
       setTimeout(() => bubble.remove(), BUBBLE_FADE);
@@ -895,21 +1161,29 @@ export function mapScreen(root, onModes) {
   // 창 크기 이벤트가 아니라 그림판의 실제 크기 변화를 본다. iOS 홈 화면 앱의 높이 보정(main.js)보다 먼저 재는 일이 없다.
   new ResizeObserver(resize).observe(canvas);
 
-  return function openMap(mode = 'duel', { demo = false } = {}) {
-    board = createBoard({ mode });
+  // 보기용 판(#map, #map-demo)은 mode만, 게임은 엔진의 판·플레이어·첫 장면을 넘긴다.
+  function openMap(mode = 'duel', { demo = false, board: given = null, players: list = null, scene: first = null } = {}) {
+    board = given ?? createBoard({ mode });
+    roster = list ?? PLAYERS;
+    scene = null;
+    sightKey = '';
+    floats.length = 0;
+    motions.clear();
+    bumps.clear();
     pieces = demo ? demoPieces(board) : [];
-    // 지금은 나(0번)의 시야. 처음 상태라 아는 칸은 교환소와 숫자 6·8 칸뿐이다. 건물은 마을처럼 붙은 칸만, 유닛은 2칸을 본다.
-    sight = vision(board, { pieces: [...boardPieces(board), ...pieces.map(p => ({ player: p.player, kind: p.kind === 'unit' ? 'unit' : 'village', hexes: p.hexes }))] });
+    // 보기용 판은 나(0번)의 시야. 처음 상태라 아는 칸은 교환소와 숫자 6·8 칸뿐이다. 건물은 마을처럼 붙은 칸만, 유닛은 2칸을 본다.
+    sight = first?.sight ?? vision(board, { pieces: [...boardPieces(board), ...pieces.map(p => ({ player: p.player, kind: p.kind === 'unit' ? 'unit' : 'village', hexes: p.hexes }))] });
     prepare();
-    applyVision();
+    if (first) setScene(first); else applyVision();
     root.dataset.seed = board.seed; // 시험이 같은 판을 다시 만들어 안개 결과와 맞춰 본다
-    const [me, ...others] = PLAYERS.slice(0, board.starts.length);
+    root.dataset.game = first ? 'on' : 'off';
+    const [me, ...others] = roster.slice(0, board.starts.length);
     // 팀전은 0·1번이 한 팀이라 같은 팀(봇 1)을 먼저 보인다.
     const groups = mode === 'team' ? [['같은 팀', others.slice(0, 1)], ['상대 팀', others.slice(1)]] : [['상대', others]];
     hud.querySelectorAll('.bubble').forEach(bubble => bubble.remove());
     players.innerHTML = `
       ${playerButton(me, 0, 'strong')}
-      ${groups.map(([label, list]) => `<p class="group-label" aria-hidden="true">${label}</p><ul class="opponents" aria-label="${label}">${list.map(player => `<li>${playerButton(player, PLAYERS.indexOf(player))}</li>`).join('')}</ul>`).join('')}`;
+      ${groups.map(([label, list]) => `<p class="group-label" aria-hidden="true">${label}</p><ul class="opponents" aria-label="${label}">${list.map(player => `<li>${playerButton(player, roster.indexOf(player))}</li>`).join('')}</ul>`).join('')}`;
     heading.textContent = `냥국 지도 · ${MODES[mode].name}`;
     root.dataset.mode = mode;
     root.style.setProperty('--board-ratio', bounds.w / bounds.h);
@@ -925,5 +1199,59 @@ export function mapScreen(root, onModes) {
     heading.focus({ preventScroll: true });
     // 숫자 글꼴이 늦게 오면 한 번만 다시 그린다.
     document.fonts.load(NUMBER_FONT, '0123456789').then(requestRender);
+  }
+
+  // 월드 점이 화면 가장자리(여백 margin CSS px) 밖이면 부드럽게 그쪽으로 시점을 옮긴다(봇의 행동을 따라 볼 때)
+  function show(hexes, margin = 90) {
+    const { x, y } = hexes.length === 1 ? hexToPixel(hexes[0].q, hexes[0].r, TILE) : vertexAt(hexes);
+    const sx = (x - camera.x) * camera.zoom + view.w / 2, sy = (y - camera.y) * camera.zoom + view.h / 2;
+    if (sx > margin && sx < view.w - margin && sy > margin * 1.6 && sy < view.h - margin * 1.6) return;
+    const zoom = Math.max(camera.zoom, NATURAL * 0.8);
+    if (useReducedMotion()) { camera.zoom = zoom; return lookAt(x, y); }
+    glide = { from: { ...camera }, to: { x, y, zoom }, start: performance.now() };
+    requestRender();
+  }
+  // 시험용: 판 상태와, 칸·꼭짓점(엔진 key)의 화면 좌표(CSS px, 문서 기준)
+  root.mapDebug = () => ({ seenPieces, sceneDraw, pieces, camera,
+    screenOf(key) {
+      const hexes = key.split(key.includes('|') ? '|' : '~').map(k => { const [q, r] = k.split(',').map(Number); return { q, r }; });
+      const { x, y } = key.includes('~') ? (([a, b]) => ({ x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 }))(hexes.map(h => hexToPixel(h.q, h.r, TILE))) : pointOf(hexes);
+      return { x: view.left + (x - camera.x) * camera.zoom + view.w / 2, y: view.top + (y - camera.y) * camera.zoom + view.h / 2 };
+    },
+  });
+  // 그 곳으로 부드럽게 가며 기본 배율 이상으로 확대한다(게임을 시작할 때 내 왕성)
+  function focus(hexes) {
+    const { x, y } = pointOf(hexes);
+    const zoom = Math.max(camera.zoom, NATURAL);
+    if (useReducedMotion()) { camera.zoom = zoom; return lookAt(x, y); }
+    glide = { from: { ...camera }, to: { x, y, zoom }, start: performance.now() };
+    requestRender();
+  }
+  // 유닛 연출 하나. 그 유닛이 화면에 없으면(숨음·쓰러짐) 바로 끝내고, 그려지지 않아도 시간이 지나면 끝낸다(게임이 기다리다 멈추지 않게).
+  function animate(list, unitId, data, duration) {
+    return new Promise(done => {
+      if (!data || useReducedMotion() || !seenPieces.some(p => p.unitId === unitId)) return done();
+      const entry = { ...data, start: performance.now(), duration, done };
+      list.set(unitId, entry);
+      setTimeout(() => { if (list.get(unitId) === entry) { list.delete(unitId); done(); } }, duration + 150);
+      requestRender();
+    });
+  }
+  const pointOf = hexes => (hexes.length === 1 ? hexToPixel(hexes[0].q, hexes[0].r, TILE) : vertexAt(hexes));
+  return {
+    open: openMap, setScene, show, focus, status,
+    // 유닛 이동: 지나는 칸들(첫 칸은 출발 칸)을 duration ms 동안 따라간다. 끝나면 풀린다.
+    move(unitId, hexPath, duration) {
+      return animate(motions, unitId, hexPath.length < 2 ? null : { points: hexPath.map(h => pointOf([h])) }, duration);
+    },
+    // 부딪히기: 대상 쪽으로 35%까지 갔다가 돌아온다
+    bump(unitId, hexes, duration = 220) {
+      return animate(bumps, unitId, pointOf(hexes), duration);
+    },
+    float(hexes, text, color = '#ff5a4a') {
+      const { x, y } = pointOf(hexes);
+      floats.push({ x, y, text, color, start: performance.now() });
+      requestRender();
+    },
   };
 }

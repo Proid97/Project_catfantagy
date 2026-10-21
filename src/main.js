@@ -20,8 +20,22 @@ const modes = document.querySelector('#modes');
 const modeBack = modes.querySelector('.mode-back');
 const [modeFirst, modeFour] = modes.querySelectorAll('.mode-list');
 // 대전 방식 단추의 아이콘(빌드가 구운 그림, 주소에 내용 해시가 붙어 HTML에 바로 쓸 수 없다)
-for (const button of modes.querySelectorAll('[data-icon]')) button.prepend(Object.assign(new Image(), { src: image(`ui/icon-${button.dataset.icon}`, 'ui'), alt: '' }));
-const openMap = mapScreen(document.querySelector('#map'), () => showModes(false));
+// 숨은 화면의 그림은 보일 때 받는다(loading=lazy). 타이틀 첫 로딩에 끼지 않는다.
+for (const button of modes.querySelectorAll('[data-icon]')) button.prepend(Object.assign(new Image(), { src: image(`ui/icon-${button.dataset.icon}`, 'ui'), alt: '', loading: 'lazy' }));
+const map = mapScreen(document.querySelector('#map'), () => showModes(false));
+const openMap = map.open;
+// 게임(엔진·봇·게임 화면)은 처음 한 판을 열 때 따로 받는다. 타이틀 첫 로딩을 가볍게 둔다.
+let gameStart = null;
+// 주소에 ?seed=정수가 있으면 그 시드로 판을 만든다(같은 시드·같은 선택이면 같은 판. 버그 재현과 시험용).
+const seed = Number.parseInt(new URLSearchParams(location.search).get('seed'), 10);
+async function startGame(options) {
+  gameStart ??= (await import('./game-screen.js')).gameScreen(map, document.querySelector('#map'));
+  gameStart(Number.isInteger(seed) ? { ...options, seed } : options);
+}
+const races = document.querySelector('#races');
+// 종족 단추의 얼굴(구운 그림)
+for (const button of races.querySelectorAll('[data-race]')) button.prepend(Object.assign(new Image(), { src: image(`ui/avatar-${button.dataset.race}`, 'ui'), alt: '', loading: 'lazy' }));
+let chosenMode = 'duel';
 const cardsRoot = document.querySelector('#cards');
 const openCards = cardsScreen(cardsRoot, () => { cardsRoot.hidden = true; showModes(false); });
 const assetRoot = `${import.meta.env.BASE_URL}title/`;
@@ -169,9 +183,19 @@ modes.addEventListener('click', event => {
   else if (button?.hasAttribute('data-next')) showModes(true);
   else if (button?.hasAttribute('data-cards')) { modes.hidden = true; openCards(); }
   else if (button?.dataset.mode) {
+    // 대전 방식 → 종족 고르기 → 판
+    chosenMode = button.dataset.mode;
     modes.hidden = true;
-    openMap(button.dataset.mode);
+    races.hidden = false;
+    races.querySelector('h2').focus({ preventScroll: true });
   }
+});
+races.addEventListener('click', event => {
+  const button = event.target.closest('button');
+  if (!button) return;
+  races.hidden = true;
+  if (button.dataset.race) startGame({ mode: chosenMode, race: button.dataset.race });
+  else showModes(chosenMode !== 'duel');
 });
 skip.addEventListener('click', ready);
 // 연출 중 화면을 누르면 건너뛰기만 한다. pointerdown이면 같은 터치의 클릭이 새로 나타난 시작 버튼에 닿는다.
@@ -192,6 +216,7 @@ retry.addEventListener('click', load);
 document.addEventListener('keydown', event => {
   // Esc는 대전 방식 선택에서 한 단계 뒤로. 지도에서는 큰 미니맵만 닫고(dialog 기본 동작) 판을 떠나지 않는다.
   if (event.key === 'Escape' && !modes.hidden) return modesBack();
+  if (event.key === 'Escape' && !races.hidden) { races.hidden = true; return showModes(chosenMode !== 'duel'); }
   if (event.repeat || !['Enter', ' '].includes(event.key)) return;
   if (stage.hidden || event.target instanceof HTMLButtonElement) return;
   event.preventDefault();
@@ -204,8 +229,13 @@ systemReducedMotion.addEventListener('change', () => {
 addEventListener('resize', fillScreen);
 fillScreen();
 // 개발·시험용: #map(1대1), #map-ffa(4인 개인전), #map-team(2대2 팀전)으로 열면 타이틀을 건너뛰고 판을 바로 본다. #cards는 카드·말 보기, #map-demo는 보기용 말을 놓은 판.
+// #play, #play-ffa, #play-team은 냥전사로 바로 한 판을 시작한다(#play-mage처럼 종족을 붙여도 됨). 끝에 -auto를 붙이면 내 자리도 봇이 두는 자동 대전.
 const shortcut = { '#map': 'duel', '#map-ffa': 'ffa', '#map-team': 'team', '#map-demo': 'duel' }[location.hash];
-if (location.hash === '#cards') {
+const play = location.hash.match(/^#play(?:-(ffa|team))?(?:-(warrior|mage|assassin))?(-auto)?$/);
+if (play) {
+  stage.hidden = true;
+  startGame({ mode: play[1] ?? 'duel', race: play[2] ?? 'warrior', auto: Boolean(play[3]) });
+} else if (location.hash === '#cards') {
   stage.hidden = true;
   openCards();
 } else if (shortcut) {
