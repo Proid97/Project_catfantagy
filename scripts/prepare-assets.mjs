@@ -2,7 +2,7 @@ import sharp from 'sharp';
 import * as bake from './bake-art.mjs';
 import { parseCards } from './cards-data.mjs';
 import { createHash } from 'node:crypto';
-import { readFile, mkdir, writeFile, stat, rename, readdir } from 'node:fs/promises';
+import { readFile, mkdir, writeFile, stat, rename, readdir, rm } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 
 const source = new URL('../assets/title/', import.meta.url);
@@ -95,6 +95,10 @@ for (const [path, resize, changed = 0, from] of mapArt) {
   mapBytes += bytes.length;
 }
 await writeFile(new URL('map-art.json', generated), JSON.stringify({ files }));
+// 더는 쓰지 않는 예전 지도 그림(지형 오브젝트 등)이 public/에 남아 배포되지 않게 지운다.
+for (const name of await readdir(new URL('../public/map/', import.meta.url))) {
+  if (!(`map/${name.replace(/\.webp$/, '')}` in files)) await rm(new URL(`../public/map/${name}`, import.meta.url));
+}
 console.log(`지도 그림 ${mapArt.length}종 ${(mapBytes / 1000).toFixed(1)} KB`);
 
 // 판 위 말·토큰·카드·아이콘을 굽는다(scripts/bake-art.mjs). 원본이나 굽는 코드가 바뀐 것만 다시 만든다.
