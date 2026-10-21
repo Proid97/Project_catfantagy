@@ -1,0 +1,218 @@
+{
+  "method": "2026-10-21 사용자 결정(설계서 9장 \"건물 말 제작\"). 1) blender/buildings.py로 로우폴리 밑그림을 지어 같은 카메라(정사영, 방위 45도, 위에서 30도, ortho 8.5, 땅 가운데가 1024 캔버스의 (512, 840))로 렌더하고, 팀 색 재질만 남긴 렌더도 함께 뽑음. 2) 그 렌더를 codex CLI(사용자 ChatGPT 로그인)의 image_generation 도구로 편집해 그림체로 칠함(codex exec -m gpt-5.6-sol, 생성 1254×1254). 3) blender/fit.mjs가 칠한 그림의 영역을 밑그림 영역에 맞춰 줄이고 바닥 가운데를 맞춤(자르기·크기 줄이기만). 4) blender/team3d.mjs가 블렌더 팀 색 자리와 겹치는 회색 덩어리를 원본 픽셀 그대로 -team.png에 복사",
+  "style_reference": "assets/concepts/style-reference-warrior.png",
+  "canvas": {
+    "size": 1024,
+    "ground_anchor": [
+      512,
+      840
+    ]
+  },
+  "team_mask": "회색 픽셀만 원본 그대로 복사(밝기 45 미만인 문·창 구멍은 뺌). 코드는 마스크 밝기/112 × 플레이어 색으로 칠함(왕성과 같은 방식)",
+  "assets": [
+    {
+      "file": "assets/pieces/castle.png",
+      "team_mask": "assets/pieces/castle-team.png",
+      "prompt": "Call your image_generation tool exactly once to EDIT the first attached image: keep it identical (pose, proportions, colors, composition, transparent background) except for the requested change. Any other attached images are style references only.\n\nRepaint the first attached image, a plain 3D blockout render of a game-board building token, as finished game art for a cute cat fantasy strategy game, in the flat indie vector style of the style reference. Keep EXACTLY the same viewpoint (three-quarter isometric view with a corner of the building facing the viewer, seen from about 30 degrees above), the same silhouette, proportions, position and size on the canvas, and every part in the same place. Only add stylization and surface detail: angular faceted planes with straight hard edges like folded paper or cut gems, two to four tones per material, single light source from the upper left (the left wall is lit, the right wall is in shade), a few stone block seams, wooden planks, window frames, small trims. Friendly chunky proportions are fine but the outline must stay within a few pixels of the blockout. Roofs, flags and awning cloth stay NEUTRAL GRAY (pure desaturated gray, 2-3 tones): they are team-color parts recolored per player by the game; nothing else may be neutral gray. Fully transparent background, no ground patch, no cast shadow on the ground, no scene, no text, no characters. No gradients, no texture, no noise, no glow, no blur, no black outlines.\n\nBuilding: the main castle of a cat kingdom: cream stone curtain walls with battlements, four round corner towers and a tall central keep tower, gray cone roofs with gold finials, a wooden gate with gold trim, a gray flag with a small white paw emblem on the top",
+      "requested_size": "1024x1024",
+      "references": [
+        "Blender 밑그림 렌더(assets/pieces/blender/buildings.py의 castle)",
+        "assets/concepts/style-reference-warrior.png",
+        "assets/game/castle.png(옛 판 위 말)"
+      ],
+      "silhouette_iou": 0.906
+    },
+    {
+      "file": "assets/pieces/village.png",
+      "team_mask": "assets/pieces/village-team.png",
+      "prompt": "Call your image_generation tool exactly once to EDIT the first attached image: keep it identical (pose, proportions, colors, composition, transparent background) except for the requested change. Any other attached images are style references only.\n\nRepaint the first attached image, a plain 3D blockout render of a game-board building token, as finished game art for a cute cat fantasy strategy game, in the flat indie vector style of the style reference. Keep EXACTLY the same viewpoint (three-quarter isometric view with a corner of the building facing the viewer, seen from about 30 degrees above), the same silhouette, proportions, position and size on the canvas, and every part in the same place. Only add stylization and surface detail: angular faceted planes with straight hard edges like folded paper or cut gems, two to four tones per material, single light source from the upper left (the left wall is lit, the right wall is in shade), a few stone block seams, wooden planks, window frames, small trims. Friendly chunky proportions are fine but the outline must stay within a few pixels of the blockout. Roofs, flags and awning cloth stay NEUTRAL GRAY (pure desaturated gray, 2-3 tones): they are team-color parts recolored per player by the game; nothing else may be neutral gray. Fully transparent background, no ground patch, no cast shadow on the ground, no scene, no text, no characters. No gradients, no texture, no noise, no glow, no blur, no black outlines.\n\nBuilding: a small village cottage: cream plaster walls with warm wooden corner posts and beams, a gray gabled roof, a stone chimney, a wooden door and a small window, a small gray flag on the roof end",
+      "requested_size": "1024x1024",
+      "references": [
+        "Blender 밑그림 렌더(assets/pieces/blender/buildings.py의 village)",
+        "assets/concepts/style-reference-warrior.png",
+        "assets/game/village.png(옛 판 위 말)"
+      ],
+      "silhouette_iou": 0.914
+    },
+    {
+      "file": "assets/pieces/building-warrior-watchtower.png",
+      "team_mask": "assets/pieces/building-warrior-watchtower-team.png",
+      "prompt": "Call your image_generation tool exactly once to EDIT the first attached image: keep it identical (pose, proportions, colors, composition, transparent background) except for the requested change. Any other attached images are style references only.\n\nRepaint the first attached image, a plain 3D blockout render of a game-board building token, as finished game art for a cute cat fantasy strategy game, in the flat indie vector style of the style reference. Keep EXACTLY the same viewpoint (three-quarter isometric view with a corner of the building facing the viewer, seen from about 30 degrees above), the same silhouette, proportions, position and size on the canvas, and every part in the same place. Only add stylization and surface detail: angular faceted planes with straight hard edges like folded paper or cut gems, two to four tones per material, single light source from the upper left (the left wall is lit, the right wall is in shade), a few stone block seams, wooden planks, window frames, small trims. Friendly chunky proportions are fine but the outline must stay within a few pixels of the blockout. Roofs, flags and awning cloth stay NEUTRAL GRAY (pure desaturated gray, 2-3 tones): they are team-color parts recolored per player by the game; nothing else may be neutral gray. Fully transparent background, no ground patch, no cast shadow on the ground, no scene, no text, no characters. No gradients, no texture, no noise, no glow, no blur, no black outlines.\n\nBuilding: a tall square cream-stone watchtower (an attack tower) with arrow-slit windows, a wooden lookout platform near the top, a steep pointed roof and one small flag on the roof tip. Materials: cream stone, warm wood and gold trim",
+      "requested_size": "1024x1024",
+      "references": [
+        "Blender 밑그림 렌더(assets/pieces/blender/buildings.py의 warrior_watchtower)",
+        "assets/concepts/style-reference-warrior.png",
+        "이미지 생성만으로 만든 같은 건물(시점이 달라 쓰지 않음, 디자인 참고)"
+      ],
+      "silhouette_iou": 0.897
+    },
+    {
+      "file": "assets/pieces/building-warrior-bastion.png",
+      "team_mask": "assets/pieces/building-warrior-bastion-team.png",
+      "prompt": "Call your image_generation tool exactly once to EDIT the first attached image: keep it identical (pose, proportions, colors, composition, transparent background) except for the requested change. Any other attached images are style references only.\n\nRepaint the first attached image, a plain 3D blockout render of a game-board building token, as finished game art for a cute cat fantasy strategy game, in the flat indie vector style of the style reference. Keep EXACTLY the same viewpoint (three-quarter isometric view with a corner of the building facing the viewer, seen from about 30 degrees above), the same silhouette, proportions, position and size on the canvas, and every part in the same place. Only add stylization and surface detail: angular faceted planes with straight hard edges like folded paper or cut gems, two to four tones per material, single light source from the upper left (the left wall is lit, the right wall is in shade), a few stone block seams, wooden planks, window frames, small trims. Friendly chunky proportions are fine but the outline must stay within a few pixels of the blockout. Roofs, flags and awning cloth stay NEUTRAL GRAY (pure desaturated gray, 2-3 tones): they are team-color parts recolored per player by the game; nothing else may be neutral gray. Fully transparent background, no ground patch, no cast shadow on the ground, no scene, no text, no characters. No gradients, no texture, no noise, no glow, no blur, no black outlines.\n\nBuilding: a low, wide, sturdy round cream-stone bastion with thick walls, square battlements and a big wooden gate; it has no roof, so one small flag on a short pole above the battlements is its team-color part. Materials: cream stone, warm wood and gold trim",
+      "requested_size": "1024x1024",
+      "references": [
+        "Blender 밑그림 렌더(assets/pieces/blender/buildings.py의 warrior_bastion)",
+        "assets/concepts/style-reference-warrior.png",
+        "이미지 생성만으로 만든 같은 건물(시점이 달라 쓰지 않음, 디자인 참고)"
+      ],
+      "silhouette_iou": 0.882
+    },
+    {
+      "file": "assets/pieces/building-warrior-barracks.png",
+      "team_mask": "assets/pieces/building-warrior-barracks-team.png",
+      "prompt": "Call your image_generation tool exactly once to EDIT the first attached image: keep it identical (pose, proportions, colors, composition, transparent background) except for the requested change. Any other attached images are style references only.\n\nRepaint the first attached image, a plain 3D blockout render of a game-board building token, as finished game art for a cute cat fantasy strategy game, in the flat indie vector style of the style reference. Keep EXACTLY the same viewpoint (three-quarter isometric view with a corner of the building facing the viewer, seen from about 30 degrees above), the same silhouette, proportions, position and size on the canvas, and every part in the same place. Only add stylization and surface detail: angular faceted planes with straight hard edges like folded paper or cut gems, two to four tones per material, single light source from the upper left (the left wall is lit, the right wall is in shade), a few stone block seams, wooden planks, window frames, small trims. Friendly chunky proportions are fine but the outline must stay within a few pixels of the blockout. Roofs, flags and awning cloth stay NEUTRAL GRAY (pure desaturated gray, 2-3 tones): they are team-color parts recolored per player by the game; nothing else may be neutral gray. Fully transparent background, no ground patch, no cast shadow on the ground, no scene, no text, no characters. No gradients, no texture, no noise, no glow, no blur, no black outlines.\n\nBuilding: a long soldiers' barracks hall with cream-stone lower walls, warm wood upper walls, a big gabled roof, a wooden double door and two spears leaning on a rack beside the door. Materials: cream stone, warm wood and gold trim",
+      "requested_size": "1024x1024",
+      "references": [
+        "Blender 밑그림 렌더(assets/pieces/blender/buildings.py의 warrior_barracks)",
+        "assets/concepts/style-reference-warrior.png",
+        "이미지 생성만으로 만든 같은 건물(시점이 달라 쓰지 않음, 디자인 참고)"
+      ],
+      "silhouette_iou": 0.885
+    },
+    {
+      "file": "assets/pieces/building-warrior-forge.png",
+      "team_mask": "assets/pieces/building-warrior-forge-team.png",
+      "prompt": "Call your image_generation tool exactly once to EDIT the first attached image: keep it identical (pose, proportions, colors, composition, transparent background) except for the requested change. Any other attached images are style references only.\n\nRepaint the first attached image, a plain 3D blockout render of a game-board building token, as finished game art for a cute cat fantasy strategy game, in the flat indie vector style of the style reference. Keep EXACTLY the same viewpoint (three-quarter isometric view with a corner of the building facing the viewer, seen from about 30 degrees above), the same silhouette, proportions, position and size on the canvas, and every part in the same place. Only add stylization and surface detail: angular faceted planes with straight hard edges like folded paper or cut gems, two to four tones per material, single light source from the upper left (the left wall is lit, the right wall is in shade), a few stone block seams, wooden planks, window frames, small trims. Friendly chunky proportions are fine but the outline must stay within a few pixels of the blockout. Roofs, flags and awning cloth stay NEUTRAL GRAY (pure desaturated gray, 2-3 tones): they are team-color parts recolored per player by the game; nothing else may be neutral gray. Fully transparent background, no ground patch, no cast shadow on the ground, no scene, no text, no characters. No gradients, no texture, no noise, no glow, no blur, no black outlines.\n\nBuilding: a small blacksmith forge: cream-stone walls with a stone chimney, an open front showing flat orange fire shapes in the furnace, a dark bronze anvil in front, and a slanted roof. Materials: cream stone, warm wood and gold trim",
+      "requested_size": "1024x1024",
+      "references": [
+        "Blender 밑그림 렌더(assets/pieces/blender/buildings.py의 warrior_forge)",
+        "assets/concepts/style-reference-warrior.png",
+        "이미지 생성만으로 만든 같은 건물(시점이 달라 쓰지 않음, 디자인 참고)"
+      ],
+      "silhouette_iou": 0.917
+    },
+    {
+      "file": "assets/pieces/building-warrior-training.png",
+      "team_mask": "assets/pieces/building-warrior-training-team.png",
+      "prompt": "Call your image_generation tool exactly once to EDIT the first attached image: keep it identical (pose, proportions, colors, composition, transparent background) except for the requested change. Any other attached images are style references only.\n\nRepaint the first attached image, a plain 3D blockout render of a game-board building token, as finished game art for a cute cat fantasy strategy game, in the flat indie vector style of the style reference. Keep EXACTLY the same viewpoint (three-quarter isometric view with a corner of the building facing the viewer, seen from about 30 degrees above), the same silhouette, proportions, position and size on the canvas, and every part in the same place. Only add stylization and surface detail: angular faceted planes with straight hard edges like folded paper or cut gems, two to four tones per material, single light source from the upper left (the left wall is lit, the right wall is in shade), a few stone block seams, wooden planks, window frames, small trims. Friendly chunky proportions are fine but the outline must stay within a few pixels of the blockout. Roofs, flags and awning cloth stay NEUTRAL GRAY (pure desaturated gray, 2-3 tones): they are team-color parts recolored per player by the game; nothing else may be neutral gray. Fully transparent background, no ground patch, no cast shadow on the ground, no scene, no text, no characters. No gradients, no texture, no noise, no glow, no blur, no black outlines.\n\nBuilding: a training ground: a small open wooden pavilion with a cloth awning roof on four posts, under it a straw training dummy on a pole and a small wooden weapon rack. Materials: cream stone, warm wood and gold trim",
+      "requested_size": "1024x1024",
+      "references": [
+        "Blender 밑그림 렌더(assets/pieces/blender/buildings.py의 warrior_training)",
+        "assets/concepts/style-reference-warrior.png",
+        "이미지 생성만으로 만든 같은 건물(시점이 달라 쓰지 않음, 디자인 참고)"
+      ],
+      "silhouette_iou": 0.604
+    },
+    {
+      "file": "assets/pieces/building-mage-tower.png",
+      "team_mask": "assets/pieces/building-mage-tower-team.png",
+      "prompt": "Call your image_generation tool exactly once to EDIT the first attached image: keep it identical (pose, proportions, colors, composition, transparent background) except for the requested change. Any other attached images are style references only.\n\nRepaint the first attached image, a plain 3D blockout render of a game-board building token, as finished game art for a cute cat fantasy strategy game, in the flat indie vector style of the style reference. Keep EXACTLY the same viewpoint (three-quarter isometric view with a corner of the building facing the viewer, seen from about 30 degrees above), the same silhouette, proportions, position and size on the canvas, and every part in the same place. Only add stylization and surface detail: angular faceted planes with straight hard edges like folded paper or cut gems, two to four tones per material, single light source from the upper left (the left wall is lit, the right wall is in shade), a few stone block seams, wooden planks, window frames, small trims. Friendly chunky proportions are fine but the outline must stay within a few pixels of the blockout. Roofs, flags and awning cloth stay NEUTRAL GRAY (pure desaturated gray, 2-3 tones): they are team-color parts recolored per player by the game; nothing else may be neutral gray. Fully transparent background, no ground patch, no cast shadow on the ground, no scene, no text, no characters. No gradients, no texture, no noise, no glow, no blur, no black outlines.\n\nBuilding: a tall slender violet-stone wizard tower (an attack tower) with small round windows, a tall pointed cone roof, and one big teal crystal floating just above the roof tip. Materials: violet-purple stone and teal crystal",
+      "requested_size": "1024x1024",
+      "references": [
+        "Blender 밑그림 렌더(assets/pieces/blender/buildings.py의 mage_tower)",
+        "assets/concepts/style-reference-warrior.png",
+        "이미지 생성만으로 만든 같은 건물(시점이 달라 쓰지 않음, 디자인 참고)"
+      ],
+      "silhouette_iou": 0.898
+    },
+    {
+      "file": "assets/pieces/building-mage-mana-spring.png",
+      "team_mask": "assets/pieces/building-mage-mana-spring-team.png",
+      "prompt": "Call your image_generation tool exactly once to EDIT the first attached image: keep it identical (pose, proportions, colors, composition, transparent background) except for the requested change. Any other attached images are style references only.\n\nRepaint the first attached image, a plain 3D blockout render of a game-board building token, as finished game art for a cute cat fantasy strategy game, in the flat indie vector style of the style reference. Keep EXACTLY the same viewpoint (three-quarter isometric view with a corner of the building facing the viewer, seen from about 30 degrees above), the same silhouette, proportions, position and size on the canvas, and every part in the same place. Only add stylization and surface detail: angular faceted planes with straight hard edges like folded paper or cut gems, two to four tones per material, single light source from the upper left (the left wall is lit, the right wall is in shade), a few stone block seams, wooden planks, window frames, small trims. Friendly chunky proportions are fine but the outline must stay within a few pixels of the blockout. Roofs, flags and awning cloth stay NEUTRAL GRAY (pure desaturated gray, 2-3 tones): they are team-color parts recolored per player by the game; nothing else may be neutral gray. Fully transparent background, no ground patch, no cast shadow on the ground, no scene, no text, no characters. No gradients, no texture, no noise, no glow, no blur, no black outlines.\n\nBuilding: a mana spring: a round violet-stone well basin filled with flat bright teal magic water, small teal crystals around the rim, and a small pointed canopy roof on four thin violet pillars over the well. Materials: violet-purple stone and teal crystal",
+      "requested_size": "1024x1024",
+      "references": [
+        "Blender 밑그림 렌더(assets/pieces/blender/buildings.py의 mage_mana_spring)",
+        "assets/concepts/style-reference-warrior.png",
+        "이미지 생성만으로 만든 같은 건물(시점이 달라 쓰지 않음, 디자인 참고)"
+      ],
+      "silhouette_iou": 0.787
+    },
+    {
+      "file": "assets/pieces/building-mage-crystal-lab.png",
+      "team_mask": "assets/pieces/building-mage-crystal-lab-team.png",
+      "prompt": "Call your image_generation tool exactly once to EDIT the first attached image: keep it identical (pose, proportions, colors, composition, transparent background) except for the requested change. Any other attached images are style references only.\n\nRepaint the first attached image, a plain 3D blockout render of a game-board building token, as finished game art for a cute cat fantasy strategy game, in the flat indie vector style of the style reference. Keep EXACTLY the same viewpoint (three-quarter isometric view with a corner of the building facing the viewer, seen from about 30 degrees above), the same silhouette, proportions, position and size on the canvas, and every part in the same place. Only add stylization and surface detail: angular faceted planes with straight hard edges like folded paper or cut gems, two to four tones per material, single light source from the upper left (the left wall is lit, the right wall is in shade), a few stone block seams, wooden planks, window frames, small trims. Friendly chunky proportions are fine but the outline must stay within a few pixels of the blockout. Roofs, flags and awning cloth stay NEUTRAL GRAY (pure desaturated gray, 2-3 tones): they are team-color parts recolored per player by the game; nothing else may be neutral gray. Fully transparent background, no ground patch, no cast shadow on the ground, no scene, no text, no characters. No gradients, no texture, no noise, no glow, no blur, no black outlines.\n\nBuilding: a crystal laboratory: a small violet-stone workshop with a dome roof and a round window, with big teal crystals and a few violet crystals growing out of its side walls. Materials: violet-purple stone and teal crystal",
+      "requested_size": "1024x1024",
+      "references": [
+        "Blender 밑그림 렌더(assets/pieces/blender/buildings.py의 mage_crystal_lab)",
+        "assets/concepts/style-reference-warrior.png",
+        "이미지 생성만으로 만든 같은 건물(시점이 달라 쓰지 않음, 디자인 참고)"
+      ],
+      "silhouette_iou": 0.938
+    },
+    {
+      "file": "assets/pieces/building-mage-observatory.png",
+      "team_mask": "assets/pieces/building-mage-observatory-team.png",
+      "prompt": "Call your image_generation tool exactly once to EDIT the first attached image: keep it identical (pose, proportions, colors, composition, transparent background) except for the requested change. Any other attached images are style references only.\n\nRepaint the first attached image, a plain 3D blockout render of a game-board building token, as finished game art for a cute cat fantasy strategy game, in the flat indie vector style of the style reference. Keep EXACTLY the same viewpoint (three-quarter isometric view with a corner of the building facing the viewer, seen from about 30 degrees above), the same silhouette, proportions, position and size on the canvas, and every part in the same place. Only add stylization and surface detail: angular faceted planes with straight hard edges like folded paper or cut gems, two to four tones per material, single light source from the upper left (the left wall is lit, the right wall is in shade), a few stone block seams, wooden planks, window frames, small trims. Friendly chunky proportions are fine but the outline must stay within a few pixels of the blockout. Roofs, flags and awning cloth stay NEUTRAL GRAY (pure desaturated gray, 2-3 tones): they are team-color parts recolored per player by the game; nothing else may be neutral gray. Fully transparent background, no ground patch, no cast shadow on the ground, no scene, no text, no characters. No gradients, no texture, no noise, no glow, no blur, no black outlines.\n\nBuilding: a star observatory: a round violet-stone building with a dome roof that has an open slit, and a long brass telescope pointing up to the right out of the slit. Materials: violet-purple stone and teal crystal",
+      "requested_size": "1024x1024",
+      "references": [
+        "Blender 밑그림 렌더(assets/pieces/blender/buildings.py의 mage_observatory)",
+        "assets/concepts/style-reference-warrior.png",
+        "이미지 생성만으로 만든 같은 건물(시점이 달라 쓰지 않음, 디자인 참고)"
+      ],
+      "silhouette_iou": 0.782
+    },
+    {
+      "file": "assets/pieces/building-mage-teleport-gate.png",
+      "team_mask": "assets/pieces/building-mage-teleport-gate-team.png",
+      "prompt": "Call your image_generation tool exactly once to EDIT the first attached image: keep it identical (pose, proportions, colors, composition, transparent background) except for the requested change. Any other attached images are style references only.\n\nRepaint the first attached image, a plain 3D blockout render of a game-board building token, as finished game art for a cute cat fantasy strategy game, in the flat indie vector style of the style reference. Keep EXACTLY the same viewpoint (three-quarter isometric view with a corner of the building facing the viewer, seen from about 30 degrees above), the same silhouette, proportions, position and size on the canvas, and every part in the same place. Only add stylization and surface detail: angular faceted planes with straight hard edges like folded paper or cut gems, two to four tones per material, single light source from the upper left (the left wall is lit, the right wall is in shade), a few stone block seams, wooden planks, window frames, small trims. Friendly chunky proportions are fine but the outline must stay within a few pixels of the blockout. Roofs, flags and awning cloth stay NEUTRAL GRAY (pure desaturated gray, 2-3 tones): they are team-color parts recolored per player by the game; nothing else may be neutral gray. Fully transparent background, no ground patch, no cast shadow on the ground, no scene, no text, no characters. No gradients, no texture, no noise, no glow, no blur, no black outlines.\n\nBuilding: a teleport gate: a standing violet-stone archway on a round stone platform, the inside of the arch filled with a flat teal portal made of angular swirl planes, teal crystals on top of the arch; it has no roof, so one small flag on top of the arch is its team-color part. Materials: violet-purple stone and teal crystal",
+      "requested_size": "1024x1024",
+      "references": [
+        "Blender 밑그림 렌더(assets/pieces/blender/buildings.py의 mage_teleport_gate)",
+        "assets/concepts/style-reference-warrior.png",
+        "이미지 생성만으로 만든 같은 건물(시점이 달라 쓰지 않음, 디자인 참고)"
+      ],
+      "silhouette_iou": 0.921
+    },
+    {
+      "file": "assets/pieces/building-assassin-shade-tower.png",
+      "team_mask": "assets/pieces/building-assassin-shade-tower-team.png",
+      "prompt": "Call your image_generation tool exactly once to EDIT the first attached image: keep it identical (pose, proportions, colors, composition, transparent background) except for the requested change. Any other attached images are style references only.\n\nRepaint the first attached image, a plain 3D blockout render of a game-board building token, as finished game art for a cute cat fantasy strategy game, in the flat indie vector style of the style reference. Keep EXACTLY the same viewpoint (three-quarter isometric view with a corner of the building facing the viewer, seen from about 30 degrees above), the same silhouette, proportions, position and size on the canvas, and every part in the same place. Only add stylization and surface detail: angular faceted planes with straight hard edges like folded paper or cut gems, two to four tones per material, single light source from the upper left (the left wall is lit, the right wall is in shade), a few stone block seams, wooden planks, window frames, small trims. Friendly chunky proportions are fine but the outline must stay within a few pixels of the blockout. Roofs, flags and awning cloth stay NEUTRAL GRAY (pure desaturated gray, 2-3 tones): they are team-color parts recolored per player by the game; nothing else may be neutral gray. Fully transparent background, no ground patch, no cast shadow on the ground, no scene, no text, no characters. No gradients, no texture, no noise, no glow, no blur, no black outlines.\n\nBuilding: a shade tower (an attack tower): a slim dark-wood watchtower on four tall stilts with a hooded cloth canopy roof, dark teal cloth curtains half-closed around the lookout, coral trim. Materials: dark brown wood, dark teal cloth and coral trim",
+      "requested_size": "1024x1024",
+      "references": [
+        "Blender 밑그림 렌더(assets/pieces/blender/buildings.py의 assassin_shade_tower)",
+        "assets/concepts/style-reference-warrior.png",
+        "이미지 생성만으로 만든 같은 건물(시점이 달라 쓰지 않음, 디자인 참고)"
+      ],
+      "silhouette_iou": 0.831
+    },
+    {
+      "file": "assets/pieces/building-assassin-hideout.png",
+      "team_mask": "assets/pieces/building-assassin-hideout-team.png",
+      "prompt": "Call your image_generation tool exactly once to EDIT the first attached image: keep it identical (pose, proportions, colors, composition, transparent background) except for the requested change. Any other attached images are style references only.\n\nRepaint the first attached image, a plain 3D blockout render of a game-board building token, as finished game art for a cute cat fantasy strategy game, in the flat indie vector style of the style reference. Keep EXACTLY the same viewpoint (three-quarter isometric view with a corner of the building facing the viewer, seen from about 30 degrees above), the same silhouette, proportions, position and size on the canvas, and every part in the same place. Only add stylization and surface detail: angular faceted planes with straight hard edges like folded paper or cut gems, two to four tones per material, single light source from the upper left (the left wall is lit, the right wall is in shade), a few stone block seams, wooden planks, window frames, small trims. Friendly chunky proportions are fine but the outline must stay within a few pixels of the blockout. Roofs, flags and awning cloth stay NEUTRAL GRAY (pure desaturated gray, 2-3 tones): they are team-color parts recolored per player by the game; nothing else may be neutral gray. Fully transparent background, no ground patch, no cast shadow on the ground, no scene, no text, no characters. No gradients, no texture, no noise, no glow, no blur, no black outlines.\n\nBuilding: a hideout: a small low dark-wood hut half hidden in a big mossy rock and dark green bushes, a round low door, a cloth awning over the door and one coral paper lantern. Materials: dark brown wood, dark teal cloth and coral trim",
+      "requested_size": "1024x1024",
+      "references": [
+        "Blender 밑그림 렌더(assets/pieces/blender/buildings.py의 assassin_hideout)",
+        "assets/concepts/style-reference-warrior.png",
+        "이미지 생성만으로 만든 같은 건물(시점이 달라 쓰지 않음, 디자인 참고)"
+      ],
+      "silhouette_iou": 0.92
+    },
+    {
+      "file": "assets/pieces/building-assassin-fish-store.png",
+      "team_mask": "assets/pieces/building-assassin-fish-store-team.png",
+      "prompt": "Call your image_generation tool exactly once to EDIT the first attached image: keep it identical (pose, proportions, colors, composition, transparent background) except for the requested change. Any other attached images are style references only.\n\nRepaint the first attached image, a plain 3D blockout render of a game-board building token, as finished game art for a cute cat fantasy strategy game, in the flat indie vector style of the style reference. Keep EXACTLY the same viewpoint (three-quarter isometric view with a corner of the building facing the viewer, seen from about 30 degrees above), the same silhouette, proportions, position and size on the canvas, and every part in the same place. Only add stylization and surface detail: angular faceted planes with straight hard edges like folded paper or cut gems, two to four tones per material, single light source from the upper left (the left wall is lit, the right wall is in shade), a few stone block seams, wooden planks, window frames, small trims. Friendly chunky proportions are fine but the outline must stay within a few pixels of the blockout. Roofs, flags and awning cloth stay NEUTRAL GRAY (pure desaturated gray, 2-3 tones): they are team-color parts recolored per player by the game; nothing else may be neutral gray. Fully transparent background, no ground patch, no cast shadow on the ground, no scene, no text, no characters. No gradients, no texture, no noise, no glow, no blur, no black outlines.\n\nBuilding: a fish storehouse: a dark-wood storehouse on short stilts with a slanted roof, strings of dried fish hanging under the eaves, wooden barrels and one crate in front. Materials: dark brown wood, dark teal cloth and coral trim",
+      "requested_size": "1024x1024",
+      "references": [
+        "Blender 밑그림 렌더(assets/pieces/blender/buildings.py의 assassin_fish_store)",
+        "assets/concepts/style-reference-warrior.png",
+        "이미지 생성만으로 만든 같은 건물(시점이 달라 쓰지 않음, 디자인 참고)"
+      ],
+      "silhouette_iou": 0.918
+    },
+    {
+      "file": "assets/pieces/building-assassin-informant-nest.png",
+      "team_mask": "assets/pieces/building-assassin-informant-nest-team.png",
+      "prompt": "Call your image_generation tool exactly once to EDIT the first attached image: keep it identical (pose, proportions, colors, composition, transparent background) except for the requested change. Any other attached images are style references only.\n\nRepaint the first attached image, a plain 3D blockout render of a game-board building token, as finished game art for a cute cat fantasy strategy game, in the flat indie vector style of the style reference. Keep EXACTLY the same viewpoint (three-quarter isometric view with a corner of the building facing the viewer, seen from about 30 degrees above), the same silhouette, proportions, position and size on the canvas, and every part in the same place. Only add stylization and surface detail: angular faceted planes with straight hard edges like folded paper or cut gems, two to four tones per material, single light source from the upper left (the left wall is lit, the right wall is in shade), a few stone block seams, wooden planks, window frames, small trims. Friendly chunky proportions are fine but the outline must stay within a few pixels of the blockout. Roofs, flags and awning cloth stay NEUTRAL GRAY (pure desaturated gray, 2-3 tones): they are team-color parts recolored per player by the game; nothing else may be neutral gray. Fully transparent background, no ground patch, no cast shadow on the ground, no scene, no text, no characters. No gradients, no texture, no noise, no glow, no blur, no black outlines.\n\nBuilding: an informant's nest: a small dark-wood lookout box on top of a tall wooden pole, like a big birdhouse, with a tiny roof, a dark teal curtain over its round opening and a rope ladder hanging down the pole. Materials: dark brown wood, dark teal cloth and coral trim",
+      "requested_size": "1024x1024",
+      "references": [
+        "Blender 밑그림 렌더(assets/pieces/blender/buildings.py의 assassin_informant_nest)",
+        "assets/concepts/style-reference-warrior.png",
+        "이미지 생성만으로 만든 같은 건물(시점이 달라 쓰지 않음, 디자인 참고)"
+      ],
+      "silhouette_iou": 0.729
+    },
+    {
+      "file": "assets/pieces/building-assassin-black-market.png",
+      "team_mask": "assets/pieces/building-assassin-black-market-team.png",
+      "prompt": "Call your image_generation tool exactly once to EDIT the first attached image: keep it identical (pose, proportions, colors, composition, transparent background) except for the requested change. Any other attached images are style references only.\n\nRepaint the first attached image, a plain 3D blockout render of a game-board building token, as finished game art for a cute cat fantasy strategy game, in the flat indie vector style of the style reference. Keep EXACTLY the same viewpoint (three-quarter isometric view with a corner of the building facing the viewer, seen from about 30 degrees above), the same silhouette, proportions, position and size on the canvas, and every part in the same place. Only add stylization and surface detail: angular faceted planes with straight hard edges like folded paper or cut gems, two to four tones per material, single light source from the upper left (the left wall is lit, the right wall is in shade), a few stone block seams, wooden planks, window frames, small trims. Friendly chunky proportions are fine but the outline must stay within a few pixels of the blockout. Roofs, flags and awning cloth stay NEUTRAL GRAY (pure desaturated gray, 2-3 tones): they are team-color parts recolored per player by the game; nothing else may be neutral gray. Fully transparent background, no ground patch, no cast shadow on the ground, no scene, no text, no characters. No gradients, no texture, no noise, no glow, no blur, no black outlines.\n\nBuilding: a black market stall: a small dark-wood market stall with a cloth awning roof, two coral paper lanterns, a counter with mysterious wrapped bundles and two crates, dark teal cloth hanging at the sides. Materials: dark brown wood, dark teal cloth and coral trim",
+      "requested_size": "1024x1024",
+      "references": [
+        "Blender 밑그림 렌더(assets/pieces/blender/buildings.py의 assassin_black_market)",
+        "assets/concepts/style-reference-warrior.png",
+        "이미지 생성만으로 만든 같은 건물(시점이 달라 쓰지 않음, 디자인 참고)"
+      ],
+      "silhouette_iou": 0.9
+    }
+  ]
+}
