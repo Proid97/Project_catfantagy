@@ -12,7 +12,7 @@ export const SIGHT = { castle: 1, village: 0, road: 0, unit: 2 };
 
 export const tileKey = ({ q, r }) => `${q},${r}`;
 
-// 지금 판에 있는 말. 아직 왕성뿐이다. 말은 { player, kind, hexes }.
+// 말은 { player, kind, hexes, sight? }. sight가 있으면 SIGHT[kind] 대신 쓴다(빗자루냥 3칸 등). 게임 규칙(src/game/rules.js)이 판 위 말 전부를 넘긴다.
 export const boardPieces = board => board.starts.map(({ player, hexes }) => ({ player, kind: 'castle', hexes }));
 
 // 처음부터 아는 칸: 교환소 칸과 숫자 6·8 칸
@@ -20,11 +20,12 @@ export const startKnown = board => new Set([...board.ports, ...board.tiles.filte
 
 // viewer 쪽(팀전은 팀원과 함께, 1대1·개인전은 자기만)이 보는 판. known은 지난번까지 아는 칸이고 바꾸지 않는다.
 // state: 칸 key → 단계, known: 이번에 본 칸까지 더한 아는 칸(다음 계산에 넘긴다).
-export function vision(board, { viewer = 0, pieces = boardPieces(board), known = startKnown(board) } = {}) {
+// extra: 말 밖에서 따로 밝힌 칸 key(예언·천리안). 아는 칸에도 더한다.
+export function vision(board, { viewer = 0, pieces = boardPieces(board), known = startKnown(board), extra = [] } = {}) {
   const team = board.starts[viewer].team;
   const mine = pieces.filter(piece => board.starts[piece.player].team === team);
-  const seen = board.tiles.filter(tile => mine.some(({ kind, hexes }) => hexes.some(h => hexDistance(h, tile) <= SIGHT[kind])));
-  const visible = new Set(seen.map(tileKey));
+  const seen = board.tiles.filter(tile => mine.some(({ kind, hexes, sight }) => hexes.some(h => hexDistance(h, tile) <= (sight ?? SIGHT[kind]))));
+  const visible = new Set([...seen.map(tileKey), ...extra]);
   const state = new Map(board.tiles.map(tile => {
     const key = tileKey(tile);
     return [key, visible.has(key) ? VISIBLE : known.has(key) ? KNOWN : UNKNOWN];

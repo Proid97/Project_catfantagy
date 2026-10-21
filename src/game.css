@@ -1,0 +1,115 @@
+/* 게임 화면(src/game-screen.js). 지도 HUD(map.css)와 같은 짙은 남색 판·두꺼운 테두리·크림색 단추를 쓴다.
+   아래 줄(미니맵·큰 단추·카드) 바로 위의 띠 하나에 "누구 턴 / 고르기 안내 / 고른 유닛"을 번갈아 보인다. */
+.map-screen:not([data-game="on"]) :is(.game-hand, .strip, .tools, .toast) { display: none; }
+.map-screen[data-game="on"] .hand { display: none; }
+
+/* 플레이어 줄: 왕성 체력과 목표 건물 수. 지금 턴인 플레이어는 얼굴 둘레가 노랗다 */
+.player-stat { display: flex; align-items: center; gap: 2px; font-size: 13px; color: var(--hud-ink); font-variant-numeric: tabular-nums; }
+.player-stat:empty { display: none; }
+.player-stat img { width: 16px; height: 16px; }
+.player-stat img + img, .player-stat img:nth-of-type(2) { margin-left: 6px; }
+.opponents .player-stat { font-size: 12px; }
+.player.now .avatar { box-shadow: 0 0 0 2px var(--hud-edge), 0 0 0 5px #ffd54a; }
+
+/* 받은 자원은 잠깐 커지며 노랗게 */
+.hud-resources li.gain span:last-child { animation: gain .6s ease-out; }
+@keyframes gain { 30% { color: #ffd54a; scale: 1.3; } }
+
+/* 아래 줄 위의 띠 */
+.strip { left: 0; right: 0; bottom: calc(var(--minimap) * .8 + 14px); display: flex; justify-content: center; pointer-events: none; }
+.strip > * { pointer-events: auto; }
+.turn-banner { display: flex; align-items: center; gap: 10px; margin: 0; padding: 6px 8px 6px 16px; border: 3px solid var(--hud-edge); border-radius: 22px; background: var(--hud-panel); font-size: 16px; box-shadow: var(--hud-shadow); }
+.turn-banner .pace { min-height: 36px; }
+.turn-banner[hidden] { display: none; }
+.pick-bar { display: flex; align-items: center; gap: 8px; max-width: 100%; padding: 6px 6px 6px 14px; font-size: 15px; }
+.pick-bar p { margin: 0; }
+.unit-panel { display: grid; gap: 6px; max-width: 100%; padding: 8px 10px; font-size: 15px; }
+.unit-panel p { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; margin: 0; }
+.unit-panel p small { flex-basis: 100%; color: var(--hud-soft); font-size: 13px; }
+.unit-panel img, .pick-bar img { width: 18px; height: 18px; }
+.unit-panel div { display: flex; flex-wrap: wrap; gap: 6px; }
+.unit-panel .ui-button { display: inline-flex; align-items: center; gap: 2px; }
+.unit-panel .ui-button img { width: 16px; height: 16px; margin-left: 4px; }
+
+/* 알림 한 줄: 띠 위, 오른쪽 도구 줄을 피해 가운데 */
+.toast { left: 50%; bottom: calc(var(--minimap) * .8 + 70px); translate: -50% 0; max-width: calc(100% - 170px); padding: 6px 14px; border-radius: 16px; background: #0b111acc; font-size: 14px; line-height: 1.3; text-align: center; opacity: 0; transition: opacity .25s; pointer-events: none; }
+.toast.on { opacity: 1; }
+
+/* 오른쪽 도구 줄(카드 위): 마을·길·교환 */
+.tools { right: 0; bottom: calc(var(--hand) + 10px); display: grid; gap: 8px; }
+.tool { display: grid; justify-items: center; gap: 1px; width: 66px; min-height: 60px; padding: 4px 2px; border: 3px solid var(--hud-edge); border-radius: 16px; background: #fff6e6; color: #2a1d0e; font-size: 14px; line-height: 1; box-shadow: inset 0 -4px 0 #d8c9a8, var(--hud-shadow); pointer-events: auto; touch-action: manipulation; }
+.tool > img { width: 28px; height: 28px; }
+.tool small { display: flex; gap: 1px; font-size: 10px; }
+.tool .cost { display: flex; align-items: center; }
+.tool .cost img { width: 13px; height: 13px; }
+.tool:active { translate: 0 2px; }
+.tool:disabled { opacity: .5; filter: grayscale(.7); cursor: default; }
+.road-icon { width: 28px; height: 28px; background: linear-gradient(135deg, #0000 40%, #2a1d0e 40% 60%, #0000 60%); position: relative; }
+.road-icon::after { content: ''; position: absolute; inset: 0; background: linear-gradient(135deg, #0000 44%, #e0453a 44% 56%, #0000 56%); }
+
+/* 큰 단추: 미니맵과 카드 사이 가운데(남은 시간이 붙어 넓어진다). 10초 남으면 붉게 */
+.map-screen[data-game="on"] .dice-roll { left: calc((var(--minimap) + 100% - var(--hand)) / 2); }
+.dice-roll .clock { min-width: 2.6em; margin-left: 4px; font-variant-numeric: tabular-nums; }
+.dice-roll.hurry { background: #ff8a6a; }
+
+/* 패: 카드 뒷면 묶음과 장수(누르면 카드 창) */
+.game-hand { right: 0; bottom: 0; width: var(--hand); height: 112px; padding: 0; border: 0; background: none; pointer-events: auto; touch-action: manipulation; }
+.game-hand .backs img { position: absolute; right: 4px; bottom: 4px; width: 68px; height: 95px; border-radius: 6px; box-shadow: 0 3px 0 #0b111a66; }
+.game-hand .backs img:nth-child(1) { transform: translate(-32px, -8px) rotate(-11deg); }
+.game-hand .backs img:nth-child(2) { transform: translate(-16px, -3px) rotate(-4deg); }
+.game-hand .backs img:nth-child(3) { transform: rotate(4deg); }
+
+/* 창 */
+.game-dialog { width: min(94vw, 760px); max-height: 86svh; padding: 14px 16px 16px; color: var(--hud-ink); overflow: auto; }
+.game-dialog::backdrop { background: #0b111a8c; }
+.game-dialog > h2 { margin: 0 0 8px; font-size: 22px; }
+.game-dialog > h3 { margin: 10px 0 6px; font-size: 15px; color: var(--hud-soft); }
+.game-dialog > p { margin: 0 0 8px; font-size: 15px; }
+.dialog-buttons { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 10px; margin-top: 12px; }
+.hand-row { display: flex; gap: 10px; padding: 10px 4px 14px; overflow-x: auto; overscroll-behavior: contain; scroll-snap-type: x proximity; }
+.hand-row { justify-content: safe center; }
+.hand-card { --card-width: 84px; position: relative; flex: none; padding: 0; border: 0; border-radius: 8px; background: none; scroll-snap-align: center; transition: translate .15s; touch-action: manipulation; }
+.hand-card.on { translate: 0 -6px; outline: 4px solid #ffd54a; outline-offset: 2px; }
+/* 버릴 카드로 고른 카드: 어둡게 하고 가운데에 "버림" */
+.hand-card.marked::after { content: '버림'; position: absolute; inset: 0; display: grid; place-items: center; border-radius: 8px; background: #0b111aa8; color: #ff8a7a; font-size: 18px; }
+/* 고른 카드를 크게: 설명판 글이 다 읽히는 크기 */
+/* 작은 카드는 그림·이름만(글은 아래 큰 카드에서 읽는다) */
+.hand-card :is(.card-panel, .card-kind, .card-stats, .card-dice) { display: none; }
+.hand-focus { --card-width: min(300px, 70vw, 34svh); display: grid; justify-items: center; }
+.hand-note { min-height: 1.3em; color: #ffb35a; }
+.choice-list { display: flex; flex-wrap: wrap; gap: 10px; }
+.choice-list img { width: 22px; height: 22px; margin-right: 4px; }
+.choice { display: inline-flex; }
+.trade-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.trade-pick { display: grid; justify-items: center; gap: 2px; min-height: 64px; padding: 6px 2px; border: 3px solid var(--hud-edge); border-radius: 14px; background: #fff6e6; color: #2a1d0e; font-size: 14px; touch-action: manipulation; }
+.trade-pick img { width: 28px; height: 28px; }
+.trade-pick small { font-size: 11px; color: #7a6a52; }
+.trade-pick.on { background: #ffd54a; }
+.trade-pick:disabled { opacity: .4; }
+.trade-note { color: var(--hud-soft); font-size: 13px !important; }
+.trade-rate { margin-top: 10px !important; font-size: 17px !important; }
+.over-dialog { width: min(90vw, 420px); text-align: center; }
+.over-dialog > h2 { font-size: 40px; }
+.over-dialog h2.win { color: #ffd54a; }
+.over-dialog h2.lose { color: #b9c4d4; }
+.over-dialog .dialog-buttons { justify-content: center; }
+
+@container (max-width: 520px) {
+  .tools { bottom: calc(var(--hand) + 6px); gap: 6px; }
+  .tool { width: 58px; min-height: 54px; font-size: 13px; }
+  .tool > img, .road-icon { width: 24px; height: 24px; }
+  .game-hand { height: 96px; }
+  .game-hand .backs img { width: 60px; height: 84px; }
+  .hand-card { --card-width: 70px; }
+  .turn-banner { font-size: 14px; }
+  .pick-bar, .unit-panel { font-size: 14px; }
+}
+
+/* 종족 고르기(대전 방식 다음) */
+.race-screen h2 { margin: 0; color: #fff6e6; font-size: 24px; text-align: center; }
+.race-list { flex: 1; display: grid; grid-auto-rows: 1fr; gap: 14px; }
+.race-list button { display: grid; grid-template-columns: auto 1fr; grid-template-rows: auto auto; align-items: center; column-gap: 16px; min-height: 44px; padding: 10px 18px; border: 4px solid #0b111a; border-radius: 24px; color: inherit; background: #fff6e6; box-shadow: inset 0 -8px 0 #e3d3b0, 0 6px 0 #0b111a88; text-align: start; touch-action: manipulation; }
+.race-list button:active { translate: 0 3px; }
+.race-list img { grid-row: span 2; width: clamp(72px, 18vmin, 128px); height: clamp(72px, 18vmin, 128px); border: 4px solid #0b111a; border-radius: 22px; }
+.race-list b { align-self: end; font-size: clamp(24px, 5vmin, 34px); }
+.race-list small { align-self: start; color: #7a6a52; font-size: 15px; line-height: 1.35; }

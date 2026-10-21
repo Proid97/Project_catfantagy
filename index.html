@@ -43,6 +43,15 @@
         </div>
         <button class="ui-button blue mode-cards" data-cards>카드·말 보기</button>
       </section>
+      <section id="races" class="mode-screen race-screen" hidden aria-labelledby="races-title">
+        <button class="ui-button small blue race-back">← 뒤로</button>
+        <h2 id="races-title" tabindex="-1">종족 고르기</h2>
+        <div class="race-list">
+          <button data-race="warrior"><b>냥전사</b><small>체력이 높고 가까이 싸워요. 버티며 밀고 들어가요</small></button>
+          <button data-race="mage"><b>냥법사</b><small>멀리서 쏘고 넓게 터뜨려요. 몸은 약해요</small></button>
+          <button data-race="assassin"><b>냥살자</b><small>숨어서 기다렸다 치고, 자원을 훔쳐요</small></button>
+        </div>
+      </section>
       <section id="map" class="map-screen" hidden aria-labelledby="map-title"></section>
       <section id="cards" class="cards-screen" hidden aria-labelledby="cards-title"></section>
     </main>

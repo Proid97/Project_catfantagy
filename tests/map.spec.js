@@ -144,6 +144,15 @@ const chatList = page => page.getByRole('list', { name: '말 고르기' });
 // 다른 플레이어(봇·온라인 상대)가 한 말. 앱도 같은 이벤트로 말풍선을 띄운다.
 const sayAs = (page, player, text) => page.locator('#map').evaluate((root, detail) => root.dispatchEvent(new CustomEvent('map:say', { detail })), { player, text });
 const within = (item, { width, height }) => item.x >= 0 && item.y >= 0 && item.x + item.width <= width && item.y + item.height <= height;
+// 게임: 첫 마을 자리(엔진이 고른 첫 후보)를 화면에서 누른다. 시점이 내 왕성으로 다 옮겨 간 뒤에 잰다.
+async function placeFirstVillage(page) {
+  const map = page.locator('#map');
+  await expect.poll(() => map.evaluate(root => root.game?.().g.state.pending[0]?.type ?? null)).toBe('village');
+  await page.waitForTimeout(400);
+  const { x, y } = await map.evaluate(root => root.mapDebug().screenOf(root.game().g.villageSpots(0)[0].vertex));
+  await page.mouse.click(x, y);
+  await expect.poll(() => map.evaluate(root => root.game().g.state.players[0].village)).not.toBeNull();
+}
 function watchErrors(page) {
   const errors = [];
   page.on('pageerror', error => errors.push(error.message));
@@ -359,20 +368,26 @@ test('임시 주사위: 연출 중 화면을 누르면 결과로 건너뛰고 �
 
 test('타이틀에서 고른 "움직임 줄임"이면 주사위가 구르지 않고 결과 면으로 나타났다 사라짐', async ({ page }) => {
   const errors = watchErrors(page);
-  await page.goto('/');
+  await page.goto('/?seed=7'); // 시드 7: 내가 먼저 둔다
   await page.getByRole('button', { name: '연출 건너뛰기' }).click();
   await page.getByRole('button', { name: '움직임: 전체', exact: true }).click();
   await expect(page.locator('.stage')).toHaveAttribute('data-motion', 'reduced');
   await page.getByRole('button', { name: '게임 시작' }).click();
   await page.getByRole('button', { name: /^1대1 매치/ }).click();
+  await page.getByRole('button', { name: /^냥전사/ }).click();
   await settled(page);
-  const values = await roll(page);
-  // 처음부터 결과 면이고, 투명도만 바뀐다(이동·회전·크기 변화 없음).
+  await placeFirstVillage(page);
+  const button = page.getByRole('button', { name: '주사위 굴리기' });
+  await expect(button).toBeVisible();
+  await button.click();
+  // 처음부터 엔진이 굴린 결과 면이고, 투명도만 바뀐다(이동·회전·크기 변화 없음).
+  await expect(page.locator('.dice-layer')).toHaveCount(1);
+  const values = await page.locator('#map').evaluate(root => root.game().g.state.dice);
   expect(await diceFaces(page)).toEqual(values);
   const changed = await page.locator('.dice-layer').evaluate(layer => [...new Set(layer.getAnimations({ subtree: true }).flatMap(a => a.effect.getKeyframes().flatMap(Object.keys)))]);
   expect(changed.filter(key => !['offset', 'computedOffset', 'easing', 'composite'].includes(key))).toEqual(['opacity']);
   await expect(page.locator('.dice-layer')).toHaveCount(0);
-  await expect(page.getByRole('button', { name: '주사위 굴리기' })).toBeEnabled();
+  await expect(page.getByRole('button', { name: /^턴 끝내기/ })).toBeVisible();
   expect(errors).toEqual([]);
 });
 
@@ -740,25 +755,33 @@ test('성 크기: 멀리 볼수록 크게, 확대해도 화면에서 줄지 않�
   }
 });
 
-test('타이틀에서 대전 방식을 골라 판 보기, 모드 바꾸기로 돌아오기', async ({ page }) => {
+test('타이틀에서 대전 방식과 종족을 골라 판 시작, 모드 바꾸기로 돌아오기', async ({ page }) => {
   const errors = watchErrors(page);
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.goto('/');
   await page.getByRole('button', { name: '게임 시작' }).click();
   await page.getByRole('button', { name: /^1대1 매치/ }).click();
-  await expect(page.locator('#map')).toBeVisible();
   await expect(page.locator('#modes')).toBeHidden();
-  await expect(page.locator('.hud-players .who small')).toHaveText(['냥전사', '냥법사']);
+  await expect(page.locator('#races [data-race]')).toHaveCount(3);
+  await page.getByRole('button', { name: /^냥법사/ }).click();
+  await expect(page.locator('#map')).toBeVisible();
+  await expect(page.locator('#races')).toBeHidden();
+  await expect(page.locator('.hud-players .who small').first()).toHaveText('냥법사');
+  await expect(page.locator('.hud-players .avatar')).toHaveCount(2);
   await expect(page.locator('.hud-players')).toContainText('나');
   await settled(page);
   await page.getByRole('button', { name: '대전 방식 바꾸기' }).click();
   await expect(page.locator('#map')).toBeHidden();
   await page.getByRole('button', { name: /^4인 매치/ }).click();
   await expect(page.getByRole('button', { name: /^1대1 매치/ })).toBeHidden();
-  // 뒤로: 4인 단계 → 첫 단계
+  // 뒤로: 4인 단계 → 첫 단계, 종족 고르기에서 뒤로 → 4인 단계
   await page.getByRole('button', { name: '← 뒤로' }).click();
   await page.getByRole('button', { name: /^4인 매치/ }).click();
   await page.getByRole('button', { name: /^팀전/ }).click();
+  await page.locator('#races').getByRole('button', { name: '← 뒤로' }).click();
+  await expect(page.getByRole('button', { name: /^팀전/ })).toBeVisible();
+  await page.getByRole('button', { name: /^팀전/ }).click();
+  await page.getByRole('button', { name: /^냥살자/ }).click();
   await expect(page.locator('#map')).toBeVisible();
   await expect(page.locator('.hud-players .avatar')).toHaveCount(4);
   await expect(page.getByRole('list', { name: '상대 팀' })).toBeVisible();
