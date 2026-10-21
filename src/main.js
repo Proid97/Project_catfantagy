@@ -1,5 +1,6 @@
 import './style.css';
 import { mapScreen, loadMapArt } from './map-screen.js';
+import { cardsScreen } from './cards-screen.js';
 import { animateTitle, syncIntroVisibility, syncIdleVisibility } from './title-intro.js';
 import { systemReducedMotion, motionChoice, useReducedMotion, rememberMotion } from './motion.js';
 import layout from './generated/title-layout.json';
@@ -18,6 +19,8 @@ const modes = document.querySelector('#modes');
 const modeBack = modes.querySelector('.mode-back');
 const [modeFirst, modeFour] = modes.querySelectorAll('.mode-list');
 const openMap = mapScreen(document.querySelector('#map'), () => showModes(false));
+const cardsRoot = document.querySelector('#cards');
+const openCards = cardsScreen(cardsRoot, () => { cardsRoot.hidden = true; showModes(false); });
 const assetRoot = `${import.meta.env.BASE_URL}title/`;
 let animations = [];
 let idle = [];
@@ -160,6 +163,7 @@ modes.addEventListener('click', event => {
   const button = event.target.closest('button');
   if (button === modeBack) modesBack();
   else if (button?.hasAttribute('data-next')) showModes(true);
+  else if (button?.hasAttribute('data-cards')) { modes.hidden = true; openCards(); }
   else if (button?.dataset.mode) {
     modes.hidden = true;
     openMap(button.dataset.mode);
@@ -195,9 +199,12 @@ systemReducedMotion.addEventListener('change', () => {
 });
 addEventListener('resize', fillScreen);
 fillScreen();
-// 개발·시험용: #map(1대1), #map-ffa(4인 개인전), #map-team(2대2 팀전)으로 열면 타이틀을 건너뛰고 판을 바로 본다.
-const shortcut = { '#map': 'duel', '#map-ffa': 'ffa', '#map-team': 'team' }[location.hash];
-if (shortcut) {
+// 개발·시험용: #map(1대1), #map-ffa(4인 개인전), #map-team(2대2 팀전)으로 열면 타이틀을 건너뛰고 판을 바로 본다. #cards는 카드·말 보기, #map-demo는 보기용 말을 놓은 판.
+const shortcut = { '#map': 'duel', '#map-ffa': 'ffa', '#map-team': 'team', '#map-demo': 'duel' }[location.hash];
+if (location.hash === '#cards') {
   stage.hidden = true;
-  openMap(shortcut);
+  openCards();
+} else if (shortcut) {
+  stage.hidden = true;
+  openMap(shortcut, { demo: location.hash === '#map-demo' });
 } else load();

@@ -1,9 +1,13 @@
 import './map.css';
-import { MODES, TERRAIN, PORT_RATE, createBoard, hexToPixel, pixelToHex, hexCorners, portSpots } from './board.js';
-import { UNKNOWN, KNOWN, VISIBLE, vision, pieceSeen } from './vision.js';
+import { MODES, TERRAIN, PORT_RATE, createBoard, hexToPixel, pixelToHex, hexCorners, hexDistance, portSpots } from './board.js';
+import { UNKNOWN, KNOWN, VISIBLE, vision, pieceSeen, boardPieces } from './vision.js';
+import cards from './generated/cards.json';
 import { useReducedMotion } from './motion.js';
 import { rollDice } from './dice.js';
-import { files, objectBox } from './generated/map-art.json';
+import { files } from './generated/map-art.json';
+import bakedArt from './generated/art.json';
+import { image as bakedImage } from './card-view.js';
+import { tint } from './tint.js';
 
 const TILE = 100; // 칸 중심에서 꼭짓점까지(월드 단위)
 const MAX_ZOOM = 1.4; // 칸 너비 280 CSS px
@@ -20,15 +24,12 @@ const DEPTH = 66 * UNIT;
 const REACH = 115; // 칸 중심에서 그림 끝까지(위 99, 아래 114)보다 조금 넉넉히. 화면 밖 칸을 거를 때 쓴다.
 const GROUNDS = ['grass-1', 'grass-2', 'grass-3', 'barren', 'lake'];
 const ON_BARREN = new Set(['gold', 'crystal', 'rock']); // 임시: 거친 땅은 흙빛 바탕에 둔다
-// 지형 오브젝트(칸 종류 → 그림). 타일과 같은 캔버스에서 잘라 낸 상자(objectBox: x, y, 너비, 높이)라 그 자리에 그린다.
-const OBJECTS = { forest: 'forest', gold: 'gold-mine', crystal: 'crystal', rock: 'rock' };
-const OBJECT_X = (objectBox[0] - 511.5) * UNIT;
-const OBJECT_Y = (objectBox[1] - 477.5) * UNIT;
-const OBJECT_W = objectBox[2] * UNIT;
-const OBJECT_H = objectBox[3] * UNIT;
+// 자원 지형 타일(2026-10-20 사용자 결정, PR #16): 자원을 칸 그림에 그려 넣은 타일. 바탕 타일과 윤곽이 같아 같은 자리에 그린다.
+// 안개 속 모르는 칸은 이 타일 대신 바탕(풀밭·빈 땅)을 그려 자원을 숨긴다.
+const OBJECTS = { forest: 'forest-tile', gold: 'gold-mine-tile', crystal: 'crystal-tile', rock: 'rock-tile' };
 const DISC_Y = 0.40 * TILE; // 숫자 패: 칸 아래쪽 가운데. 오브젝트 그림은 위쪽을 쓴다.
 const DISC_R = 0.26 * TILE;
-// 성 그림(원본 512px)을 그리는 크기(월드 단위). 보이는 성의 폭은 약 82로 칸 폭의 41%.
+// 성 크기(월드 단위). 구운 성 그림(받침 포함, 폭:높이 680:900)은 폭을 CASTLE × CASTLE_W로 그린다. 보이는 성의 폭은 약 90으로 칸 폭의 45%.
 // 임시: 이웃 꼭짓점(100 떨어짐, 길이 지날 자리)을 가리지 않는 가장 큰 크기. 테두리까지 잰 실루엣이 가장 가까운 이웃(오른쪽 위, 깃발 쪽)과 약 9 떨어진다.
 // 이웃 칸 숫자 패 가장자리를 약 10% 덮지만, 숫자 패를 성보다 나중에 그려 숫자는 가려지지 않는다.
 const CASTLE = 120;
@@ -39,8 +40,16 @@ const NATURAL = 0.7; // 칸 폭 140 CSS px. 플레이어를 눌러 왕성으로 
 const CASTLE_FAR = 72; // 기본 배율의 성(120 × 0.7 = 84px)보다 크면 확대할 때 성이 줄어 보이므로 그보다 작게 둔다
 const CASTLE_FAR_TILES = 2.5;
 const CASTLE_ABOVE = 2; // 성이 제 크기의 2배를 넘으면(숫자 글자 약 9 CSS px 이하) 숫자 패 위에 그린다
-const CASTLE_BASE = 0.26; // 전체 보기에서 성 아래 플레이어 색 받침의 반지름(성 그림 크기에 대한 비율)
-const CASTLE_FOOT = 420 / 512; // 땅에 닿는 점(원본 256, 420)을 꼭짓점에 둔다
+const CASTLE_W = 100 / 120; // 성 그림 폭 / 성 크기
+const CASTLE_RATIO = 900 / 680; // 성 그림 높이 / 폭(scripts/bake-art.mjs의 BUILDING_BOX)
+const [CASTLE_AX, CASTLE_AY] = bakedArt.pieces['castle@anchor']; // 받침 가운데(그림 안 비율). 꼭짓점에 맞춘다
+// 유닛 동전 토큰(2026-10-21). 그림 안의 동전 가운데·테두리·체력·마나 자리(1024 기준)는 굽는 코드와 같은 값(art.json의 token).
+const TK = bakedArt.token;
+const TOKEN_D = 88; // 임시: 동전 지름(월드 단위, 칸 폭 200의 44%)
+const TOKEN_SCALE = 1024 / (2 * TK.rim); // 동전 지름 → 그림 폭
+const TOKEN_FAR = 26; // 멀리 볼 때도 동전이 화면에서 이 CSS px보다 작아지지 않게 한다
+const TOKEN_UP = 22; // 동전을 칸 가운데보다 위로 올려 아래쪽 숫자 패를 덜 가린다(숫자 패는 말 위에 그린다)
+const STATS = Object.fromEntries(cards.filter(card => card.type === 'unit').map(card => [card.id, card.stats]));
 const GLIDE = 300; // 왕성으로 가는 시점 이동 시간(ms)
 const FOAM = 26; // 해안 거품 굵기. 절반은 육지 그림에 덮인다
 // 임시 · 안개(볼류메트릭): 짙은 회색으로 판 상자 전체(바다 포함)를 덮어, 보이는 곳(내 성·말 둘레)에 눈이 가게 한다.
@@ -153,7 +162,8 @@ function hashOf(q, r) {
 const grassOf = (q, r) => hashOf(q, r) % 3;
 
 // 내용 해시를 붙인 주소. 그림이 바뀌면 주소도 바뀌어 예전 그림이 캐시에 남지 않는다.
-const source = path => `${import.meta.env.BASE_URL}${path}.webp?v=${files[path]}`;
+// 지도 그림(map/)과 구운 그림(ui/, pieces/ 등, art.json)
+const source = path => path.startsWith('map/') ? `${import.meta.env.BASE_URL}${path}.webp?v=${files[path]}` : bakedImage(path, path.split('/')[0]);
 
 async function decode(path) {
   const image = new Image();
@@ -185,25 +195,63 @@ function levelOf(levels, size) {
   return level;
 }
 
-// 플레이어 성: 회색 마스크(지붕·깃발)의 밝기로 플레이어 색을 밝히거나 어둡게 칠하고, 그 아래에 기본 성을 깐다.
-// 마스크 회색이 TINT_MID면 플레이어 색 그대로다. 곱하기만 하면 어두운 회색(약 100)에서 색이 탁해진다.
-const TINT_MID = 112;
-function tintCastle(castle, team, color) {
-  const canvas = document.createElement('canvas');
-  canvas.width = castle.width;
-  canvas.height = castle.height;
-  const g = canvas.getContext('2d');
-  g.drawImage(team, 0, 0);
-  const image = g.getImageData(0, 0, canvas.width, canvas.height);
-  const rgb = [1, 3, 5].map(i => parseInt(color.slice(i, i + 2), 16));
-  for (let i = 0; i < image.data.length; i += 4) {
-    const light = image.data[i] / TINT_MID;
-    for (let c = 0; c < 3; c++) image.data[i + c] = rgb[c] * light;
+// 플레이어 색으로 칠한 말(성·건물·동전)과 그 축소 단계
+const tintCastle = (base, team, color) => mips(tint(base, team, color));
+
+// 판 위 말(건물·유닛 동전) 그림. 판에 실제로 나온 그림·플레이어 짝만 받아 한 번 칠해 두고 다시 쓴다(iPad mini 메모리).
+// 아직 오지 않았으면 null을 돌려주고, 오면 다시 그린다.
+const pieceCache = new Map();
+function pieceImage(path, player, onReady) {
+  const key = `${path}|${player}`;
+  if (!pieceCache.has(key)) {
+    pieceCache.set(key, null);
+    Promise.all([decode(path), decode(`${path}-team`)]).then(([base, team]) => {
+      pieceCache.set(key, tintCastle(base, team, PALETTE.players[player]));
+      onReady();
+    }, () => pieceCache.delete(key));
   }
-  g.putImageData(image, 0, 0);
-  g.globalCompositeOperation = 'destination-over';
-  g.drawImage(castle, 0, 0);
-  return mips(canvas);
+  return pieceCache.get(key);
+}
+
+// 보기용 말(#map-demo): 판 그림과 가독성을 확인하려고 내 왕성 둘레에 건물·유닛을, 그 앞에 쳐들어온 상대 유닛을 놓는다.
+// 게임 규칙(건설·소환)이 생기면 그 결과로 바뀐다.
+const DEMO = {
+  mine: { buildings: ['village', 'building-warrior-watchtower', 'building-warrior-barracks'], units: ['unit-warrior-shield', 'unit-warrior-knight', 'unit-warrior-flag'] },
+  enemy: { buildings: ['building-mage-tower', 'village'], units: ['unit-mage-broom', 'unit-mage-apprentice'] },
+};
+function demoPieces(board) {
+  const land = new Map(board.tiles.map(tile => [`${tile.q},${tile.r}`, tile]));
+  const pick = (list, count, gap) => {
+    const chosen = [];
+    for (const item of list) if (chosen.length < count && chosen.every(other => Math.hypot(other.x - item.x, other.y - item.y) >= gap)) chosen.push(item);
+    return chosen;
+  };
+  // 세 칸이 모두 육지인 꼭짓점
+  const spots = [];
+  for (const tile of board.tiles) for (let i = 0; i < 6; i++) {
+    const [a, b] = [EDGE_DIRS[(i + 5) % 6], EDGE_DIRS[i]];
+    const hexes = [tile, land.get(`${tile.q + a[0]},${tile.r + a[1]}`), land.get(`${tile.q + b[0]},${tile.r + b[1]}`)];
+    if (hexes.every(Boolean)) spots.push({ hexes, ...vertexAt(hexes) });
+  }
+  const walkable = board.tiles.filter(tile => !['lake', 'rock'].includes(tile.type)).map(tile => ({ hexes: [tile], ...hexToPixel(tile.q, tile.r, TILE) }));
+  const pieces = [];
+  const place = (player, { buildings, units }, unitRange) => {
+    const start = board.starts[player], home = vertexAt(start.hexes);
+    const near = (list, min, max) => list.map(item => ({ ...item, d: Math.hypot(item.x - home.x, item.y - home.y) })).filter(({ d }) => d >= min && d <= max).sort((a, b) => a.d - b.d);
+    const taken = [home, ...pieces];
+    pick(near(spots, 170, 420).filter(spot => taken.every(p => Math.hypot(p.x - spot.x, p.y - spot.y) >= 170)), buildings.length, 170)
+      .forEach((spot, i) => pieces.push({ kind: 'building', id: buildings[i], player, ...spot }));
+    pick(near(walkable, ...unitRange).filter(tile => !start.hexes.some(h => hexDistance(h, tile.hexes[0]) === 0)), units.length, 180)
+      .forEach((tile, i) => pieces.push({ kind: 'unit', id: units[i], player, ...tile }));
+  };
+  place(0, DEMO.mine, [120, 360]);
+  place(1, { buildings: DEMO.enemy.buildings, units: [] }, [0, 0]);
+  // 상대 유닛은 내 말 가까이(내 시야 안)
+  const mineAt = pieces.filter(p => p.player === 0);
+  const front = walkable.filter(tile => !pieces.some(p => p.hexes.length === 1 && hexDistance(p.hexes[0], tile.hexes[0]) === 0))
+    .map(tile => ({ ...tile, d: Math.min(...mineAt.map(p => Math.hypot(p.x - tile.x, p.y - tile.y))) })).filter(({ d }) => d >= 300 && d <= 420).sort((a, b) => a.d - b.d);
+  pick(front, DEMO.enemy.units.length, 300).forEach((tile, i) => pieces.push({ kind: 'unit', id: DEMO.enemy.units[i], player: 1, ...tile }));
+  return pieces;
 }
 
 // 바닥 타일·호수·지형 오브젝트·재화 아이콘(교환소 표지)·성을 한 번에 받는다. 하나라도 실패하면 지형 색 칸으로 그리고, 다시 부르면 처음부터 받는다.
@@ -212,8 +260,8 @@ let art = null;
 let artLoad = null;
 export function loadMapArt() {
   const names = [...GROUNDS, ...Object.values(OBJECTS), 'port'];
-  const icons = RESOURCES.map(([type]) => `game/icon-${type}`);
-  artLoad ??= Promise.all([...names.map(name => `map/${name}`), ...icons, 'game/castle', 'game/castle-team'].map(decode)).then(images => {
+  const icons = RESOURCES.map(([type]) => `ui/icon-${type}`);
+  artLoad ??= Promise.all([...names.map(name => `map/${name}`), ...icons, 'pieces/castle', 'pieces/castle-team'].map(decode)).then(images => {
     const [castle, team] = images.splice(-2);
     const iconImages = images.splice(-icons.length);
     art = {
@@ -225,9 +273,10 @@ export function loadMapArt() {
   return artLoad;
 }
 
-const avatar = (player, index) => `<span class="avatar ${player.classId}" style="--player: ${PALETTE.players[index]}" aria-hidden="true">${CLASS_NAMES[player.classId][1]}</span>`;
-// 누르면 그 플레이어의 왕성으로 시점이 간다. 종족 이름은 버튼 밖에 둬 버튼 이름은 할 일만 말한다.
-const playerButton = (player, index, tag = 'span') => `<button class="player" data-player="${index}" aria-label="${index ? `${player.name}의` : '내'} 왕성으로 이동">${avatar(player, index)}<${tag}>${player.name}</${tag}></button><span class="sr-only">${CLASS_NAMES[player.classId]}</span>`;
+// 프로필 얼굴: 종족 전설 유닛의 얼굴(구운 그림)에 플레이어 색 테두리
+const avatar = (player, index) => `<span class="avatar ${player.classId}" style="--player: ${PALETTE.players[index]}" aria-hidden="true"><img src="${source(`ui/avatar-${player.classId}`)}" alt=""></span>`;
+// 누르면 그 플레이어의 왕성으로 시점이 간다. 종족 이름은 버튼 밖에 둬 버튼 이름은 할 일만 말한다(눈에 보이는 종족 글자는 읽지 않게 숨김).
+const playerButton = (player, index, tag = 'span') => `<button class="player" data-player="${index}" style="--player: ${PALETTE.players[index]}" aria-label="${index ? `${player.name}의` : '내'} 왕성으로 이동">${avatar(player, index)}<span class="who"><${tag}>${player.name}</${tag}><small class="${player.classId}" aria-hidden="true">${CLASS_NAMES[player.classId]}</small></span></button><span class="sr-only">${CLASS_NAMES[player.classId]}</span>`;
 
 export function mapScreen(root, onModes) {
   // HUD 그림은 loading="lazy"라 지도 화면이 보일 때 받는다. 타이틀 첫 로딩과 겹치지 않는다.
@@ -238,16 +287,18 @@ export function mapScreen(root, onModes) {
     <div class="hud">
       <div class="hud-panel hud-players"></div>
       <div class="hud-corner">
-        <ul class="hud-panel hud-resources" aria-label="보유 자원">${RESOURCES.map(([type, name]) => `<li><img src="${source(`game/icon-${type}`)}" alt="" loading="lazy"><span class="sr-only">${name}</span><span>0</span></li>`).join('')}</ul>
-        <div class="chat">
-          <button class="hud-panel chat-toggle" aria-label="채팅" aria-expanded="false" aria-controls="chat-list"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M5 4h14a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-6l-4.5 4v-4H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z"/><path d="M8.5 10.5h.01M12 10.5h.01M15.5 10.5h.01" stroke-linecap="round" stroke-width="2.4"/></svg></button>
-          <ul id="chat-list" class="hud-panel chat-list" aria-label="말 고르기" hidden>${CHAT.map(text => `<li><button>${text}</button></li>`).join('')}</ul>
+        <ul class="hud-panel hud-resources" aria-label="보유 자원">${RESOURCES.map(([type, name]) => `<li><img src="${source(`ui/icon-${type}`)}" alt="" loading="lazy"><span class="sr-only">${name}</span><span>0</span></li>`).join('')}</ul>
+        <div class="hud-buttons">
+          <button class="hud-round mode-change" aria-label="대전 방식 바꾸기"><img src="${source('ui/icon-settings')}" alt="" loading="lazy"></button>
+          <div class="chat">
+            <button class="hud-round chat-toggle" aria-label="채팅" aria-expanded="false" aria-controls="chat-list"><img src="${source('ui/icon-chat')}" alt="" loading="lazy"></button>
+            <ul id="chat-list" class="hud-panel chat-list" aria-label="말 고르기" hidden>${CHAT.map(text => `<li><button>${text}</button></li>`).join('')}</ul>
+          </div>
         </div>
       </div>
       <button class="minimap" aria-label="미니맵 크게 보기"><canvas></canvas><span class="minimap-view"></span></button>
-      <button class="mode-change"><small>임시</small>모드 바꾸기</button>
-      <button class="dice-roll"><small>임시</small>주사위 굴리기</button>
-      <div class="hand" role="img" aria-label="내 카드 3장">${`<img src="${source('game/card-back')}" alt="" loading="lazy">`.repeat(3)}</div>
+      <button class="ui-button dice-roll"><img src="${source('ui/icon-dice')}" alt="" loading="lazy">주사위 굴리기</button>
+      <div class="hand" role="img" aria-label="내 카드 3장">${`<img src="${source('cards/back')}" alt="" loading="lazy">`.repeat(3)}</div>
       <button class="map-retry" hidden>지도 그림 다시 불러오기</button>
     </div>
     <dialog class="minimap-dialog" aria-label="전체 지도"><canvas></canvas><span class="minimap-view"></span></dialog>`;
@@ -268,6 +319,8 @@ export function mapScreen(root, onModes) {
   const pointers = new Map();
   const fog = document.createElement('canvas');
   let board, sight, camera, bounds, paths, sprites, numbers, castles, shown, ports, tiles, selected, minZoom, mini, big, tap, glide;
+  let pieces = []; // 판 위 건물·유닛(지금은 #map-demo의 보기용만)
+  let seenPieces = []; // 그중 내가 볼 수 있는 것(그릴 자리와 그림 경로를 붙여 둠)
   let frame = 0;
   let renders = 0;
   let fogBuilds = 0;
@@ -335,6 +388,10 @@ export function mapScreen(root, onModes) {
       numbers.push(tile);
     }
     shown = castles.filter(({ player }) => castleKnown(player));
+    const myTeam = board.starts[0].team;
+    seenPieces = pieces.filter(p => board.starts[p.player].team === myTeam || pieceSeen(sight.state, p.hexes)).map(p => ({
+      ...p, path: `${p.kind === 'unit' ? 'tokens' : 'pieces'}/${p.id}`, anchor: bakedArt.pieces[`${p.id}@anchor`], ...(p.kind === 'unit' ? STATS[p.id] : {}),
+    }));
     buildFog();
   }
 
@@ -475,7 +532,7 @@ export function mapScreen(root, onModes) {
         ctx.drawImage(art.sprites[tile.ground][level], tile.x - SPRITE_X, tile.y - SPRITE_Y, SPRITE, SPRITE);
         drawn++;
         if (!tile.object || tile.state === UNKNOWN) continue;
-        ctx.drawImage(art.sprites[tile.object][level], tile.x + OBJECT_X, tile.y + OBJECT_Y, OBJECT_W, OBJECT_H);
+        ctx.drawImage(art.sprites[tile.object][level], tile.x - SPRITE_X, tile.y - SPRITE_Y, SPRITE, SPRITE);
         objects++;
       }
     } else {
@@ -526,12 +583,41 @@ export function mapScreen(root, onModes) {
   }
 
   // 성은 땅에 닿는 점을 꼭짓점에 두고 위로 커진다. size는 월드 단위, k는 월드 1단위의 기기 px.
+  // 건물은 성과 같은 카메라·축척으로 구워 같은 폭으로 그리면 크기 비율이 그대로다. 멀리 볼 때 성과 같은 비율로 커진다.
+  // 유닛 동전은 칸 가운데보다 조금 위. 아래(앞)에 있는 말이 위 말을 덮게 y 순서로 그린다.
   function drawCastles(size, k) {
     if (!art) return castleDots(ctx, size * 0.2);
-    // 전체 보기에서는 지붕 색만으로 찾기 어려워 성 아래에 플레이어 색 받침을 깐다.
-    if (TILE * camera.zoom < DETAIL) castleDots(ctx, size * CASTLE_BASE);
-    const level = levelOf(art.castles[0], size * k);
-    for (const { player, x, y } of shown) ctx.drawImage(art.castles[player][level], x - size / 2, y - size * CASTLE_FOOT, size, size);
+    // 플레이어 색 받침과 외곽선은 그림에 구워져 있다(전체 보기에서도 그대로 찾기 쉽다).
+    const w = size * CASTLE_W, h = w * CASTLE_RATIO;
+    const level = levelOf(art.castles[0], w * k);
+    const coin = Math.max(TOKEN_D, TOKEN_FAR / camera.zoom), tw = coin * TOKEN_SCALE;
+    const items = [...shown.map(c => ({ ...c, kind: 'castle' })), ...seenPieces];
+    items.sort((a, b) => a.y - b.y);
+    for (const item of items) {
+      if (item.kind === 'castle') { ctx.drawImage(art.castles[item.player][level], item.x - w * CASTLE_AX, item.y - h * CASTLE_AY, w, h); continue; }
+      const levels = pieceImage(item.path, item.player, requestRender);
+      if (!levels) continue;
+      if (item.kind === 'building') {
+        ctx.drawImage(levels[levelOf(levels, w * k)], item.x - w * item.anchor[0], item.y - h * item.anchor[1], w, h);
+        continue;
+      }
+      const left = item.x - tw * TK.cx / 1024, top = item.y - TOKEN_UP - tw * TK.cy / 1024;
+      ctx.drawImage(levels[levelOf(levels, tw * k)], left, top, tw, tw);
+      // 체력·마나 숫자: 동전이 화면에서 44 CSS px 이상일 때만(작으면 읽히지 않고 그리기만 늘어난다)
+      if (coin * camera.zoom < 44) continue;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.lineJoin = 'round';
+      for (const [[x, y, r], value] of [[TK.hp, item.hp], [TK.mana, item.mana]]) {
+        const px = left + tw * x / 1024, py = top + tw * y / 1024, fs = tw * r / 1024;
+        ctx.font = `700 ${fs}px "Catfantagy UI", sans-serif`;
+        ctx.lineWidth = fs * 0.22;
+        ctx.strokeStyle = '#1f1712';
+        ctx.strokeText(value, px, py + fs * 0.06);
+        ctx.fillStyle = '#fff';
+        ctx.fillText(value, px, py + fs * 0.06);
+      }
+    }
   }
 
   // 교환소: 부두(나무 판 + 널빤지 틈) → 자리 표시(가까이 볼 때만) → 표지(두 자원 아이콘과 ⇄). 처음부터 아는 칸이라 안개 위에 그린다.
@@ -812,10 +898,11 @@ export function mapScreen(root, onModes) {
   // 창 크기 이벤트가 아니라 그림판의 실제 크기 변화를 본다. iOS 홈 화면 앱의 높이 보정(main.js)보다 먼저 재는 일이 없다.
   new ResizeObserver(resize).observe(canvas);
 
-  return function openMap(mode = 'duel') {
+  return function openMap(mode = 'duel', { demo = false } = {}) {
     board = createBoard({ mode });
-    // 지금은 나(0번)의 시야. 처음 상태라 아는 칸은 교환소와 숫자 6·8 칸뿐이다.
-    sight = vision(board);
+    pieces = demo ? demoPieces(board) : [];
+    // 지금은 나(0번)의 시야. 처음 상태라 아는 칸은 교환소와 숫자 6·8 칸뿐이다. 건물은 마을처럼 붙은 칸만, 유닛은 2칸을 본다.
+    sight = vision(board, { pieces: [...boardPieces(board), ...pieces.map(p => ({ player: p.player, kind: p.kind === 'unit' ? 'unit' : 'village', hexes: p.hexes }))] });
     prepare();
     applyVision();
     root.dataset.seed = board.seed; // 시험이 같은 판을 다시 만들어 안개 결과와 맞춰 본다
@@ -836,6 +923,7 @@ export function mapScreen(root, onModes) {
     // zoom 0은 resize가 판 전체가 보이는 배율로 올린다.
     camera = { x: bounds.cx, y: bounds.cy, zoom: 0 };
     resize();
+    if (demo) { const home = castles[0]; camera = { x: home.x, y: home.y + 40, zoom: 1 }; requestRender(); }
     showArt();
     heading.focus({ preventScroll: true });
     // 숫자 글꼴이 늦게 오면 한 번만 다시 그린다.

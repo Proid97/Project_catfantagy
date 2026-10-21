@@ -91,9 +91,11 @@ function recordDraws() {
   }
 }
 // 성은 판에서 마지막으로 그리는 그림 count장이다(숫자 패는 그림이 아니다). [배율, 화면 높이(CSS px), 월드 높이]
+// 성 그림(받침 포함)은 성 크기 × 100/120 폭, 높이는 폭의 900/680배로 그린다(map-screen.js). 그린 높이로 성 크기를 되짚는다.
+const CASTLE_DRAW = (100 / 120) * (900 / 680);
 async function castleDraws(page, count) {
   const [sizes, dpr] = await page.evaluate(() => [window.drawSizes, devicePixelRatio]);
-  return sizes.slice(-count).map(([height, scale]) => [scale / dpr, height * scale / dpr, height]);
+  return sizes.slice(-count).map(([height, scale]) => [scale / dpr, height / CASTLE_DRAW * scale / dpr, height / CASTLE_DRAW]);
 }
 // 미니맵에서 플레이어 색 점(그 플레이어의 성 자리)의 가운데와, 시야 사각형(화면 가운데)의 가운데(페이지 좌표)
 async function miniCenters(page, rgb) {
@@ -130,7 +132,7 @@ const diceFaces = page => page.locator('.die').evaluateAll(dice => dice.map(die 
 }));
 // 임시 주사위 버튼을 누르고, 지도 알림에서 미리 정해진 두 눈을 읽는다.
 async function roll(page) {
-  await page.getByRole('button', { name: '임시 주사위 굴리기' }).click();
+  await page.getByRole('button', { name: '주사위 굴리기' }).click();
   const [, a, b, sum] = (await page.locator('#map [role="status"]').textContent()).match(/^주사위 ([1-6]), ([1-6]) · 합 (\d+)$/);
   expect(Number(sum)).toBe(Number(a) + Number(b));
   return [Number(a), Number(b)];
@@ -178,10 +180,11 @@ for (const [width, height, hash, players, name] of [
       for (const [b, second] of boxes.slice(i + 1)) expect(overlaps(first, second), `${a}와 ${b}가 겹침`).toBe(false);
     }
     await expect(page.getByRole('img', { name: '내 카드 3장' })).toBeVisible();
-    // 재화 아이콘(이름은 화면 읽기용 글자)과 카드 뒷면 그림이 다 왔다.
+    // 재화·단추 아이콘(이름은 화면 읽기용 글자), 프로필 얼굴, 카드 뒷면 그림이 다 왔다.
     await expect(page.getByRole('list', { name: '보유 자원' }).getByRole('listitem')).toHaveText(['금0', '수정0', '나무0', '생선0']);
-    await expect.poll(() => page.locator('.hud img').evaluateAll(images => images.filter(image => image.complete && image.naturalWidth > 0).length)).toBe(7);
-    for (const name of ['미니맵 크게 보기', '임시 모드 바꾸기', '임시 주사위 굴리기', '채팅']) expect((await box(page.getByRole('button', { name }))).height).toBeGreaterThanOrEqual(44);
+    await expect(page.locator('.hud img')).toHaveCount(10 + players);
+    await expect.poll(() => page.locator('.hud img').evaluateAll(images => images.filter(image => !image.complete || !image.naturalWidth).length)).toBe(0);
+    for (const name of ['미니맵 크게 보기', '대전 방식 바꾸기', '주사위 굴리기', '채팅']) expect((await box(page.getByRole('button', { name }))).height).toBeGreaterThanOrEqual(44);
     // 플레이어 줄(왕성으로 가는 버튼)은 누르는 판정이 가로세로 44px 이상이고 서로 겹치지 않는다.
     const rows = await page.locator('.hud-players button').evaluateAll(buttons => buttons.map(button => button.getBoundingClientRect().toJSON()));
     expect(rows).toHaveLength(players);
@@ -305,7 +308,7 @@ test('임시 주사위: 정한 눈으로 멈춰 합을 보인 뒤 모두 지우�
   await page.setViewportSize({ width: 768, height: 1024 });
   await page.addInitScript(countFrames);
   await open(page);
-  const button = page.getByRole('button', { name: '임시 주사위 굴리기' });
+  const button = page.getByRole('button', { name: '주사위 굴리기' });
   const values = await roll(page);
   await expect(button).toBeDisabled();
   // 두 주사위의 회전이 끝나면(멈추면) 앞면이 미리 정한 눈이다. 합은 그 뒤에 나온다.
@@ -350,7 +353,7 @@ test('임시 주사위: 연출 중 화면을 누르면 결과로 건너뛰고 �
   await expect(page.locator('.dice-layer')).toHaveCount(0, { timeout: 1500 });
   expect(Date.now() - tapped).toBeLessThan(1300);
   await expect(status).toHaveText(told);
-  await expect(page.getByRole('button', { name: '임시 주사위 굴리기' })).toBeEnabled();
+  await expect(page.getByRole('button', { name: '주사위 굴리기' })).toBeEnabled();
   expect(errors).toEqual([]);
 });
 
@@ -369,7 +372,7 @@ test('타이틀에서 고른 "움직임 줄임"이면 주사위가 구르지 않
   const changed = await page.locator('.dice-layer').evaluate(layer => [...new Set(layer.getAnimations({ subtree: true }).flatMap(a => a.effect.getKeyframes().flatMap(Object.keys)))]);
   expect(changed.filter(key => !['offset', 'computedOffset', 'easing', 'composite'].includes(key))).toEqual(['opacity']);
   await expect(page.locator('.dice-layer')).toHaveCount(0);
-  await expect(page.getByRole('button', { name: '임시 주사위 굴리기' })).toBeEnabled();
+  await expect(page.getByRole('button', { name: '주사위 굴리기' })).toBeEnabled();
   expect(errors).toEqual([]);
 });
 
@@ -467,7 +470,7 @@ test('두 손가락으로 벌리면 확대', async ({ browser, browserName }) =>
   await context.close();
 });
 
-for (const file of ['map/barren.webp', 'game/castle-team.webp']) test(`지도 그림(${file})을 못 받아도 판이 보이고 다시 불러올 수 있음`, async ({ page }) => {
+for (const file of ['map/barren.webp', 'pieces/castle-team.webp']) test(`지도 그림(${file})을 못 받아도 판이 보이고 다시 불러올 수 있음`, async ({ page }) => {
   await page.route(`**/${file}*`, route => route.abort());
   await page.goto('/#map');
   await expect(page.locator('#map')).toHaveAttribute('data-art', 'error');
@@ -580,26 +583,26 @@ test('지형 그림과 성: 2배 화면 전체 보기와 내 성 가까이', asy
   for (let i = 0; i < 8; i++) await page.mouse.wheel(0, -400);
   await settled(page);
   await page.screenshot({ path: test.info().outputPath('map-ipad-duel-castle-2x.png') });
-  // 내 색으로 칠한 지붕·깃발(마스크 회색 약 102·133 → #e0453a × 102/112, × 133/112)은 다른 그림에 없는 색이다.
-  // 땅에 닿는 점이 화면 가운데(꼭짓점)에 있으면 지붕은 꼭짓점보다 43~120 CSS px 위, 좌우 58 CSS px 안에만 있다.
+  // 내 색으로 칠한 지붕·깃발·받침(붉은 계열: 빨강이 크고 초록·파랑이 작음). 숫자 6·8의 붉은 글자도 이 색이라 넉넉히 센다.
+  // 받침 가운데가 화면 가운데(꼭짓점)에 있으면 지붕은 꼭짓점보다 20 CSS px 넘게 위에 많고, 받침은 꼭짓점 둘레에 있다.
   const roof = await page.locator('.map-canvas').evaluate(canvas => {
     const { data } = canvas.getContext('2d').getImageData(canvas.width / 2 - 180, canvas.height / 2 - 300, 360, 420);
     const count = { above: 0, near: 0 };
     for (let i = 0; i < data.length; i += 4) {
-      if (![[204, 63, 53], [255, 82, 69]].some(([r, g, b]) => Math.abs(data[i] - r) <= 6 && Math.abs(data[i + 1] - g) <= 6 && Math.abs(data[i + 2] - b) <= 6)) continue;
+      if (!(data[i] > 150 && data[i] - data[i + 1] > 90 && data[i + 2] < 110)) continue;
       // 가운데에서 20 CSS px 위보다 높으면 위, 그 아래(가운데 아래 60px까지)는 가까이
       count[Math.floor(i / 4 / 360) < 260 ? 'above' : 'near']++;
     }
     return count;
   });
   expect(roof.above).toBeGreaterThan(2000);
-  expect(roof.near).toBe(0);
+  expect(roof.near).toBeGreaterThan(2000);
   // 숫자 패는 성보다 나중에 그려 성에 가려지지 않는다.
   order = await page.evaluate(() => window.drawOrder);
   expect(order).toContain('fillText');
   expect(order.lastIndexOf('drawImage')).toBeLessThan(order.indexOf('fillText'));
   await page.locator('.hud-resources').screenshot({ path: test.info().outputPath('map-hud-resources-2x.png') });
-  // 팀전 전체 보기: 성 받침(플레이어 색 그대로)이 내 편 두 성(나, 봇 1)에만 보인다. 상대 팀 성은 안개 속이다.
+  // 팀전 전체 보기: 성 받침(구운 그림 속 플레이어 색 그대로)이 내 편 두 성(나, 봇 1)에만 보인다. 상대 팀 성은 안개 속이다.
   const team = await context.newPage();
   team.on('pageerror', error => errors.push(error.message));
   await team.goto('http://127.0.0.1:4173/#map-team');
@@ -615,8 +618,8 @@ test('지형 그림과 성: 2배 화면 전체 보기와 내 성 가까이', asy
     }
     return count;
   }, ['#e0453a', '#1f9e5a', '#3a7fe0', '#f2c230']);
-  expect(discs[0]).toBeGreaterThan(300);
-  expect(discs[1]).toBeGreaterThan(300);
+  expect(discs[0]).toBeGreaterThan(100);
+  expect(discs[1]).toBeGreaterThan(100);
   expect(discs.slice(2)).toEqual([0, 0]);
   expect(errors).toEqual([]);
   await context.close();
@@ -649,13 +652,13 @@ test('안개: 모르는 칸의 오브젝트·숫자와 상대 왕성은 그리�
   await settled(page);
   expect((await lastRender(page)).fog).toBe(1);
 
-  // 4인 개인전 전체 보기: 상대 셋의 성은 판과 미니맵 어디에도 없다(성 받침은 300점이 넘는다).
+  // 4인 개인전 전체 보기: 상대 셋의 성은 판과 미니맵 어디에도 없다(성 받침은 100점이 넘는다).
   const ffa = await context.newPage();
   ffa.on('pageerror', error => errors.push(error.message));
   await ffa.goto('http://127.0.0.1:4173/#map-ffa');
   await settled(ffa);
   expect((await lastRender(ffa)).castles).toBe(1);
-  expect(await colorCount(ffa.locator('.map-canvas'), COLORS.me)).toBeGreaterThan(300);
+  expect(await colorCount(ffa.locator('.map-canvas'), COLORS.me)).toBeGreaterThan(100);
   for (const rgb of [COLORS.green, COLORS.blue, COLORS.yellow]) {
     expect(await colorCount(ffa.locator('.minimap canvas'), rgb)).toBe(0);
     expect(await colorCount(ffa.locator('.map-canvas'), rgb)).toBeLessThan(20);
@@ -746,10 +749,10 @@ test('타이틀에서 대전 방식을 골라 판 보기, 모드 바꾸기로 �
   await page.getByRole('button', { name: /^1대1 매치/ }).click();
   await expect(page.locator('#map')).toBeVisible();
   await expect(page.locator('#modes')).toBeHidden();
-  await expect(page.locator('.hud-players .avatar')).toHaveText(['전', '법']);
+  await expect(page.locator('.hud-players .who small')).toHaveText(['냥전사', '냥법사']);
   await expect(page.locator('.hud-players')).toContainText('나');
   await settled(page);
-  await page.getByRole('button', { name: '임시 모드 바꾸기' }).click();
+  await page.getByRole('button', { name: '대전 방식 바꾸기' }).click();
   await expect(page.locator('#map')).toBeHidden();
   await page.getByRole('button', { name: /^4인 매치/ }).click();
   await expect(page.getByRole('button', { name: /^1대1 매치/ })).toBeHidden();
@@ -939,7 +942,7 @@ test('매크로 채팅: 상대 줄 옆에도 뜨고, 같은 플레이어의 새 
   await sayAs(page, 0, '야옹~');
   await expect(bubbles).toHaveCount(2);
   // 모드를 바꿔 판을 다시 열면 예전 말풍선이 남지 않는다.
-  await page.getByRole('button', { name: '임시 모드 바꾸기' }).click();
+  await page.getByRole('button', { name: '대전 방식 바꾸기' }).click();
   await page.getByRole('button', { name: /^1대1 매치/ }).click();
   await settled(page);
   await expect(bubbles).toHaveCount(0);

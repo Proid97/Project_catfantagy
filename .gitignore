@@ -6,3 +6,7 @@ src/generated/
 public/icons/
 public/map/
 public/game/
+public/pieces/
+public/tokens/
+public/cards/
+public/ui/
