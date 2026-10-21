@@ -202,6 +202,7 @@ export function gameScreen(map, root) {
   // 봇·대기 중인 고르기를 차례로 진행한다. 내가 고를 차례가 되면 멈추고 기다린다.
   async function next() {
     const run = alive;
+    let refused = 0; // 봇 명령이 연달아 거부된 횟수(시뮬레이션에서는 0). 많으면 멈춰 화면이 굳지 않게 한다
     while (run === alive && s.phase !== 'over') {
       const top = s.pending[0];
       const actor = top ? top.player : s.current;
@@ -212,7 +213,12 @@ export function gameScreen(map, root) {
       const cmd = botStep(g, actor, memo);
       if (!cmd) { console.error('봇이 할 일을 찾지 못함', top); busy = false; return; }
       const result = g.apply(cmd);
-      if (!result.ok) continue; // memo가 같은 시도를 막는다
+      if (!result.ok) {
+        // memo가 같은 시도를 막는다
+        if (++refused > 50) { console.error('봇 명령이 계속 거부됨', cmd, result.error); busy = false; return; }
+        continue;
+      }
+      refused = 0;
       await present(result.events, actor);
       if (run !== alive) return;
       if (!['resolve', 'placeVillage'].includes(cmd.type)) await wait(PACE[pace]);
@@ -249,7 +255,6 @@ export function gameScreen(map, root) {
   async function present(events, actor) {
     const t = team();
     const seen = key => key && (key.includes('|') ? g.geo.vertices.get(key)?.land.some(k => g.sees(t, k)) : g.sees(t, key));
-    const unitTile = new Map(); // 쓰러진 유닛의 마지막 칸
     refresh();
     for (const e of events) {
       switch (e.type) {
@@ -282,7 +287,6 @@ export function gameScreen(map, root) {
         }
         case 'damage':
           if (e.vertex ? seen(e.vertex) : seen(e.tile)) map.float(hexesOf(e.vertex ?? e.tile), `-${e.amount}`);
-          if (e.tile) unitTile.set(e.unit, e.tile);
           break;
         case 'heal': { const u = s.units.get(e.unit); if (u && seen(u.tile)) map.float([parseHex(u.tile)], `+${e.amount}`, '#5bd36a'); break; }
         case 'block': { const at = e.vertex ?? s.units.get(e.unit)?.tile; if (at && seen(at)) map.float(hexesOf(at), e.reason, '#fff6e6'); break; }
