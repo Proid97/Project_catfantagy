@@ -70,6 +70,8 @@
 .hand img:nth-child(1) { transform: translate(-32px, -8px) rotate(-11deg); }
 .hand img:nth-child(2) { transform: translate(-16px, -3px) rotate(-4deg); }
 .hand img:nth-child(3) { transform: rotate(4deg); }
+/* 패 장수: 카드 묶음 오른쪽 위의 동그란 배지 */
+.hand-count { position: absolute; right: -4px; top: 0; display: grid; place-items: center; min-width: 30px; height: 30px; padding: 0 6px; border: 3px solid var(--hud-edge); border-radius: 15px; background: #ffd54a; color: #2a1d0e; font-size: 17px; line-height: 1; box-shadow: var(--hud-shadow); }
 /* 휴대폰 너비: 재화는 2×2, 미니맵·얼굴은 조금 작게. 주사위 단추는 미니맵과 카드 사이 빈 곳의 가운데. */
 @container (max-width: 520px) {
   .hud-resources { display: grid; grid-template-columns: 1fr 1fr; }

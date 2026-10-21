@@ -128,7 +128,7 @@ export const CARD = {
   art: { left: 41, top: 60, width: 668, height: 592, radius: 26 },
   ribbon: { left: 112, top: 12, width: 572, height: 90 },
   medal: { cx: 76, cy: 74, r: 58 },
-  stars: { left: 294, top: 100, width: 162, height: 50 },
+  stars: { left: 294, top: 110, width: 162, height: 48 },
   cost: { cx: 62, top: 178, step: 104, r: 48 },
   stats: { left: 66, top: 566, width: 618, height: 100 },
   panel: { left: 41, top: 664, width: 668, height: 346, radius: 26 },

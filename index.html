@@ -32,16 +32,16 @@
       </div>
       <section id="modes" class="mode-screen" hidden aria-labelledby="modes-title">
         <h2 id="modes-title" class="sr-only" tabindex="-1">대전 방식 고르기</h2>
-        <button class="mode-back">← 타이틀로</button>
+        <button class="ui-button small blue mode-back">← 타이틀로</button>
         <div class="mode-list">
-          <button data-mode="duel">1대1 매치<small>나와 봇 1명</small></button>
-          <button data-next>4인 매치<small>나와 봇 3명</small></button>
-          <button data-cards>카드·말 보기<small>그림 확인</small></button>
+          <button data-mode="duel" data-icon="attack">1대1 매치<small>나와 봇 1명</small></button>
+          <button data-next data-icon="paw">4인 매치<small>나와 봇 3명</small></button>
         </div>
         <div class="mode-list four" hidden>
-          <button data-mode="ffa">개인전<small>모두가 서로 상대</small></button>
-          <button data-mode="team">팀전<small>2명씩 한 팀</small></button>
+          <button data-mode="ffa" data-icon="star">개인전<small>모두가 서로 상대</small></button>
+          <button data-mode="team" data-icon="trade">팀전<small>2명씩 한 팀</small></button>
         </div>
+        <button class="ui-button blue mode-cards" data-cards>카드·말 보기</button>
       </section>
       <section id="map" class="map-screen" hidden aria-labelledby="map-title"></section>
       <section id="cards" class="cards-screen" hidden aria-labelledby="cards-title"></section>

@@ -72,14 +72,17 @@ console.log(`타이틀 이미지 ${(originalBytes / 1e6).toFixed(2)} MB → ${(o
 // 왕성·재화 아이콘·카드 뒷면은 굽는 단계(아래)로 옮겼다. 예전 지형 오브젝트(forest.png 등)는 지형 타일로 바뀌어 원본만 보관한다.
 const mapArt = [
   // 바닥 타일·호수·자원 지형 타일: 가장 크게 확대하면 칸 그림 하나가 약 600px.
-  ...['grass-1', 'grass-2', 'grass-3', 'barren', 'lake', 'forest-tile', 'gold-mine-tile', 'crystal-tile', 'rock-tile'].map(name => [`map/${name}`, image => image.resize(600, 600)]),
+  ...['grass-1', 'grass-2', 'grass-3', 'lake', 'forest-tile', 'gold-mine-tile', 'crystal-tile', 'rock-tile'].map(name => [`map/${name}`, image => image.resize(600, 600)]),
+  // 안개 속 모르는 칸(2026-10-21 사용자 결정): 지형을 숨기려고 풀밭 타일의 색을 뺀 회색 칸. 모양·테두리·두께는 같다.
+  ['map/unknown', image => image.resize(600, 600).modulate({ saturation: 0, brightness: 0.92 }), 0, 'grass-1'],
   // 교환소 부두(원본 512px)는 판에서 110 단위로 그린다. 최대 확대 1.4배 × 2배 화면 = 308px.
   ['map/port', image => image.resize(320)],
 ];
 const files = {};
 let mapBytes = 0;
-for (const [path, resize, changed = 0] of mapArt) {
-  const input = new URL(`../assets/${path}.png`, import.meta.url);
+for (const [path, resize, changed = 0, from] of mapArt) {
+  // from: 다른 원본에서 만드는 그림(안개 속 회색 칸은 풀밭 타일에서)
+  const input = new URL(`../assets/${from ? `map/${from}` : path}.png`, import.meta.url);
   const destination = new URL(`../public/${path}.webp`, import.meta.url);
   await mkdir(new URL('.', destination), { recursive: true });
   if (await stale(destination, Math.max((await stat(input)).mtimeMs, changedAt, changed))) {

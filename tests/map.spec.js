@@ -376,7 +376,7 @@ test('타이틀에서 고른 "움직임 줄임"이면 주사위가 구르지 않
   expect(errors).toEqual([]);
 });
 
-test('안개 속 칸은 바닥만, 아는 칸은 지형과 숫자까지 알려 줌', async ({ page }) => {
+test('안개 속 칸은 지형을 말하지 않고, 아는 칸은 지형과 숫자까지 알려 줌', async ({ page }) => {
   await page.setViewportSize({ width: 768, height: 1024 });
   await open(page);
   const { board, state } = await boardOf(page);
@@ -393,10 +393,9 @@ test('안개 속 칸은 바닥만, 아는 칸은 지형과 숫자까지 알려 �
     }
     throw new Error('누를 칸이 없음');
   }
-  const ground = { grass: '풀밭', forest: '풀밭', lake: '호수', gold: '빈 땅', crystal: '빈 땅', rock: '빈 땅' };
-  // 모르는 숲은 풀밭, 금광·수정산·바위산은 빈 땅으로만 보인다. 숫자도 말하지 않는다.
-  const unknown = await tapFirst(tiles.filter(t => state.get(`${t.q},${t.r}`) === UNKNOWN));
-  await expect(status).toHaveText(`선택: 안개 속 ${ground[unknown.type]}`);
+  // 모르는 칸은 지형과 상관없이 회색 칸이라 지형도 숫자도 말하지 않는다.
+  await tapFirst(tiles.filter(t => state.get(`${t.q},${t.r}`) === UNKNOWN));
+  await expect(status).toHaveText('선택: 안개 속 칸');
   const known = await tapFirst(tiles.filter(t => state.get(`${t.q},${t.r}`) !== UNKNOWN));
   await expect(status).toHaveText(`선택: ${TERRAIN[known.type].name}${known.number === null ? '' : ` ${known.number}`}`);
 });
@@ -470,7 +469,7 @@ test('두 손가락으로 벌리면 확대', async ({ browser, browserName }) =>
   await context.close();
 });
 
-for (const file of ['map/barren.webp', 'pieces/castle-team.webp']) test(`지도 그림(${file})을 못 받아도 판이 보이고 다시 불러올 수 있음`, async ({ page }) => {
+for (const file of ['map/unknown.webp', 'pieces/castle-team.webp']) test(`지도 그림(${file})을 못 받아도 판이 보이고 다시 불러올 수 있음`, async ({ page }) => {
   await page.route(`**/${file}*`, route => route.abort());
   await page.goto('/#map');
   await expect(page.locator('#map')).toHaveAttribute('data-art', 'error');

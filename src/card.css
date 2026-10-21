@@ -37,9 +37,11 @@
 .cards-tabs { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; }
 .cards-tabs button { flex: none; min-height: 44px; padding: 0 16px; border: 3px solid #0f1724; border-radius: 22px; background: #2c3d52; color: #fff6dc; font-size: 16px; }
 .cards-tabs button[aria-pressed="true"] { background: #ffd54a; color: #3a2410; box-shadow: inset 0 -4px 0 #e0a325; }
-.cards-grid { --card-width: min(46vw, 210px); flex: 1; display: flex; flex-wrap: wrap; align-content: flex-start; justify-content: center; gap: 14px; padding: 4px 0 24px; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; }
-.card-pick { padding: 0; border: 0; border-radius: 6%; background: none; }
-.card-pick .card-panel > p { display: none; }
+.cards-grid { flex: 1; display: flex; flex-wrap: wrap; align-content: flex-start; justify-content: center; gap: 14px; padding: 4px 0 24px; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; }
+.card-pick { --card-width: 100%; width: min(calc(50% - 7px), 210px); padding: 0; border: 0; border-radius: 6%; background: none; }
+/* 목록의 작은 카드: 첫 효과만 크게 4줄까지(나머지는 눌러서 크게 볼 때) */
+.card-pick .card-panel > p:not(:first-child) { display: none; }
+.card-pick .card-panel > p:first-child { display: -webkit-box; overflow: hidden; -webkit-box-orient: vertical; -webkit-line-clamp: 4; font-size: 5.6cqw; line-height: 1.32; }
 .card-pick:active { scale: .97; }
 .cards-grid.pieces { display: block; }
 .cards-grid h3 { margin: 8px 0; font-size: 17px; }

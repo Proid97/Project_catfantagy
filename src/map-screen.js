@@ -22,8 +22,8 @@ const SPRITE_X = 511.5 * UNIT;
 const SPRITE_Y = 477.5 * UNIT;
 const DEPTH = 66 * UNIT;
 const REACH = 115; // 칸 중심에서 그림 끝까지(위 99, 아래 114)보다 조금 넉넉히. 화면 밖 칸을 거를 때 쓴다.
-const GROUNDS = ['grass-1', 'grass-2', 'grass-3', 'barren', 'lake'];
-const ON_BARREN = new Set(['gold', 'crystal', 'rock']); // 임시: 거친 땅은 흙빛 바탕에 둔다
+// 바닥 그림. 자원 칸은 지형 타일(OBJECTS)을 그리고, unknown은 안개 속 모르는 칸(회색 칸, 지형을 숨김)이다.
+const GROUNDS = ['grass-1', 'grass-2', 'grass-3', 'lake', 'unknown'];
 // 자원 지형 타일(2026-10-20 사용자 결정, PR #16): 자원을 칸 그림에 그려 넣은 타일. 바탕 타일과 윤곽이 같아 같은 자리에 그린다.
 // 안개 속 모르는 칸은 이 타일 대신 바탕(풀밭·빈 땅)을 그려 자원을 숨긴다.
 const OBJECTS = { forest: 'forest-tile', gold: 'gold-mine-tile', crystal: 'crystal-tile', rock: 'rock-tile' };
@@ -59,8 +59,8 @@ const FOG_SCALE = 10; // 안개 그림 1px = 월드 10단위(4인 판 465×362px
 const FOG_REACH = 1.25 * TILE; // 보이는 칸(아는 칸)마다 이 반지름의 원만큼 안개를 걷는다. 칸 꼭짓점(1.0)보다 커서 경계가 칸 바깥에 생기고, 이웃 칸 가운데(1.73)까지는 닿지 않는다
 const FOG_BLUR = 20; // 안개 가장자리가 번지는 정도(가우스 σ, 월드 단위)
 const FOG_MARGIN = 2 * TILE; // 판 상자 둘레. 가장자리 칸의 걷힌 곳이 번질 자리이고, 그 바깥은 모르는 곳 짙기라 상자 밖 색과 이어진다
-const FOG_UNKNOWN = 0.62; // 모르는 칸과 바다 안개의 불투명도
-const FOG_KNOWN = 0.38; // 아는 칸
+const FOG_UNKNOWN = 0.74; // 모르는 칸과 바다 안개의 불투명도(2026-10-21 사용자 요청으로 약 20% 더 어둡게)
+const FOG_KNOWN = 0.46; // 아는 칸
 // 교환소: 변 가운데에서 바다 쪽으로 부두 그림, 그 끝에 두 자원 아이콘과 ⇄ 표지(임시, 코드로 그림).
 // 부두 그림(원본 512px)은 땅에 닿는 점(256, 400)을 변 가운데에 두고, 위쪽 끝(y 131)이 바다 쪽을 향하게 돌린다.
 const DOCK = 110; // 부두 그림 크기(월드 단위). 보이는 부두는 길이 58, 폭 53
@@ -90,7 +90,8 @@ const PALETTE = {
   gold: '#f0c24f',
   crystal: '#b496f0',
   rock: '#9a958b',
-  barren: '#cdb487', // 금광·수정산·바위산의 바탕(빈 땅). 안개 속에서는 이 칸들이 바닥 색으로만 보인다
+  barren: '#cdb487', // 빈 땅
+  unknown: '#9a9ca2', // 안개 속 모르는 칸: 지형과 상관없이 회색
   sea: '#3d9fcb',
   fog: '#2a2c30', // 안개: 짙은 회색
   foam: 'rgba(255, 255, 255, .6)',
@@ -111,7 +112,6 @@ const CHAT_COOLDOWN = 5000; // 보낸 뒤 다시 보낼 수 있을 때까지(ms)
 const BUBBLE_SHOW = 3000; // 말풍선이 또렷하게 보이는 시간(ms)
 const BUBBLE_FADE = 300; // 그 뒤 흐려지며 사라지는 시간(ms). map.css의 .bubble transition과 같다
 const BUBBLE_TAIL = 8; // 말풍선 꼬리 길이(px). map.css와 같다
-const GROUND_NAMES = { grass: '풀밭', barren: '빈 땅', lake: '호수' }; // 안개 속 칸은 바닥만 알린다
 const CORNERS = hexCorners(0, 0, TILE);
 // 꼭짓점 i와 i+1 사이 변 너머의 이웃
 const EDGE_DIRS = [[1, 0], [0, 1], [-1, 1], [-1, 0], [0, -1], [1, -1]];
@@ -298,7 +298,7 @@ export function mapScreen(root, onModes) {
       </div>
       <button class="minimap" aria-label="미니맵 크게 보기"><canvas></canvas><span class="minimap-view"></span></button>
       <button class="ui-button dice-roll"><img src="${source('ui/icon-dice')}" alt="" loading="lazy">주사위 굴리기</button>
-      <div class="hand" role="img" aria-label="내 카드 3장">${`<img src="${source('cards/back')}" alt="" loading="lazy">`.repeat(3)}</div>
+      <div class="hand" role="img" aria-label="내 카드 3장">${`<img src="${source('cards/back')}" alt="" loading="lazy">`.repeat(3)}<b class="hand-count" aria-hidden="true">3</b></div>
       <button class="map-retry" hidden>지도 그림 다시 불러오기</button>
     </div>
     <dialog class="minimap-dialog" aria-label="전체 지도"><canvas></canvas><span class="minimap-view"></span></dialog>`;
@@ -336,10 +336,8 @@ export function mapScreen(root, onModes) {
     sprites = [];
     for (const tile of board.tiles) {
       const { x, y } = hexToPixel(tile.q, tile.r, TILE);
-      // base: 안개 속에서도 보이는 바닥(풀밭·빈 땅·호수)
-      const base = tile.type === 'lake' ? 'lake' : ON_BARREN.has(tile.type) ? 'barren' : 'grass';
-      const ground = base === 'grass' ? GROUNDS[grassOf(tile.q, tile.r)] : base;
-      const item = { ...tile, x, y, text: String(tile.number), base, ground, object: OBJECTS[tile.type] };
+      const ground = tile.type === 'lake' ? 'lake' : GROUNDS[grassOf(tile.q, tile.r)];
+      const item = { ...tile, x, y, text: String(tile.number), ground, object: OBJECTS[tile.type] };
       tiles.set(`${tile.q},${tile.r}`, item);
       sprites.push(item);
       // 바다와 닿은 변. 아래쪽 두께까지 감싸도록 살짝 내려 그린다.
@@ -380,7 +378,7 @@ export function mapScreen(root, onModes) {
     numbers = [];
     for (const tile of sprites) {
       tile.state = sight.state.get(`${tile.q},${tile.r}`);
-      polygon(paths.fill[tile.state === UNKNOWN ? tile.base : tile.type] ??= new Path2D(), tile.x, tile.y, CORNERS);
+      polygon(paths.fill[tile.state === UNKNOWN ? 'unknown' : tile.type] ??= new Path2D(), tile.x, tile.y, CORNERS);
       if (tile.state !== VISIBLE) polygon(paths.mist[tile.state], tile.x, tile.y, CORNERS);
       if (tile.number === null || tile.state === UNKNOWN) continue;
       paths.disc.moveTo(tile.x + DISC_R, tile.y + DISC_Y);
@@ -525,15 +523,14 @@ export function mapScreen(root, onModes) {
     let objects = 0;
     let texts = 0;
     if (art) {
-      // 오브젝트는 타일과 같은 비율로 줄인 그림이라 같은 단계를 쓴다. 전체 보기에서도 그대로 그린다.
+      // 칸마다 그림 한 장: 모르는 칸은 회색 칸, 아는 자원 칸은 지형 타일(바탕까지 그려져 있음), 나머지는 바닥 타일.
       const level = levelOf(art.sprites['grass-1'], SPRITE * k);
       for (const tile of sprites) {
         if (Math.abs(tile.x - cx) > reachX || Math.abs(tile.y - cy) > reachY) continue;
-        ctx.drawImage(art.sprites[tile.ground][level], tile.x - SPRITE_X, tile.y - SPRITE_Y, SPRITE, SPRITE);
+        const sprite = tile.state === UNKNOWN ? 'unknown' : tile.object ?? tile.ground;
+        ctx.drawImage(art.sprites[sprite][level], tile.x - SPRITE_X, tile.y - SPRITE_Y, SPRITE, SPRITE);
         drawn++;
-        if (!tile.object || tile.state === UNKNOWN) continue;
-        ctx.drawImage(art.sprites[tile.object][level], tile.x - SPRITE_X, tile.y - SPRITE_Y, SPRITE, SPRITE);
-        objects++;
+        if (sprite === tile.object) objects++;
       }
     } else {
       // 그림이 오기 전(또는 실패)에는 지형 색 칸으로 대신 그린다. 판이 비어 보이는 일이 없다.
@@ -750,7 +747,7 @@ export function mapScreen(root, onModes) {
     if (tile) polygon(selected = new Path2D(), tile.x, tile.y, CORNERS);
     if (port) status.textContent = port.text;
     else if (!tile) status.textContent = '선택 해제';
-    else if (tile.state === UNKNOWN) status.textContent = `선택: 안개 속 ${GROUND_NAMES[tile.base]}`;
+    else if (tile.state === UNKNOWN) status.textContent = '선택: 안개 속 칸';
     else status.textContent = `선택: ${TERRAIN[tile.type].name}${tile.number === null ? '' : ` ${tile.number}`}`;
     requestRender();
   }
