@@ -1,0 +1,18 @@
+{
+  "note": "유닛 그림마다 얼굴 가운데(face: 그림 폭·높이에 대한 비율 x, y)와 머리 높이(head: 귀 끝~턱, 그림 높이에 대한 비율). 카드 그림 창과 동전 토큰에서 캐릭터 크기를 머리 크기로 똑같이 맞추고 얼굴을 가운데에 둘 때 쓴다(scripts/bake-art.mjs). 그림을 바꾸면 격자 그림으로 다시 재서 고친다.",
+  "unit-warrior-shield": { "file": "cards/unit-warrior-shield.png", "face": [0.55, 0.36], "head": 0.3 },
+  "unit-warrior-axe": { "file": "cards/unit-warrior-axe.png", "face": [0.6, 0.5], "head": 0.28 },
+  "unit-warrior-flag": { "file": "cards/unit-warrior-flag.png", "face": [0.66, 0.56], "head": 0.3 },
+  "unit-warrior-knight": { "file": "cards/unit-warrior-knight.png", "face": [0.64, 0.45], "head": 0.28 },
+  "unit-warrior-general": { "file": "cards/unit-warrior-general.png", "face": [0.5, 0.45], "head": 0.3 },
+  "unit-mage-apprentice": { "file": "cards/unit-mage-apprentice.png", "face": [0.56, 0.56], "head": 0.32 },
+  "unit-mage-barrier": { "file": "cards/unit-mage-barrier.png", "face": [0.56, 0.52], "head": 0.3 },
+  "unit-mage-broom": { "file": "cards/unit-mage-broom.png", "face": [0.65, 0.5], "head": 0.3 },
+  "unit-mage-archmage": { "file": "title/mage.png", "face": [0.59, 0.57], "head": 0.36 },
+  "unit-mage-seer": { "file": "cards/unit-mage-seer.png", "face": [0.56, 0.36], "head": 0.28 },
+  "unit-assassin-shadow": { "file": "title/assassin.png", "face": [0.38, 0.62], "head": 0.35 },
+  "unit-assassin-thief": { "file": "cards/unit-assassin-thief.png", "face": [0.7, 0.48], "head": 0.32 },
+  "unit-assassin-scout": { "file": "cards/unit-assassin-scout.png", "face": [0.76, 0.5], "head": 0.34 },
+  "unit-assassin-dagger": { "file": "cards/unit-assassin-dagger.png", "face": [0.8, 0.47], "head": 0.32 },
+  "unit-assassin-poison": { "file": "cards/unit-assassin-poison.png", "face": [0.56, 0.45], "head": 0.32 }
+}

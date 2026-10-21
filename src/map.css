@@ -1,71 +1,88 @@
-.map-screen { --hud-panel: #fff8ebeb; --hud-ink: #263638; --hud-soft: #5b6c6e; --hud-line: #2636381f; --hud-edge: #fff8eb; --hud-shadow: 0 3px 0 #0b3b5226, 0 6px 16px #0b3b5226; --temp-edge: #263638; --retry: #ffda63; container-type: inline-size; background: var(--sea-fog); color: var(--hud-ink); }
+/* 게임 화면 HUD(2026-10-21 새 UI): 짙은 남색 판에 두꺼운 테두리, 흰 굵은 숫자, 블렌더로 만든 아이콘. 어떤 지형 위에서도 또렷하게 읽힌다.
+   흐림·큰 그림자 없이 단색 면과 짧은 그림자만 써서 저사양 기기에서 다시 그리기 비용이 작다. */
+.map-screen { --hud-panel: #1d2735f0; --hud-edge: #0b111a; --hud-ink: #fff6e6; --hud-soft: #b9c4d4; --hud-line: #ffffff1f; --hud-shadow: 0 4px 0 #0b111a66; --retry: #ffd54a; container-type: inline-size; background: var(--sea-fog); color: var(--hud-ink); }
 .map-canvas { position: absolute; inset: 0; display: block; width: 100%; height: 100%; touch-action: none; }
 /* 지도 조작이 HUD 아래에서도 되게, 실제 조작 요소만 입력을 받는다.
    가로 화면의 가운데 기둥은 화면 가장자리에서 떨어져 있으므로, 좌우 안전 영역에서 그 거리를 뺀다. */
-.hud { --side: calc((100vw - 100%) / 2); --minimap: 176px; --hand: 104px; position: absolute; inset: calc(env(safe-area-inset-top) + 12px) max(12px, calc(env(safe-area-inset-right) + 12px - var(--side))) calc(env(safe-area-inset-bottom) + 12px) max(12px, calc(env(safe-area-inset-left) + 12px - var(--side))); pointer-events: none; }
+.hud { --side: calc((100vw - 100%) / 2); --minimap: 176px; --hand: 112px; position: absolute; inset: calc(env(safe-area-inset-top) + 12px) max(12px, calc(env(safe-area-inset-right) + 12px - var(--side))) calc(env(safe-area-inset-bottom) + 12px) max(12px, calc(env(safe-area-inset-left) + 12px - var(--side))); pointer-events: none; }
 .hud > * { position: absolute; margin: 0; }
-.hud-panel { border-radius: 16px; background: var(--hud-panel); box-shadow: var(--hud-shadow); }
+.hud-panel { border: 3px solid var(--hud-edge); border-radius: 18px; background: var(--hud-panel); box-shadow: inset 0 2px 0 #ffffff14, var(--hud-shadow); }
 .hud-players { top: 0; left: 0; max-width: calc(50% - 6px); padding: 8px 14px 8px 8px; }
-/* 플레이어를 누르면 그 왕성으로 간다. 줄마다 누르는 판정이 44px이고 서로 겹치지 않는다.
-   상대 그림(32px)은 위아래 6px를 판정으로 덧대고, 목록 바깥 여백을 그만큼 당겨 첫 줄과 끝 줄 자리는 그대로 둔다.
-   그래서 상대 줄 사이 간격만 4px에서 12px로 넓어졌다(36px 간격으로는 겹치지 않는 44px 판정을 둘 수 없다). */
-.player { display: flex; align-items: center; gap: 8px; width: 100%; min-height: 44px; margin: 0; padding: 0; border: 0; border-radius: 22px; background: none; color: inherit; font-size: 16px; text-align: start; white-space: nowrap; pointer-events: auto; touch-action: manipulation; }
-.player:focus-visible { outline-color: var(--hud-ink); outline-offset: 2px; }
-/* 같은 종족끼리도 갈리게 테두리와 안쪽 모두 판 위 성과 같은 플레이어 색. 종족 색은 카드에만 쓴다 */
-.avatar { display: grid; place-items: center; flex: none; width: 44px; height: 44px; border: 3px solid var(--player); border-radius: 50%; background: color-mix(in srgb, var(--player) 22%, #fff); color: var(--hud-ink); font-size: 19px; }
-.group-label { margin: 8px 0 0; padding-top: 6px; border-top: 1px solid var(--hud-line); color: var(--hud-soft); font-size: 11px; }
-.opponents { display: grid; margin: -2px 0 -6px; padding: 0 0 0 6px; list-style: none; }
-.opponents .player { font-size: 13px; }
-.opponents .avatar { width: 32px; height: 32px; border-width: 3px; font-size: 14px; }
-/* 오른쪽 위: 재화 아래에 말풍선 단추(매크로 채팅). 재화 칸 높이가 휴대폰과 아이패드에서 달라 위아래로 쌓는다. */
-.hud-corner { top: 0; right: 0; display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
-.hud-resources { display: flex; gap: 2px; margin: 0; padding: 4px 8px; list-style: none; }
-.hud-resources li { display: flex; align-items: center; gap: 5px; min-width: 54px; height: 36px; padding: 0 6px; font-size: 17px; font-variant-numeric: tabular-nums; }
-.hud-resources img { flex: none; width: 24px; height: 24px; }
-/* 말 목록은 단추의 왼쪽 옆에 펼쳐지고 꼬리가 단추를 가리킨다. 단추 안 막대는 쿨타임 동안 줄어든다(시간은 --cooldown, 코드가 정한다). */
+/* 플레이어를 누르면 그 왕성으로 간다. 줄마다 누르는 판정이 44px이고 서로 겹치지 않는다. */
+.player { display: flex; align-items: center; gap: 10px; width: 100%; min-height: 44px; margin: 0; padding: 0; border: 0; border-radius: 14px; background: none; color: inherit; font-size: 18px; text-align: start; white-space: nowrap; pointer-events: auto; touch-action: manipulation; }
+.player:focus-visible { outline-color: #ffd54a; outline-offset: 2px; }
+.player:active { scale: .97; }
+.who { display: grid; line-height: 1.15; }
+.who small { font-size: 12px; color: var(--hud-soft); }
+.who small.warrior { color: #ffd76a; }
+.who small.mage { color: #d2b2ff; }
+.who small.assassin { color: #ff9f8c; }
+/* 프로필 얼굴: 둥근 네모, 테두리는 판 위 말과 같은 플레이어 색(종족 색은 카드에만 쓴다) */
+.avatar { position: relative; flex: none; width: 54px; height: 54px; overflow: hidden; border: 3px solid var(--player); border-radius: 14px; background: var(--player); box-shadow: 0 0 0 2px var(--hud-edge); }
+.avatar img { display: block; width: 100%; height: 100%; }
+.group-label { margin: 8px 0 0; padding-top: 6px; border-top: 1px solid var(--hud-line); color: var(--hud-soft); font-size: 12px; }
+.opponents { display: grid; margin: -2px 0 -6px; padding: 0 0 0 4px; list-style: none; }
+.opponents .player { gap: 8px; font-size: 15px; }
+.opponents .who small { font-size: 11px; }
+.opponents .avatar { width: 36px; height: 36px; border-radius: 10px; }
+/* 오른쪽 위: 재화, 그 아래 메뉴·채팅 단추 */
+.hud-corner { top: 0; right: 0; display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
+.hud-resources { display: flex; gap: 2px; margin: 0; padding: 4px 10px 4px 6px; list-style: none; }
+.hud-resources li { display: flex; align-items: center; gap: 4px; min-width: 60px; height: 40px; padding: 0 4px; font-size: 19px; font-variant-numeric: tabular-nums; text-shadow: 0 2px 0 #0b111a; }
+.hud-resources img { flex: none; width: 30px; height: 30px; }
+.hud-buttons { display: flex; gap: 8px; }
+.hud-round { position: relative; display: grid; place-items: center; width: 52px; height: 52px; padding: 0; border: 3px solid var(--hud-edge); border-radius: 50%; background: #fff6e6; box-shadow: inset 0 -4px 0 #d8c9a8, var(--hud-shadow); pointer-events: auto; touch-action: manipulation; }
+.hud-round img { width: 34px; height: 34px; }
+.hud-round:active { translate: 0 2px; }
+.hud-round:focus-visible, .chat-list button:focus-visible { outline: 3px solid #ffd54a; outline-offset: 2px; }
+/* 말 목록은 단추의 왼쪽 옆에 펼쳐지고 꼬리가 단추를 가리킨다. 단추 둘레 막대는 쿨타임 동안 줄어든다(시간은 --cooldown, 코드가 정한다). */
 .chat { position: relative; pointer-events: auto; }
-.chat-toggle { position: relative; display: grid; place-items: center; width: 44px; height: 44px; padding: 0 0 5px; border: 0; color: var(--hud-ink); touch-action: manipulation; }
-.chat-toggle:focus-visible, .chat-list button:focus-visible { outline-color: var(--hud-ink); outline-offset: 2px; }
 .chat-toggle:disabled { cursor: default; }
-.chat-toggle:disabled svg { opacity: .4; }
-.chat-toggle:disabled::after { content: ''; position: absolute; inset: auto 10px 6px; height: 3px; border-radius: 2px; background: var(--hud-ink); transform-origin: left; animation: chat-cooldown var(--cooldown) linear forwards; }
+.chat-toggle:disabled img { opacity: .4; }
+.chat-toggle:disabled::after { content: ''; position: absolute; inset: auto 10px 7px; height: 4px; border-radius: 2px; background: #1d2735; transform-origin: left; animation: chat-cooldown var(--cooldown) linear forwards; }
 @keyframes chat-cooldown { to { transform: scaleX(0); } }
-.chat-list { position: absolute; z-index: 1; top: 0; right: calc(100% + 8px); margin: 0; padding: 4px; list-style: none; }
-.chat-list::after, .bubble::before { content: ''; position: absolute; width: 8px; height: 14px; background: inherit; translate: 0 -50%; }
-.chat-list::after { left: 100%; top: 22px; clip-path: polygon(0 0, 100% 50%, 0 100%); }
+.chat-list { position: absolute; z-index: 1; top: 0; right: calc(100% + 10px); margin: 0; padding: 4px; list-style: none; }
+.chat-list::after, .bubble::before { content: ''; position: absolute; width: 9px; height: 16px; background: var(--hud-edge); translate: 0 -50%; }
+.chat-list::after { left: 100%; top: 26px; clip-path: polygon(0 0, 100% 50%, 0 100%); }
 .chat-list button { display: block; width: 100%; min-height: 44px; padding: 0 14px; border: 0; border-radius: 12px; background: none; color: inherit; font-size: 16px; text-align: start; white-space: nowrap; touch-action: manipulation; }
 .chat-list button:active { background: var(--hud-line); }
-/* 말풍선은 그 플레이어 줄 옆(위치는 코드가 정한다)에 뜬다. 꼬리는 줄 쪽(왼쪽)을 향한다. 글자만 말줄임 */
-.bubble { translate: 0 -50%; transform-origin: left; padding: 6px 12px; font-size: 14px; line-height: 1.3; white-space: nowrap; transition: opacity .3s; animation: bubble-in .15s ease-out; }
+/* 말풍선은 그 플레이어 줄 옆(위치는 코드가 정한다)에 뜬다. 밝은 크림 말풍선이라 어두운 판 위에서도 바로 보인다. 글자만 말줄임 */
+.bubble { translate: 0 -50%; transform-origin: left; padding: 6px 12px; border-radius: 14px; background: #fff6e6; color: #2a1d0e; font-size: 15px; line-height: 1.3; white-space: nowrap; transition: opacity .3s; animation: bubble-in .15s ease-out; }
 .bubble::before { right: 100%; top: 50%; clip-path: polygon(100% 0, 0 50%, 100% 100%); }
 .bubble span { display: block; overflow: hidden; text-overflow: ellipsis; }
 .bubble.out { opacity: 0; }
 .bubble.calm { --pop: 1; }
 @keyframes bubble-in { from { opacity: 0; scale: var(--pop, .85); } }
 /* 판 상자와 같은 비율(약 4:3). --board-ratio는 판을 열 때 정한다. */
-.minimap { left: 0; bottom: 0; width: var(--minimap); aspect-ratio: var(--board-ratio, 4 / 3); padding: 0; border: 3px solid var(--hud-edge); border-radius: 14px; overflow: hidden; background: var(--sea-fog); box-shadow: var(--hud-shadow); pointer-events: auto; touch-action: manipulation; }
+.minimap { left: 0; bottom: 0; width: var(--minimap); aspect-ratio: var(--board-ratio, 4 / 3); padding: 0; border: 3px solid var(--hud-edge); border-radius: 16px; overflow: hidden; background: var(--sea-fog); box-shadow: inset 0 0 0 2px #fff6e6, var(--hud-shadow); pointer-events: auto; touch-action: manipulation; }
 .minimap canvas, .minimap-dialog canvas { display: block; width: 100%; height: 100%; }
-.minimap-view { position: absolute; left: 0; top: 0; border: 2px solid #fff; border-radius: 3px; box-shadow: 0 0 0 1px #0b3b5280; pointer-events: none; }
+.minimap-view { position: absolute; left: 0; top: 0; border: 2px solid #fff; border-radius: 3px; box-shadow: 0 0 0 1px #0b111a99; pointer-events: none; }
 /* 화면을 어둡게 덮지 않는다. 투명한 바깥을 누르면 닫힌다. 너비는 세로 기둥(높이의 3/4) 안에 들어가게 한다. */
-.minimap-dialog { width: min(92vw, 69svh); aspect-ratio: var(--board-ratio, 4 / 3); padding: 0; border: 3px solid var(--hud-edge); border-radius: 18px; overflow: hidden; background: var(--sea-fog); box-shadow: 0 6px 0 #0b3b5233, 0 18px 48px #0b3b5259; }
+.minimap-dialog { width: min(92vw, 69svh); aspect-ratio: var(--board-ratio, 4 / 3); padding: 0; border: 4px solid var(--hud-edge); border-radius: 20px; overflow: hidden; background: var(--sea-fog); box-shadow: inset 0 0 0 2px #fff6e6, 0 8px 0 #0b111a55; }
 .minimap-dialog::backdrop { background: transparent; }
-/* 임시: 모드 선택으로 돌아가는 시험용 버튼과 주사위 굴리기. 점선으로 정식 UI가 아님을 드러낸다.
-   주사위는 엄지가 닿는 아래 가운데, 모드 바꾸기 바로 위. 미니맵(왼쪽)과 카드(오른쪽) 사이 폭 안에 든다. */
-.mode-change, .dice-roll { left: 50%; bottom: 0; translate: -50% 0; display: grid; justify-items: center; min-width: 44px; min-height: 44px; padding: 4px 12px; border: 2px dashed var(--temp-edge); border-radius: 12px; background: var(--hud-panel); color: var(--hud-ink); font-size: 13px; line-height: 1.2; white-space: nowrap; pointer-events: auto; }
-.mode-change small, .dice-roll small { color: var(--hud-soft); font-size: 10px; }
-.dice-roll { bottom: 56px; }
-.dice-roll:disabled { opacity: .5; cursor: default; }
-.map-retry { left: 50%; top: 50%; translate: -50% -50%; min-height: 44px; padding: 0 20px; border: 0; border-radius: 22px; background: var(--retry); color: var(--hud-ink); font-size: 15px; box-shadow: var(--hud-shadow); pointer-events: auto; }
-.hand { right: 0; bottom: 0; width: var(--hand); height: 108px; }
-/* 모서리 반지름은 카드 뒷면 그림의 둥근 모서리와 같다. */
-.hand img { position: absolute; right: 4px; bottom: 4px; width: 64px; height: 90px; border-radius: 5px; box-shadow: var(--hud-shadow); }
-.hand img:nth-child(1) { transform: translate(-30px, -8px) rotate(-11deg); }
-.hand img:nth-child(2) { transform: translate(-15px, -3px) rotate(-4deg); }
+/* 주사위 굴리기: 엄지가 닿는 아래 가운데의 큰 노란 단추(주요 행동). 미니맵(왼쪽)과 카드(오른쪽) 사이 폭 안에 든다. */
+.dice-roll { left: 50%; bottom: 4px; translate: -50% 0; display: flex; gap: 6px; min-height: 56px; padding: 0 20px 0 12px; font-size: 18px; white-space: nowrap; pointer-events: auto; }
+.dice-roll img { width: 36px; height: 36px; }
+.dice-roll:active { translate: -50% 2px; }
+.map-retry { left: 50%; top: 50%; translate: -50% -50%; min-height: 44px; padding: 0 20px; border: 3px solid var(--hud-edge); border-radius: 22px; background: var(--retry); color: #2a1d0e; font-size: 15px; box-shadow: var(--hud-shadow); pointer-events: auto; }
+.hand { right: 0; bottom: 0; width: var(--hand); height: 112px; }
+.hand img { position: absolute; right: 4px; bottom: 4px; width: 68px; height: 95px; border-radius: 6px; box-shadow: 0 3px 0 #0b111a66; }
+.hand img:nth-child(1) { transform: translate(-32px, -8px) rotate(-11deg); }
+.hand img:nth-child(2) { transform: translate(-16px, -3px) rotate(-4deg); }
 .hand img:nth-child(3) { transform: rotate(4deg); }
-/* 휴대폰 너비: 재화는 2×2, 미니맵은 조금 작게. 아래 가운데 임시 버튼은 화면 가운데에 두면 미니맵에 닿으므로
-   미니맵과 카드 사이 빈 곳의 가운데에 둔다. */
+/* 패 장수: 카드 묶음 오른쪽 위의 동그란 배지 */
+.hand-count { position: absolute; right: -4px; top: 0; display: grid; place-items: center; min-width: 30px; height: 30px; padding: 0 6px; border: 3px solid var(--hud-edge); border-radius: 15px; background: #ffd54a; color: #2a1d0e; font-size: 17px; line-height: 1; box-shadow: var(--hud-shadow); }
+/* 휴대폰 너비: 재화는 2×2, 미니맵·얼굴은 조금 작게. 주사위 단추는 미니맵과 카드 사이 빈 곳의 가운데. */
 @container (max-width: 520px) {
-  .hud-resources { display: grid; grid-template-columns: 1fr 1fr; }
-  .hud { --minimap: 136px; }
-  .mode-change, .dice-roll { left: calc((var(--minimap) + 100% - var(--hand)) / 2); }
+  .hud-resources { display: grid; grid-template-columns: 1fr 1fr; padding: 4px 6px 4px 4px; }
+  /* 재화 칸을 좁혀 플레이어 목록과 재화 사이에 말풍선 자리(약 125px)를 둔다. 가장 긴 말(6글자)도 잘리지 않는다 */
+  .hud-resources li { min-width: 50px; height: 36px; gap: 2px; padding: 0 2px; font-size: 17px; }
+  .hud-resources img { width: 26px; height: 26px; }
+  .bubble { padding: 6px 10px; font-size: 14px; }
+  .hud { --minimap: 112px; --hand: 96px; }
+  .avatar { width: 46px; height: 46px; }
+  .player { font-size: 16px; }
+  .dice-roll { left: calc((var(--minimap) + 100% - var(--hand)) / 2); gap: 4px; min-height: 52px; padding: 0 10px 0 6px; font-size: 15px; }
+  .dice-roll img { width: 28px; height: 28px; }
+  .hand img { width: 60px; height: 84px; }
 }

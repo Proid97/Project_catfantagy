@@ -17,7 +17,7 @@
 
 | 폴더 | 내용 |
 |---|---|
-| `assets/` | 원본 그림. 콘셉트, 타이틀 PNG와 배치 기준 `layout.json`, 지도 그림(`map/`), 성·재화 아이콘·카드 뒷면 등 게임 말(`game/`) |
+| `assets/` | 원본 그림. 콘셉트, 타이틀 PNG와 배치 기준 `layout.json`, 지도 그림(`map/`), 판 위 건물(`pieces/`), 카드 그림·배경(`cards/`), 아이콘(`icons/`), 블렌더 밑그림 스크립트(`blender/`), 구름·주사위(`game/`) |
 | `src/` | 게임 코드. 규칙은 `board.js`(판 데이터), 화면은 `main.js`(타이틀·대전 방식 선택)·`map-screen.js`(판) |
 | `tests/` | 자동 검사 |
 | `scripts/` | 그림 정리·변환, 웹앱 설정 검사 |
@@ -27,7 +27,7 @@
 
 `node_modules/`, `dist/`, `public/title/`, `public/map/`, `public/game/`, `public/icons/`, `src/generated/`는 자동으로 생깁니다. 저장소에 올리지 않고, 지워도 다시 만들어집니다.
 
-현재는 **4단계 세로 전환과 판 만들기**를 진행 중입니다. 타이틀에서 시작하면 임시 대전 방식 선택 화면이 나오고, **1대1 매치** 또는 **4인 매치 → 개인전·팀전**을 고르면 새 무작위 대륙이 열립니다. 상대는 모두 봇이고 아직 움직이지 않습니다. 판은 바닥 타일·호수·지형 오브젝트·성 그림으로 그립니다. 판 아래 가운데 **모드 바꾸기**(임시)로 선택 화면에 돌아갑니다. 주소 끝에 `#map`(1대1), `#map-ffa`(4인 개인전), `#map-team`(팀전)을 붙이면 판으로 바로 들어갑니다. 화면 흐름과 개발 순서는 [대화 맥락](docs/project-context.md)에 있습니다.
+현재는 **4단계 세로 전환과 판 만들기**를 진행 중입니다. 타이틀에서 시작하면 임시 대전 방식 선택 화면이 나오고, **1대1 매치** 또는 **4인 매치 → 개인전·팀전**을 고르면 새 무작위 대륙이 열립니다. 상대는 모두 봇이고 아직 움직이지 않습니다. 판은 바닥 타일·자원 지형 타일·호수·왕성 그림으로 그립니다. 오른쪽 위 **설정** 단추(임시)로 선택 화면에 돌아갑니다. 주소 끝에 `#map`(1대1), `#map-ffa`(4인 개인전), `#map-team`(팀전)을 붙이면 판으로 바로 들어가고, `#map-demo`는 보기용 건물·유닛을 놓은 판, `#cards`는 카드 51종과 판 위 말을 보는 화면입니다. 화면 흐름과 개발 순서는 [대화 맥락](docs/project-context.md)에 있습니다.
 
 ![현재 타이틀 아트 배치 · 시작 문구와 버튼은 코드로 표시](docs/images/title-screen.webp)
 
@@ -87,7 +87,7 @@ npm test
 
 [Ponytail](.agents/skills/ponytail/SKILL.md)은 공식 저장소의 `6f1c2bf` 판을 포함했습니다. 기존 기능·브라우저 기본 기능을 먼저 쓰고, 필요한 라이브러리를 선택합니다. 출처: [DietrichGebert/ponytail](https://github.com/DietrichGebert/ponytail/tree/6f1c2bfff0c837d268929a7c4e490918eb4fab29), MIT 라이선스 포함.
 
-배치 기준은 `assets/title/layout.json` 한 곳에서 수정합니다. UI 문구를 추가하면 `npm run assets`를 다시 실행해 필요한 글자를 포함합니다. 지형은 별도 PNG를 통째로 움직입니다. 이미지 내용에 따른 식별값을 URL에 붙여 이전 그림이 캐시에 남는 문제를 줄입니다.
+`npm run assets`는 판 위 말·동전 토큰·카드 틀·카드 그림 창·아이콘도 굽습니다(`scripts/bake-art.mjs`). 카드 이름·비용·수치·글은 [카드 목록](docs/cards.md) 표에서 읽으므로(`scripts/cards-data.mjs`), 표를 고친 뒤 다시 실행합니다. 배치 기준은 `assets/title/layout.json` 한 곳에서 수정합니다. UI 문구를 추가하면 `npm run assets`를 다시 실행해 필요한 글자를 포함합니다. 지형은 별도 PNG를 통째로 움직입니다. 이미지 내용에 따른 식별값을 URL에 붙여 이전 그림이 캐시에 남는 문제를 줄입니다.
 
 아트는 ChatGPT 이미지젠으로 제작합니다. 메인 캐릭터와 타이틀 원본은 [게임 설계](docs/game-design.md#메인-콘셉트)에 있습니다. Pretendard의 글자 모양을 유지한 부분 글꼴을 생성합니다. OFL 라이선스에 맞춰 생성물 이름은 `Catfantagy UI`로 바꾸고, 원 저작권과 라이선스는 `public/licenses/pretendard.txt`에 포함했습니다.
 

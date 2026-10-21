@@ -78,10 +78,19 @@ button:focus-visible { outline: 3px solid #ffda63; outline-offset: 6px; }
 /* 합의: 앱은 세로 화면. 가로로 돌리면 세로 화면(폭 = 높이의 3/4까지)을 가운데 기둥으로 두고 양옆은 배경으로 채운다. */
 .stage, .mode-screen, .map-screen { position: absolute; inset: 0; width: min(100%, var(--app-height) * 3 / 4); margin: 0 auto; overflow: hidden; }
 /* 임시 대전 방식 선택(설계서 10장 6번). 어두운 화면 위쪽 1대1, 아래쪽 4인. 4인은 왼쪽 개인전, 오른쪽 팀전. */
-.mode-screen { --mode-bg: #0c1f23; --mode-card: #173a3f; --mode-card-on: #22525a; --mode-edge: #ffffff2e; --mode-sub: #b5cec6; display: flex; flex-direction: column; gap: 16px; padding: calc(env(safe-area-inset-top) + 12px) 16px calc(env(safe-area-inset-bottom) + 16px); background: var(--mode-bg); }
-.mode-back { align-self: flex-start; min-height: 44px; padding: 0 16px; border: 1px solid var(--mode-edge); border-radius: 22px; color: inherit; background: none; font-size: 15px; }
+/* 대전 방식 고르기(새 UI): 짙은 남색 바탕에 크림색 큰 카드 단추. 두꺼운 테두리와 아래 그림자로 누를 수 있는 것이 분명하다. */
+.mode-screen { display: flex; flex-direction: column; gap: 16px; padding: calc(env(safe-area-inset-top) + 12px) 16px calc(env(safe-area-inset-bottom) + 16px); background: #1d2a3a; color: #2a1d0e; }
+.mode-back { align-self: flex-start; }
 .mode-list { flex: 1; display: grid; grid-auto-rows: 1fr; gap: 16px; }
 .mode-list.four { grid-template-columns: 1fr 1fr; }
-.mode-list button { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; min-height: 44px; border: 2px solid var(--mode-edge); border-radius: 24px; color: inherit; background: var(--mode-card); font-size: clamp(26px, 6vmin, 40px); }
-.mode-list button:active { background: var(--mode-card-on); }
-.mode-list small { color: var(--mode-sub); font-size: 15px; }
+.mode-list button { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; min-height: 44px; border: 4px solid #0b111a; border-radius: 26px; color: inherit; background: #fff6e6; box-shadow: inset 0 -8px 0 #e3d3b0, 0 6px 0 #0b111a88; font-size: clamp(26px, 6vmin, 40px); touch-action: manipulation; }
+.mode-list button:active { translate: 0 3px; box-shadow: inset 0 -5px 0 #e3d3b0, 0 3px 0 #0b111a88; }
+.mode-list img { width: clamp(64px, 16vmin, 120px); height: clamp(64px, 16vmin, 120px); }
+.mode-list small { color: #7a6a52; font-size: 15px; }
+.mode-cards { align-self: center; }
+/* 공통 단추(UI 기준 2026-10-21): 두꺼운 짙은 테두리, 밝은 면, 아래 그림자. 노랑은 주요 행동, 남색은 보조 */
+.ui-button { display: inline-grid; place-items: center; min-width: 44px; min-height: 44px; padding: 0 18px; border: 3px solid #2a1d0e; border-radius: 16px; background: #ffd54a; color: #3a2410; font-size: 17px; line-height: 1.1; box-shadow: inset 0 -5px 0 #e0a325, inset 0 3px 0 #fff3b0, 0 4px 0 #0005; touch-action: manipulation; }
+.ui-button:active { translate: 0 2px; box-shadow: inset 0 -3px 0 #e0a325, inset 0 3px 0 #fff3b0, 0 2px 0 #0005; }
+.ui-button.blue { background: #3f8fe6; color: #fff; box-shadow: inset 0 -5px 0 #2a63b0, inset 0 3px 0 #8cc4ff, 0 4px 0 #0005; }
+.ui-button.small { min-height: 40px; padding: 0 12px; font-size: 15px; border-radius: 14px; }
+.ui-button:disabled { filter: grayscale(.8); opacity: .6; cursor: default; }
