@@ -538,5 +538,56 @@
     },
     "processing": "원본 RGB 유지. 빈 배경과 내부 알파 정리 및 캔버스 크기·자리 맞춤만 적용. 외곽선과 교환 아이콘 없음.",
     "inspection": "실제 48px·72px, 해안 회전 배치, 4배 확대. 일부 미세한 색 변화는 원본에 남아 있으며 코드에서 색을 고치지 않음."
+  },
+  "resource_tiles": {
+    "decision": "2026-10-20 사용자 결정: 자원을 칸 그림에 그려 넣는 지형 타일 4장. 2026-10-21 제작",
+    "mode": "codex CLI(사용자 ChatGPT 로그인)의 image_generation 도구, codex exec -m gpt-5.6-sol. 바탕 타일을 첫 첨부 그림으로 넣어 편집",
+    "rule": "생성 PNG 그대로(1254×1254, 빌드가 줄임). 바탕 타일과 1024로 맞춰 겹쳤을 때 불투명 윤곽 차이 2px 안(반투명 가장자리 제외)",
+    "assets": [
+      {
+        "file": "forest-tile.png",
+        "base": "grass-1.png",
+        "references": [
+          "grass-1.png",
+          "forest.png",
+          "assets/concepts/style-reference-warrior.png"
+        ],
+        "requested_size": "1024x1024",
+        "prompt": "Call your image_generation tool exactly once to EDIT the first attached image: keep it identical (pose, proportions, colors, composition, transparent background) except for the requested change. Any other attached images are style references only.\n\nUse case: hex board tile for a strategy board game. EDIT the attached base tile (grass field): keep the hexagon outline, side thickness, pale rim line, size and position on the 1024x1024 canvas exactly identical; repaint ONLY the top face as a dense forest: dark conifer treetops packed closely together, seen from slightly above, with a little grass showing between the trees; tree shapes like the attached forest object. The resource must be readable from color alone when the whole tile is 48 px wide: dark teal-green. Keep it low and flat like a painted ground pattern seen from slightly above; nothing may stick out beyond the top edge of the hexagon. Keep calm, low-contrast ground at the center (unit spot), at the lower center (number disc around (512, 670), radius 125) and around the six corners (building spots); put the strongest features in the upper half and on the left and right sides. Upper-left light. No text, numbers, characters or icons.\n\nClean indie flat vector illustration matching the base tile and the style reference exactly: angular faceted planes with straight hard edges, like folded paper or cut gems, two to four tones per material, single light source from the upper left. No gradients, no texture, no grain, no noise, no glow, no blur, no black outlines. Crisp clean edges. Transparent only outside the tile, exactly like the base tile. Smallest details at least 10 px wide. No text, letters, numbers, signature or watermark."
+      },
+      {
+        "file": "gold-mine-tile.png",
+        "base": "barren.png",
+        "references": [
+          "barren.png",
+          "gold-mine.png",
+          "assets/concepts/style-reference-warrior.png"
+        ],
+        "requested_size": "1024x1024",
+        "prompt": "Call your image_generation tool exactly once to EDIT the first attached image: keep it identical (pose, proportions, colors, composition, transparent background) except for the requested change. Any other attached images are style references only.\n\nUse case: hex board tile for a strategy board game. EDIT the attached base tile (bare ochre earth): keep the hexagon outline, side thickness, pale rim line, size and position on the 1024x1024 canvas exactly identical; repaint ONLY the top face as a gold mine field: ochre ground with a few thick golden-yellow gold vein lines and a few gold nuggets, and one low wooden-frame mine entrance in the upper part, like the attached gold mine object but flat and low. The resource must be readable from color alone when the whole tile is 48 px wide: ochre and bright golden yellow. Keep it low and flat like a painted ground pattern seen from slightly above; nothing may stick out beyond the top edge of the hexagon. Keep calm, low-contrast ground at the center (unit spot), at the lower center (number disc around (512, 670), radius 125) and around the six corners (building spots); put the strongest features in the upper half and on the left and right sides. Upper-left light. No text, numbers, characters or icons.\n\nClean indie flat vector illustration matching the base tile and the style reference exactly: angular faceted planes with straight hard edges, like folded paper or cut gems, two to four tones per material, single light source from the upper left. No gradients, no texture, no grain, no noise, no glow, no blur, no black outlines. Crisp clean edges. Transparent only outside the tile, exactly like the base tile. Smallest details at least 10 px wide. No text, letters, numbers, signature or watermark."
+      },
+      {
+        "file": "crystal-tile.png",
+        "base": "barren.png",
+        "references": [
+          "barren.png",
+          "crystal.png",
+          "assets/concepts/style-reference-warrior.png"
+        ],
+        "requested_size": "1024x1024",
+        "prompt": "Call your image_generation tool exactly once to EDIT the first attached image: keep it identical (pose, proportions, colors, composition, transparent background) except for the requested change. Any other attached images are style references only.\n\nUse case: hex board tile for a strategy board game. EDIT the attached base tile (bare ochre earth): keep the hexagon outline, side thickness, pale rim line, size and position on the 1024x1024 canvas exactly identical; repaint ONLY the top face as a crystal field: rocky ground with clusters of purple crystals rising in several places, mixed with a few small teal crystals, crystal shapes like the attached crystal object but low. The resource must be readable from color alone when the whole tile is 48 px wide: purple. Keep it low and flat like a painted ground pattern seen from slightly above; nothing may stick out beyond the top edge of the hexagon. Keep calm, low-contrast ground at the center (unit spot), at the lower center (number disc around (512, 670), radius 125) and around the six corners (building spots); put the strongest features in the upper half and on the left and right sides. Upper-left light. No text, numbers, characters or icons.\n\nClean indie flat vector illustration matching the base tile and the style reference exactly: angular faceted planes with straight hard edges, like folded paper or cut gems, two to four tones per material, single light source from the upper left. No gradients, no texture, no grain, no noise, no glow, no blur, no black outlines. Crisp clean edges. Transparent only outside the tile, exactly like the base tile. Smallest details at least 10 px wide. No text, letters, numbers, signature or watermark."
+      },
+      {
+        "file": "rock-tile.png",
+        "base": "barren.png",
+        "references": [
+          "barren.png",
+          "rock.png",
+          "assets/concepts/style-reference-warrior.png"
+        ],
+        "requested_size": "1024x1024",
+        "prompt": "Call your image_generation tool exactly once to EDIT the first attached image: keep it identical (pose, proportions, colors, composition, transparent background) except for the requested change. Any other attached images are style references only.\n\nUse case: hex board tile for a strategy board game. EDIT the attached base tile (bare ochre earth): keep the hexagon outline, side thickness, pale rim line, size and position on the 1024x1024 canvas exactly identical; repaint ONLY the top face as an impassable rocky mountain field: cool gray rock peaks cover almost the whole top face, rock shapes like the attached rock object; this tile cannot be entered, so the center may be filled too, but the peaks stay inside the hexagon and nothing rises above its top edge. The resource must be readable from color alone when the whole tile is 48 px wide: cool gray. Keep it low and flat like a painted ground pattern seen from slightly above; nothing may stick out beyond the top edge of the hexagon. Keep the lower center (number disc around (512, 670), radius 125) a little calmer so a number disc can sit on top. Upper-left light. No text, numbers, characters or icons.\n\nClean indie flat vector illustration matching the base tile and the style reference exactly: angular faceted planes with straight hard edges, like folded paper or cut gems, two to four tones per material, single light source from the upper left. No gradients, no texture, no grain, no noise, no glow, no blur, no black outlines. Crisp clean edges. Transparent only outside the tile, exactly like the base tile. Smallest details at least 10 px wide. No text, letters, numbers, signature or watermark."
+      }
+    ]
   }
 }
