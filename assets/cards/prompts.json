@@ -58,6 +58,49 @@
         "assets/title/warrior-front.png"
       ],
       "transparent_generation": true
+    },
+    {
+      "file": "assets/cards/background-warrior.png",
+      "prompt": "Call your image_generation tool exactly once to create ONE image. The attached images are references: the first is the STYLE reference (follow its flat angular art style exactly, but do NOT draw its character); the second shows this game's environment style (sky, clouds, mountains, castle), use it for style only, not composition. Do not draw any character.\n\nBackground art for the illustration window of a cute cat fantasy strategy game card: the WARRIOR kingdom. Background only: a separate character image will be placed on top of it later, so the picture itself has no character in it.\nScene: a sunny castle training ground. Bright clear blue sky with two or three large faceted white clouds near the top. Across the back, a low cream-colored stone castle rampart with simple square battlements runs horizontally behind the middle. At the far left and far right, one tall crimson banner with a gold border hangs from the wall (plain cloth, no emblem). In front, a wide flat ground of packed warm sand-colored earth with a few broad green grass planes at the side edges.\nMood and value: warm, brave daylight but soft, slightly lighter and less saturated than character art, so a character in gold armor and crimson cloth placed in front stands out clearly. Gold and crimson are the accent colors of the warrior kingdom.\n\nComposition: the horizon line sits at about 58-62% of the height. The center of the image, where the character will stand, is calm, open and low-contrast: no objects in the middle 40% of the width. The ground fills the bottom third and is flat and empty in the middle. Keep every important shape between 10% and 90% of the height, because the top and bottom edges may be cropped to 16:9.\n\nClean indie flat vector illustration matching the style reference exactly: angular faceted planes with straight hard edges, like folded paper or cut gems, two to four tones per material, single light source from the upper left. Large simple shapes only, smallest details at least 16 px wide. No gradients, no texture, no grain, no noise, no glow, no blur, no light rays, no black outlines. Crisp clean edges. The picture fills the whole canvas edge to edge (no border, no frame, no vignette, no transparency). No text, letters, numbers, emblem, signature or watermark. NO characters: no cats, animals, people or creatures anywhere.",
+      "requested_size": "1536x1024",
+      "references": [
+        "assets/concepts/style-reference-warrior.png",
+        "타이틀 층(sky-tall·peaks·castle-hill·hills-tall)을 1536×1024로 겹친 환경 참조 그림"
+      ],
+      "transparent_generation": false
+    },
+    {
+      "file": "assets/cards/background-mage.png",
+      "prompt": "Call your image_generation tool exactly once to create ONE image. The attached images are references: the first is the STYLE reference (follow its flat angular art style exactly, but do NOT draw its character); the second shows this game's environment style (sky, clouds, mountains, castle), use it for style only, not composition. Do not draw any character.\n\nBackground art for the illustration window of a cute cat fantasy strategy game card: the MAGE kingdom. Background only: a separate character image will be placed on top of it later, so the picture itself has no character in it.\nScene: a quiet magic tower terrace at twilight. Soft pale violet and lavender sky made of a few flat angular bands (flat colors, no gradient), a few large simple four-point stars, and one big pale crescent moon in the upper right. Far behind on the left, one slender white wizard tower with a pointed violet roof stands small on a distant hill. A few large teal crystal clusters rise from the ground at the far left and far right edges, and two or three small floating teal crystal shards hover high near the sides. In front, a wide flat terrace of pale lavender-gray stone slabs.\nMood and value: calm and mysterious but light, slightly lighter and less saturated than character art, so a character in deep purple robes with teal trim placed in front stands out clearly. Violet and teal are the accent colors of the mage kingdom.\n\nComposition: the horizon line sits at about 58-62% of the height. The center of the image, where the character will stand, is calm, open and low-contrast: no objects in the middle 40% of the width. The ground fills the bottom third and is flat and empty in the middle. Keep every important shape between 10% and 90% of the height, because the top and bottom edges may be cropped to 16:9.\n\nClean indie flat vector illustration matching the style reference exactly: angular faceted planes with straight hard edges, like folded paper or cut gems, two to four tones per material, single light source from the upper left. Large simple shapes only, smallest details at least 16 px wide. No gradients, no texture, no grain, no noise, no glow, no blur, no light rays, no black outlines. Crisp clean edges. The picture fills the whole canvas edge to edge (no border, no frame, no vignette, no transparency). No text, letters, numbers, emblem, signature or watermark. NO characters: no cats, animals, people or creatures anywhere.",
+      "requested_size": "1536x1024",
+      "references": [
+        "assets/concepts/style-reference-warrior.png",
+        "타이틀 층(sky-tall·peaks·castle-hill·hills-tall)을 1536×1024로 겹친 환경 참조 그림"
+      ],
+      "transparent_generation": false
+    },
+    {
+      "file": "assets/cards/background-assassin.png",
+      "prompt": "Call your image_generation tool exactly once to create ONE image. The attached images are references: the first is the STYLE reference (follow its flat angular art style exactly, but do NOT draw its character); the second shows this game's environment style (sky, clouds, mountains, castle), use it for style only, not composition. Do not draw any character.\n\nBackground art for the illustration window of a cute cat fantasy strategy game card: the ASSASSIN (shadow) kingdom. Background only: a separate character image will be placed on top of it later, so the picture itself has no character in it.\nScene: a quiet flat rooftop at night, kept very simple. Teal-blue night sky in a few large flat angular planes, one big pale cream full moon in the upper left, a few small simple stars. Behind the rooftop edge, only three or four simple slate roof silhouettes in muted blue-gray and one chimney, with at most three small warm windows. No castle, no mountains, no towers, no crowd of houses. On the right, one string of two coral paper lanterns. In front, a wide flat rooftop of large teal-gray slabs, flat and empty in the middle.\nMood and value: quiet sneaky night but NOT too dark: mid-value teal, and the sky behind the center is a lighter flat moonlit teal plane, so dark-colored characters (black fur, dark teal cloth, coral scarf) placed in front still read clearly. Dark teal and coral are the accent colors of the shadow kingdom. As simple and calm as a stage backdrop.\n\nComposition: the horizon line sits at about 58-62% of the height. The center of the image, where the character will stand, is calm, open and low-contrast: no objects in the middle 40% of the width. The ground fills the bottom third and is flat and empty in the middle. Keep every important shape between 10% and 90% of the height, because the top and bottom edges may be cropped to 16:9.\n\nClean indie flat vector illustration matching the style reference exactly: angular faceted planes with straight hard edges, like folded paper or cut gems, two to four tones per material, single light source from the upper left. Large simple shapes only, smallest details at least 16 px wide. No gradients, no texture, no grain, no noise, no glow, no blur, no light rays, no black outlines. Crisp clean edges. The picture fills the whole canvas edge to edge (no border, no frame, no vignette, no transparency). No text, letters, numbers, emblem, signature or watermark. NO characters: no cats, animals, people or creatures anywhere.",
+      "requested_size": "1536x1024",
+      "references": [
+        "assets/concepts/style-reference-warrior.png",
+        "타이틀 층(sky-tall·peaks·castle-hill·hills-tall)을 1536×1024로 겹친 환경 참조 그림"
+      ],
+      "transparent_generation": false,
+      "note": "첫 판(집·창문·성이 많아 복잡함)은 쓰지 않고, 단순하게 다시 만든 두 번째 판을 씀"
     }
-  ]
+  ],
+  "icons": {
+    "files": "assets/cards/icons/*.svg",
+    "method": "생성 그림이 아니라 직접 그린 SVG(24×24). 2026-10-20 사용자 결정대로 단순 벡터 아이콘, 왼쪽 위 빛에 맞춰 오른쪽 아래 면을 어둡게 함",
+    "list": {
+      "heart": "체력",
+      "drop": "마나",
+      "sword": "공격",
+      "range": "범위(안에 숫자를 코드로 씀)",
+      "boot": "이동",
+      "dice": "효과 건물의 주사위 합(옆에 숫자)"
+    }
+  }
 }
