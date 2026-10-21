@@ -19,9 +19,12 @@ const cost = text => [...text.matchAll(/(금|수정|나무|생선)(\d+)/g)].map(
 // 마크다운 굵게와 줄바꿈만 HTML로. "설명:" 문단(이야기 글)은 크게 볼 때만 보이게 따로 둔다.
 function text(md) {
   const parts = md.split(/<br \/><br \/>/).map(part => part.trim()).filter(Boolean);
-  const html = part => part.replace(/\*\*(.+?)\*\*/g, '<b>$1</b>').replace(/<br \/>/g, ' ');
+  // 문서용 참조 "(설계서 7장)"은 카드에 보이지 않게 뺀다
+  const html = part => part.replace(/\s*\(설계서[^)]*\)/g, '').replace(/\*\*(.+?)\*\*/g, '<b>$1</b>').replace(/<br \/>/g, ' ');
   const flavor = parts.filter(part => part.startsWith('**설명:**')).map(part => html(part.replace('**설명:**', '').trim()));
-  return { text: parts.filter(part => !part.startsWith('**설명:**')).map(html), flavor: flavor[0] ?? '' };
+  const text = parts.filter(part => !part.startsWith('**설명:**')).map(html);
+  // 효과가 없는 카드(견습냥)는 이야기 글을 설명판에 쓴다
+  return text.length ? { text, flavor: flavor[0] ?? '' } : { text: flavor.slice(0, 1), flavor: '' };
 }
 export function parseCards(md) {
   const cards = [];

@@ -18,7 +18,7 @@ export function kindText(card) {
   return TYPE[card.type];
 }
 
-// big: 크게 볼 때. 이야기 글(설명)도 보인다.
+// big: 크게 볼 때(설명판을 끝까지 쓴다). 이야기 글은 카드 밖(cardsScreen의 크게 보기)에 둔다.
 export function cardHTML(card, { big = false } = {}) {
   const frame = ['magic', 'trap'].includes(card.look) || card.type === 'unit' ? card.look : `${card.look}-plain`;
   const hasArt = art.cards[card.id];
@@ -33,7 +33,7 @@ export function cardHTML(card, { big = false } = {}) {
     <img class="card-frame" src="${image(`cards/frame-${frame}`, 'cards')}" alt="">
     <h3 class="card-name" style="${box(L.ribbon)}">${card.name}</h3>${stars}${cost}
     ${card.dice ? `<p class="card-dice" aria-label="주사위 ${card.dice}">${icon('dice')}<b>${card.dice}</b></p>` : ''}${stats}
-    <div class="card-panel" style="${box(L.panel)}">${card.text.map(t => `<p>${t}</p>`).join('')}${big && card.flavor ? `<p class="card-flavor">${card.flavor}</p>` : ''}</div>
+    <div class="card-panel" style="${box(L.panel)}">${card.text.map(t => `<p>${t}</p>`).join('')}</div>
     <p class="card-kind" style="top:${L.panel.top / L.height * 100}%">${kindText(card)}</p>
   </article>`;
 }

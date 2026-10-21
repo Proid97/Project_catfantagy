@@ -23,11 +23,10 @@
 .card-stats img { width: 8.6cqw; height: 8.6cqw; }
 .card-stats b { font-size: 8cqw; line-height: 1; }
 .card-stats .range { display: grid; place-items: center; width: 7.4cqw; height: 7.4cqw; margin-left: .4cqw; border: .8cqw solid #f3c552; border-radius: 50%; font-size: 4.4cqw; font-style: normal; line-height: 1; }
-.card-panel { padding: 7.6cqw 4.4cqw 3cqw; overflow: hidden; color: #f7ecd6; font-size: 4.1cqw; line-height: 1.42; }
-.card-panel p { margin: 0 0 1.6cqw; }
+.card-panel { padding: 7cqw 4.2cqw 2.6cqw; overflow: hidden; color: #f7ecd6; font-size: 3.95cqw; line-height: 1.36; }
+.card-panel p { margin: 0 0 1.2cqw; }
 .card-panel b { color: #ffe39a; }
 .card-kind { left: 50%; translate: -50% -50%; padding: .7cqw 3.4cqw; border-radius: 3cqw; background: #fff6dc; box-shadow: inset 0 0 0 .6cqw #a8681a; color: #3a2410; font-size: 4.2cqw; line-height: 1.2; white-space: nowrap; }
-.card-flavor { padding-top: 1.6cqw; border-top: .4cqw solid #fff2; color: #d9cbb0; font-size: 3.7cqw; }
 /* 작은 카드(손패 등)에서는 설명 글을 숨기고 종류만 남긴다 */
 .card.small .card-panel { display: none; }
 /* 카드·말 보기(#cards) */
@@ -47,6 +46,7 @@
 .cards-grid h3 { margin: 8px 0; font-size: 17px; }
 .piece-row { display: flex; flex-wrap: wrap; gap: 8px; padding: 10px; border-radius: 16px; background: #8fb85e; }
 .piece-row canvas { width: 104px; height: auto; }
-.card-dialog { --card-width: min(88vw, 62svh, 420px); padding: 0; border: 0; background: none; overflow: visible; }
+.card-dialog { --card-width: min(88vw, 56svh, 420px); padding: 0; border: 0; background: none; overflow: visible; }
 .card-dialog::backdrop { background: #0b1220c0; }
-.card.big .card-panel { overflow-y: auto; overscroll-behavior: contain; padding-bottom: 5cqw; }
+/* 크게 볼 때 카드 아래의 이야기 글 */
+.card-flavor { width: var(--card-width); margin: 12px 0 0; padding: 12px 16px; border: 3px solid #0b111a; border-radius: 16px; background: #fff6e6; color: #4a3a26; font-size: 15px; line-height: 1.5; font-weight: 500; }

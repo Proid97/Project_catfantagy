@@ -10,7 +10,12 @@
         "assets/concepts/style-reference-warrior.png",
         "assets/concepts/cat-warrior.png"
       ],
-      "transparent_generation": true
+      "transparent_generation": true,
+      "simplify_edit": "Requested change: REDRAW this character in the much SIMPLER flat style of the attached reference characters (the legendary mage cat and the shadow assassin cat): clean indie game art with very little detail. Keep the same character identity, pose, silhouette, proportions, facing direction, position and size on the canvas, main colors, fur pattern, outfit type and weapon, and the big readable face.\nStyle change, strongly: replace the faceted polygon shading with flat cel shading: each part gets ONE flat base color plus at most ONE simple shadow shape (and a highlight only where essential). No polygon facets on fur, cloth or metal. Remove small details completely: trims, rivets, stitches, buckles, small straps and pouches, fur strand tufts, small gems and decorations, busy folds. Keep only the 2-3 key accents that identify the unit. Shapes become smooth, bold and clean like the references. Eyes simple, same as the references, with one white highlight at the upper left.\nFully transparent background, no ground, no shadow, no text. No gradients, no texture, no noise, no glow, no blur, no black outlines.",
+      "simplify_references": [
+        "assets/title/mage.png",
+        "assets/title/assassin.png"
+      ]
     },
     {
       "file": "assets/cards/unit-warrior-axe.png",
@@ -21,7 +26,12 @@
         "assets/concepts/cat-warrior.png"
       ],
       "transparent_generation": true,
-      "note": "첫 묶음에서 만든 그림. 이 때 문구에는 'fits a bounding box between square and 4:3'과 가로 1536x1024를 썼음"
+      "note": "첫 묶음에서 만든 그림. 이 때 문구에는 'fits a bounding box between square and 4:3'과 가로 1536x1024를 썼음",
+      "simplify_edit": "Requested change: REDRAW this character in the much SIMPLER flat style of the attached reference characters (the legendary mage cat and the shadow assassin cat): clean indie game art with very little detail. Keep the same character identity, pose, silhouette, proportions, facing direction, position and size on the canvas, main colors, fur pattern, outfit type and weapon, and the big readable face.\nStyle change, strongly: replace the faceted polygon shading with flat cel shading: each part gets ONE flat base color plus at most ONE simple shadow shape (and a highlight only where essential). No polygon facets on fur, cloth or metal. Remove small details completely: trims, rivets, stitches, buckles, small straps and pouches, fur strand tufts, small gems and decorations, busy folds. Keep only the 2-3 key accents that identify the unit. Shapes become smooth, bold and clean like the references. Eyes simple, same as the references, with one white highlight at the upper left.\nFully transparent background, no ground, no shadow, no text. No gradients, no texture, no noise, no glow, no blur, no black outlines.",
+      "simplify_references": [
+        "assets/title/mage.png",
+        "assets/title/assassin.png"
+      ]
     },
     {
       "file": "assets/cards/unit-warrior-flag.png",
@@ -36,6 +46,11 @@
       "edit_references": [
         "(편집 전 깃발냥)",
         "assets/concepts/style-reference-warrior.png"
+      ],
+      "simplify_edit": "Requested change: REDRAW this character in the much SIMPLER flat style of the attached reference characters (the legendary mage cat and the shadow assassin cat): clean indie game art with very little detail. Keep the same character identity, pose, silhouette, proportions, facing direction, position and size on the canvas, main colors, fur pattern, outfit type and weapon, and the big readable face.\nStyle change, strongly: replace the faceted polygon shading with flat cel shading: each part gets ONE flat base color plus at most ONE simple shadow shape (and a highlight only where essential). No polygon facets on fur, cloth or metal. Remove small details completely: trims, rivets, stitches, buckles, small straps and pouches, fur strand tufts, small gems and decorations, busy folds. Keep only the 2-3 key accents that identify the unit. Shapes become smooth, bold and clean like the references. Eyes simple, same as the references, with one white highlight at the upper left.\nFully transparent background, no ground, no shadow, no text. No gradients, no texture, no noise, no glow, no blur, no black outlines.",
+      "simplify_references": [
+        "assets/title/mage.png",
+        "assets/title/assassin.png"
       ]
     },
     {
@@ -46,7 +61,12 @@
         "assets/concepts/style-reference-warrior.png",
         "assets/concepts/cat-warrior.png"
       ],
-      "transparent_generation": true
+      "transparent_generation": true,
+      "simplify_edit": "Requested change: REDRAW this character in the much SIMPLER flat style of the attached reference characters (the legendary mage cat and the shadow assassin cat): clean indie game art with very little detail. Keep the same character identity, pose, silhouette, proportions, facing direction, position and size on the canvas, main colors, fur pattern, outfit type and weapon, and the big readable face.\nStyle change, strongly: replace the faceted polygon shading with flat cel shading: each part gets ONE flat base color plus at most ONE simple shadow shape (and a highlight only where essential). No polygon facets on fur, cloth or metal. Remove small details completely: trims, rivets, stitches, buckles, small straps and pouches, fur strand tufts, small gems and decorations, busy folds. Keep only the 2-3 key accents that identify the unit. Shapes become smooth, bold and clean like the references. Eyes simple, same as the references, with one white highlight at the upper left.\nFully transparent background, no ground, no shadow, no text. No gradients, no texture, no noise, no glow, no blur, no black outlines.",
+      "simplify_references": [
+        "assets/title/mage.png",
+        "assets/title/assassin.png"
+      ]
     },
     {
       "file": "assets/cards/unit-warrior-general.png",
@@ -57,7 +77,12 @@
         "assets/concepts/cat-warrior.png",
         "assets/title/warrior-front.png"
       ],
-      "transparent_generation": true
+      "transparent_generation": true,
+      "simplify_edit": "Requested change: REDRAW this character in the much SIMPLER flat style of the attached reference characters (the legendary mage cat and the shadow assassin cat): clean indie game art with very little detail. Keep the same character identity, pose, silhouette, proportions, facing direction, position and size on the canvas, main colors, fur pattern, outfit type and weapon, and the big readable face.\nStyle change, strongly: replace the faceted polygon shading with flat cel shading: each part gets ONE flat base color plus at most ONE simple shadow shape (and a highlight only where essential). No polygon facets on fur, cloth or metal. Remove small details completely: trims, rivets, stitches, buckles, small straps and pouches, fur strand tufts, small gems and decorations, busy folds. Keep only the 2-3 key accents that identify the unit. Shapes become smooth, bold and clean like the references. Eyes simple, same as the references, with one white highlight at the upper left.\nFully transparent background, no ground, no shadow, no text. No gradients, no texture, no noise, no glow, no blur, no black outlines.",
+      "simplify_references": [
+        "assets/title/mage.png",
+        "assets/title/assassin.png"
+      ]
     },
     {
       "file": "assets/cards/background-warrior.png",
@@ -89,6 +114,335 @@
       ],
       "transparent_generation": false,
       "note": "첫 판(집·창문·성이 많아 복잡함)은 쓰지 않고, 단순하게 다시 만든 두 번째 판을 씀"
+    },
+    {
+      "file": "assets/cards/unit-mage-apprentice.png",
+      "prompt": "Game character art for a cute cat fantasy strategy game: ONE full-body cat unit of the MAGE (wizard cats: purple robes with teal trim) race, the same character will be used inside a round board-game token and on a card, so it must read clearly even when shrunk to 72 px. Character: Apprentice Cat, the smallest and youngest mage. Look: a tiny cat with gray-and-white tuxedo fur, huge round eyes behind big round glasses, an oversized floppy purple wizard hat with a teal band, a short purple robe with teal trim, a small wooden wand with a teal crystal tip, a thick spell book held under one arm. Pose: an eager hop forward, pointing the little wand ahead with determination, hat flopping back. Compact dynamic pose: the whole character with its item fits inside the square canvas with margin, not a long horizontal stretch. The character faces and moves toward the viewer's right. Big head, about 35-40% of the body height, so the face reads at 72 px. Eye highlight: one small white dot at the upper LEFT of each pupil. Bold readable silhouette, the face clearly visible. Whole character inside the canvas with a clear empty margin on all sides, nothing cut off.\nClean indie flat vector illustration matching the style reference warrior exactly: angular faceted planes with straight hard edges, like folded paper or cut gems, two to four tones per material, single light source from the upper left. Bold dramatic silhouette, same body proportions and exaggeration as the reference. No rounded blobby shapes, no gradients, no texture, no grain, no noise, no glow, no blur, no black outlines, no whisker lines, no eyelashes. Crisp clean edges, fully transparent background. Simple eyes like the reference with one clear white highlight at the upper left. Smallest details at least 10 px wide. No text, letters, numbers, signature or watermark.",
+      "requested_size": "1024x1024",
+      "references": [
+        "assets/concepts/style-reference-warrior.png",
+        "assets/concepts/cat-mage.png"
+      ],
+      "transparent_generation": true,
+      "simplify_edit": "Requested change: REDRAW this character in the much SIMPLER flat style of the attached reference characters (the legendary mage cat and the shadow assassin cat): clean indie game art with very little detail. Keep the same character identity, pose, silhouette, proportions, facing direction, position and size on the canvas, main colors, fur pattern, outfit type and weapon, and the big readable face.\nStyle change, strongly: replace the faceted polygon shading with flat cel shading: each part gets ONE flat base color plus at most ONE simple shadow shape (and a highlight only where essential). No polygon facets on fur, cloth or metal. Remove small details completely: trims, rivets, stitches, buckles, small straps and pouches, fur strand tufts, small gems and decorations, busy folds. Keep only the 2-3 key accents that identify the unit. Shapes become smooth, bold and clean like the references. Eyes simple, same as the references, with one white highlight at the upper left.\nFully transparent background, no ground, no shadow, no text. No gradients, no texture, no noise, no glow, no blur, no black outlines.",
+      "simplify_references": [
+        "assets/title/mage.png",
+        "assets/title/assassin.png"
+      ]
+    },
+    {
+      "file": "assets/cards/unit-mage-barrier.png",
+      "prompt": "Game character art for a cute cat fantasy strategy game: ONE full-body cat unit of the MAGE (wizard cats: purple robes with teal trim) race, the same character will be used inside a round board-game token and on a card, so it must read clearly even when shrunk to 72 px. Character: Barrier Cat. Look: a chubby round cat with fluffy cream long fur like a Persian, a flat calm face, a purple hooded robe with teal trim. It holds up a big flat teal hexagonal barrier plate made of faceted translucent-looking teal planes (solid flat colors, no glow) in front of its body with both paws. Pose: a firm braced stance, both paws pushing the hexagon plate forward, robe flaring. Compact dynamic pose: the whole character with its item fits inside the square canvas with margin, not a long horizontal stretch. The character faces and moves toward the viewer's right. Big head, about 35-40% of the body height, so the face reads at 72 px. Eye highlight: one small white dot at the upper LEFT of each pupil. Bold readable silhouette, the face clearly visible. Whole character inside the canvas with a clear empty margin on all sides, nothing cut off.\nClean indie flat vector illustration matching the style reference warrior exactly: angular faceted planes with straight hard edges, like folded paper or cut gems, two to four tones per material, single light source from the upper left. Bold dramatic silhouette, same body proportions and exaggeration as the reference. No rounded blobby shapes, no gradients, no texture, no grain, no noise, no glow, no blur, no black outlines, no whisker lines, no eyelashes. Crisp clean edges, fully transparent background. Simple eyes like the reference with one clear white highlight at the upper left. Smallest details at least 10 px wide. No text, letters, numbers, signature or watermark.",
+      "requested_size": "1024x1024",
+      "references": [
+        "assets/concepts/style-reference-warrior.png",
+        "assets/concepts/cat-mage.png"
+      ],
+      "transparent_generation": true,
+      "simplify_edit": "Requested change: REDRAW this character in the much SIMPLER flat style of the attached reference characters (the legendary mage cat and the shadow assassin cat): clean indie game art with very little detail. Keep the same character identity, pose, silhouette, proportions, facing direction, position and size on the canvas, main colors, fur pattern, outfit type and weapon, and the big readable face.\nStyle change, strongly: replace the faceted polygon shading with flat cel shading: each part gets ONE flat base color plus at most ONE simple shadow shape (and a highlight only where essential). No polygon facets on fur, cloth or metal. Remove small details completely: trims, rivets, stitches, buckles, small straps and pouches, fur strand tufts, small gems and decorations, busy folds. Keep only the 2-3 key accents that identify the unit. Shapes become smooth, bold and clean like the references. Eyes simple, same as the references, with one white highlight at the upper left.\nFully transparent background, no ground, no shadow, no text. No gradients, no texture, no noise, no glow, no blur, no black outlines.",
+      "simplify_references": [
+        "assets/title/mage.png",
+        "assets/title/assassin.png"
+      ]
+    },
+    {
+      "file": "assets/cards/unit-mage-broom.png",
+      "prompt": "Game character art for a cute cat fantasy strategy game: ONE full-body cat unit of the MAGE (wizard cats: purple robes with teal trim) race, the same character will be used inside a round board-game token and on a card, so it must read clearly even when shrunk to 72 px. Character: Broom Cat. Look: a slim calico cat (white, orange and black patches), aviator goggles pushed up on the forehead over a purple pointed hat, a purple robe with teal trim and a long teal scarf. Pose: riding a magic broom in flight, sitting sideways on the broom, broom pointed diagonally forward and up to the right, scarf and robe streaming back, one paw waving forward. Compact dynamic pose: the whole character with its item fits inside the square canvas with margin, not a long horizontal stretch. The character faces and moves toward the viewer's right. Big head, about 35-40% of the body height, so the face reads at 72 px. Eye highlight: one small white dot at the upper LEFT of each pupil. Bold readable silhouette, the face clearly visible. Whole character inside the canvas with a clear empty margin on all sides, nothing cut off.\nClean indie flat vector illustration matching the style reference warrior exactly: angular faceted planes with straight hard edges, like folded paper or cut gems, two to four tones per material, single light source from the upper left. Bold dramatic silhouette, same body proportions and exaggeration as the reference. No rounded blobby shapes, no gradients, no texture, no grain, no noise, no glow, no blur, no black outlines, no whisker lines, no eyelashes. Crisp clean edges, fully transparent background. Simple eyes like the reference with one clear white highlight at the upper left. Smallest details at least 10 px wide. No text, letters, numbers, signature or watermark.",
+      "requested_size": "1024x1024",
+      "references": [
+        "assets/concepts/style-reference-warrior.png",
+        "assets/concepts/cat-mage.png"
+      ],
+      "transparent_generation": true,
+      "simplify_edit": "Requested change: REDRAW this character in the much SIMPLER flat style of the attached reference characters (the legendary mage cat and the shadow assassin cat): clean indie game art with very little detail. Keep the same character identity, pose, silhouette, proportions, facing direction, position and size on the canvas, main colors, fur pattern, outfit type and weapon, and the big readable face.\nStyle change, strongly: replace the faceted polygon shading with flat cel shading: each part gets ONE flat base color plus at most ONE simple shadow shape (and a highlight only where essential). No polygon facets on fur, cloth or metal. Remove small details completely: trims, rivets, stitches, buckles, small straps and pouches, fur strand tufts, small gems and decorations, busy folds. Keep only the 2-3 key accents that identify the unit. Shapes become smooth, bold and clean like the references. Eyes simple, same as the references, with one white highlight at the upper left.\nFully transparent background, no ground, no shadow, no text. No gradients, no texture, no noise, no glow, no blur, no black outlines.",
+      "simplify_references": [
+        "assets/title/mage.png",
+        "assets/title/assassin.png"
+      ]
+    },
+    {
+      "file": "assets/cards/unit-mage-seer.png",
+      "prompt": "Game character art for a cute cat fantasy strategy game: ONE full-body cat unit of the MAGE (wizard cats: purple robes with teal trim) race, the same character will be used inside a round board-game token and on a card, so it must read clearly even when shrunk to 72 px. Character: Seer Cat, an old wise mage. Look: an elderly cat with long fluffy blue-gray fur, long droopy white eyebrows over half-closed wise eyes, a thin white beard tuft, a sheer purple veil hanging from a purple hood, a long purple robe with teal stars embroidered as simple flat shapes. It holds a big round crystal ball (flat faceted pale-teal planes) raised in both paws. Pose: holding the crystal ball up high toward the right, robe swirling. Compact dynamic pose: the whole character with its item fits inside the square canvas with margin, not a long horizontal stretch. The character faces and moves toward the viewer's right. Big head, about 35-40% of the body height, so the face reads at 72 px. Eye highlight: one small white dot at the upper LEFT of each pupil. Bold readable silhouette, the face clearly visible. Whole character inside the canvas with a clear empty margin on all sides, nothing cut off.\nClean indie flat vector illustration matching the style reference warrior exactly: angular faceted planes with straight hard edges, like folded paper or cut gems, two to four tones per material, single light source from the upper left. Bold dramatic silhouette, same body proportions and exaggeration as the reference. No rounded blobby shapes, no gradients, no texture, no grain, no noise, no glow, no blur, no black outlines, no whisker lines, no eyelashes. Crisp clean edges, fully transparent background. Simple eyes like the reference with one clear white highlight at the upper left. Smallest details at least 10 px wide. No text, letters, numbers, signature or watermark.",
+      "requested_size": "1024x1024",
+      "references": [
+        "assets/concepts/style-reference-warrior.png",
+        "assets/concepts/cat-mage.png"
+      ],
+      "transparent_generation": true,
+      "simplify_edit": "Requested change: REDRAW this character in the much SIMPLER flat style of the attached reference characters (the legendary mage cat and the shadow assassin cat): clean indie game art with very little detail. Keep the same character identity, pose, silhouette, proportions, facing direction, position and size on the canvas, main colors, fur pattern, outfit type and weapon, and the big readable face.\nStyle change, strongly: replace the faceted polygon shading with flat cel shading: each part gets ONE flat base color plus at most ONE simple shadow shape (and a highlight only where essential). No polygon facets on fur, cloth or metal. Remove small details completely: trims, rivets, stitches, buckles, small straps and pouches, fur strand tufts, small gems and decorations, busy folds. Keep only the 2-3 key accents that identify the unit. Shapes become smooth, bold and clean like the references. Eyes simple, same as the references, with one white highlight at the upper left.\nFully transparent background, no ground, no shadow, no text. No gradients, no texture, no noise, no glow, no blur, no black outlines.",
+      "simplify_references": [
+        "assets/title/mage.png",
+        "assets/title/assassin.png"
+      ]
+    },
+    {
+      "file": "assets/cards/unit-assassin-thief.png",
+      "prompt": "Game character art for a cute cat fantasy strategy game: ONE full-body cat unit of the ASSASSIN (shadow cats: dark teal cloth with coral accents) race, the same character will be used inside a round board-game token and on a card, so it must read clearly even when shrunk to 72 px. Character: Thief Cat. Look: a chubby short cat with gray and white fur and a black band of fur around the eyes like a robber mask, a dark teal bandana and short dark teal vest with a coral sash. It carries a big bulging brown cloth sack over its shoulder with a gold coin peeking out. Pose: a sneaky tiptoe run toward the right, sack bouncing on its back, one paw raised with a sly grin. Compact dynamic pose: the whole character with its item fits inside the square canvas with margin, not a long horizontal stretch. The character faces and moves toward the viewer's right. Big head, about 35-40% of the body height, so the face reads at 72 px. Eye highlight: one small white dot at the upper LEFT of each pupil. Bold readable silhouette, the face clearly visible. Whole character inside the canvas with a clear empty margin on all sides, nothing cut off.\nClean indie flat vector illustration matching the style reference warrior exactly: angular faceted planes with straight hard edges, like folded paper or cut gems, two to four tones per material, single light source from the upper left. Bold dramatic silhouette, same body proportions and exaggeration as the reference. No rounded blobby shapes, no gradients, no texture, no grain, no noise, no glow, no blur, no black outlines, no whisker lines, no eyelashes. Crisp clean edges, fully transparent background. Simple eyes like the reference with one clear white highlight at the upper left. Smallest details at least 10 px wide. No text, letters, numbers, signature or watermark.",
+      "requested_size": "1024x1024",
+      "references": [
+        "assets/concepts/style-reference-warrior.png",
+        "assets/concepts/cat-assassin.png"
+      ],
+      "transparent_generation": true,
+      "simplify_edit": "Requested change: REDRAW this character in the much SIMPLER flat style of the attached reference characters (the legendary mage cat and the shadow assassin cat): clean indie game art with very little detail. Keep the same character identity, pose, silhouette, proportions, facing direction, position and size on the canvas, main colors, fur pattern, outfit type and weapon, and the big readable face.\nStyle change, strongly: replace the faceted polygon shading with flat cel shading: each part gets ONE flat base color plus at most ONE simple shadow shape (and a highlight only where essential). No polygon facets on fur, cloth or metal. Remove small details completely: trims, rivets, stitches, buckles, small straps and pouches, fur strand tufts, small gems and decorations, busy folds. Keep only the 2-3 key accents that identify the unit. Shapes become smooth, bold and clean like the references. Eyes simple, same as the references, with one white highlight at the upper left.\nFully transparent background, no ground, no shadow, no text. No gradients, no texture, no noise, no glow, no blur, no black outlines.",
+      "simplify_references": [
+        "assets/title/mage.png",
+        "assets/title/assassin.png"
+      ]
+    },
+    {
+      "file": "assets/cards/unit-assassin-scout.png",
+      "prompt": "Game character art for a cute cat fantasy strategy game: ONE full-body cat unit of the ASSASSIN (shadow cats: dark teal cloth with coral accents) race, the same character will be used inside a round board-game token and on a card, so it must read clearly even when shrunk to 72 px. Character: Stealth Cat, a quiet scout. Look: a skinny cat with very big ears, gray-brown fur, wrapped in a long dark teal hooded cloak with a coral clasp, only the face and big alert eyes visible under the hood, ears poking through the hood. Pose: a low crouching creep forward to the right, one paw raised mid-step, cloak trailing low behind. Compact dynamic pose: the whole character with its item fits inside the square canvas with margin, not a long horizontal stretch. The character faces and moves toward the viewer's right. Big head, about 35-40% of the body height, so the face reads at 72 px. Eye highlight: one small white dot at the upper LEFT of each pupil. Bold readable silhouette, the face clearly visible. Whole character inside the canvas with a clear empty margin on all sides, nothing cut off.\nClean indie flat vector illustration matching the style reference warrior exactly: angular faceted planes with straight hard edges, like folded paper or cut gems, two to four tones per material, single light source from the upper left. Bold dramatic silhouette, same body proportions and exaggeration as the reference. No rounded blobby shapes, no gradients, no texture, no grain, no noise, no glow, no blur, no black outlines, no whisker lines, no eyelashes. Crisp clean edges, fully transparent background. Simple eyes like the reference with one clear white highlight at the upper left. Smallest details at least 10 px wide. No text, letters, numbers, signature or watermark.",
+      "requested_size": "1024x1024",
+      "references": [
+        "assets/concepts/style-reference-warrior.png",
+        "assets/concepts/cat-assassin.png"
+      ],
+      "transparent_generation": true,
+      "simplify_edit": "Requested change: REDRAW this character in the much SIMPLER flat style of the attached reference characters (the legendary mage cat and the shadow assassin cat): clean indie game art with very little detail. Keep the same character identity, pose, silhouette, proportions, facing direction, position and size on the canvas, main colors, fur pattern, outfit type and weapon, and the big readable face.\nStyle change, strongly: replace the faceted polygon shading with flat cel shading: each part gets ONE flat base color plus at most ONE simple shadow shape (and a highlight only where essential). No polygon facets on fur, cloth or metal. Remove small details completely: trims, rivets, stitches, buckles, small straps and pouches, fur strand tufts, small gems and decorations, busy folds. Keep only the 2-3 key accents that identify the unit. Shapes become smooth, bold and clean like the references. Eyes simple, same as the references, with one white highlight at the upper left.\nFully transparent background, no ground, no shadow, no text. No gradients, no texture, no noise, no glow, no blur, no black outlines.",
+      "simplify_references": [
+        "assets/title/mage.png",
+        "assets/title/assassin.png"
+      ]
+    },
+    {
+      "file": "assets/cards/unit-assassin-dagger.png",
+      "prompt": "Game character art for a cute cat fantasy strategy game: ONE full-body cat unit of the ASSASSIN (shadow cats: dark teal cloth with coral accents) race, the same character will be used inside a round board-game token and on a card, so it must read clearly even when shrunk to 72 px. Character: Dagger Cat. Look: a sleek Siamese cat (cream body, dark brown face mask, ears, paws and tail, blue eyes), a dark teal fitted outfit with a coral scarf, two short curved daggers, one in each paw. Pose: a leaping slash toward the right, body stretched mid-air, both daggers crossed in front, scarf streaming back. Compact dynamic pose: the whole character with its item fits inside the square canvas with margin, not a long horizontal stretch. The character faces and moves toward the viewer's right. Big head, about 35-40% of the body height, so the face reads at 72 px. Eye highlight: one small white dot at the upper LEFT of each pupil. Bold readable silhouette, the face clearly visible. Whole character inside the canvas with a clear empty margin on all sides, nothing cut off.\nClean indie flat vector illustration matching the style reference warrior exactly: angular faceted planes with straight hard edges, like folded paper or cut gems, two to four tones per material, single light source from the upper left. Bold dramatic silhouette, same body proportions and exaggeration as the reference. No rounded blobby shapes, no gradients, no texture, no grain, no noise, no glow, no blur, no black outlines, no whisker lines, no eyelashes. Crisp clean edges, fully transparent background. Simple eyes like the reference with one clear white highlight at the upper left. Smallest details at least 10 px wide. No text, letters, numbers, signature or watermark.",
+      "requested_size": "1024x1024",
+      "references": [
+        "assets/concepts/style-reference-warrior.png",
+        "assets/concepts/cat-assassin.png"
+      ],
+      "transparent_generation": true,
+      "simplify_edit": "Requested change: REDRAW this character in the much SIMPLER flat style of the attached reference characters (the legendary mage cat and the shadow assassin cat): clean indie game art with very little detail. Keep the same character identity, pose, silhouette, proportions, facing direction, position and size on the canvas, main colors, fur pattern, outfit type and weapon, and the big readable face.\nStyle change, strongly: replace the faceted polygon shading with flat cel shading: each part gets ONE flat base color plus at most ONE simple shadow shape (and a highlight only where essential). No polygon facets on fur, cloth or metal. Remove small details completely: trims, rivets, stitches, buckles, small straps and pouches, fur strand tufts, small gems and decorations, busy folds. Keep only the 2-3 key accents that identify the unit. Shapes become smooth, bold and clean like the references. Eyes simple, same as the references, with one white highlight at the upper left.\nFully transparent background, no ground, no shadow, no text. No gradients, no texture, no noise, no glow, no blur, no black outlines.",
+      "simplify_references": [
+        "assets/title/mage.png",
+        "assets/title/assassin.png"
+      ]
+    },
+    {
+      "file": "assets/cards/unit-assassin-poison.png",
+      "prompt": "Game character art for a cute cat fantasy strategy game: ONE full-body cat unit of the ASSASSIN (shadow cats: dark teal cloth with coral accents) race, the same character will be used inside a round board-game token and on a card, so it must read clearly even when shrunk to 72 px. Character: Poison Dart Cat. Look: a long thin cat with silver tabby fur (gray stripes), a dark teal cloth mask over the mouth and nose, a dark teal outfit with coral wraps, a small pouch of darts on the belt, a long thin bamboo blowpipe. Pose: kneeling on one knee aiming the long blowpipe to the right with both paws, eyes narrowed in focus, tail curled. Compact dynamic pose: the whole character with its item fits inside the square canvas with margin, not a long horizontal stretch. The character faces and moves toward the viewer's right. Big head, about 35-40% of the body height, so the face reads at 72 px. Eye highlight: one small white dot at the upper LEFT of each pupil. Bold readable silhouette, the face clearly visible. Whole character inside the canvas with a clear empty margin on all sides, nothing cut off.\nClean indie flat vector illustration matching the style reference warrior exactly: angular faceted planes with straight hard edges, like folded paper or cut gems, two to four tones per material, single light source from the upper left. Bold dramatic silhouette, same body proportions and exaggeration as the reference. No rounded blobby shapes, no gradients, no texture, no grain, no noise, no glow, no blur, no black outlines, no whisker lines, no eyelashes. Crisp clean edges, fully transparent background. Simple eyes like the reference with one clear white highlight at the upper left. Smallest details at least 10 px wide. No text, letters, numbers, signature or watermark.",
+      "requested_size": "1024x1024",
+      "references": [
+        "assets/concepts/style-reference-warrior.png",
+        "assets/concepts/cat-assassin.png"
+      ],
+      "transparent_generation": true,
+      "simplify_edit": "Requested change: REDRAW this character in the much SIMPLER flat style of the attached reference characters (the legendary mage cat and the shadow assassin cat): clean indie game art with very little detail. Keep the same character identity, pose, silhouette, proportions, facing direction, position and size on the canvas, main colors, fur pattern, outfit type and weapon, and the big readable face.\nStyle change, strongly: replace the faceted polygon shading with flat cel shading: each part gets ONE flat base color plus at most ONE simple shadow shape (and a highlight only where essential). No polygon facets on fur, cloth or metal. Remove small details completely: trims, rivets, stitches, buckles, small straps and pouches, fur strand tufts, small gems and decorations, busy folds. Keep only the 2-3 key accents that identify the unit. Shapes become smooth, bold and clean like the references. Eyes simple, same as the references, with one white highlight at the upper left.\nFully transparent background, no ground, no shadow, no text. No gradients, no texture, no noise, no glow, no blur, no black outlines.",
+      "simplify_references": [
+        "assets/title/mage.png",
+        "assets/title/assassin.png"
+      ]
+    },
+    {
+      "file": "assets/cards/background-magic.png",
+      "prompt": "Background art for the illustration window of a cute cat fantasy strategy game card: MAGIC SPELL cards (blue). Background only: a separate object image will be placed on top of it later, so the picture itself has no main object in the middle.\nScene: a calm magical sky: deep-to-mid blue flat angular sky planes, a few large simple four-point stars and small dots, two or three big faceted pale-blue clouds low at the sides, a faint large circle of simple geometric arcs (not letters) in the far background. A low flat bluish stone ledge across the bottom.\nMood and value: mysterious but light enough, mid-value blue, so orange, red, gold or teal objects placed in front stand out clearly. Blue is the accent color of magic cards.\n\nComposition: the horizon line sits at about 58-62% of the height. The center of the image, where the character will stand, is calm, open and low-contrast: no objects in the middle 40% of the width. The ground fills the bottom third and is flat and empty in the middle. Keep every important shape between 10% and 90% of the height, because the top and bottom edges may be cropped to 16:9.\n\nClean indie flat vector illustration matching the style reference exactly: angular faceted planes with straight hard edges, like folded paper or cut gems, two to four tones per material, single light source from the upper left. Large simple shapes only, smallest details at least 16 px wide. No gradients, no texture, no grain, no noise, no glow, no blur, no light rays, no black outlines. Crisp clean edges. The picture fills the whole canvas edge to edge (no border, no frame, no vignette, no transparency). No text, letters, numbers, emblem, signature or watermark. NO characters: no cats, animals, people or creatures anywhere.",
+      "requested_size": "1536x1024",
+      "references": [
+        "assets/concepts/style-reference-warrior.png",
+        "타이틀 층을 겹친 환경 참조 그림"
+      ],
+      "transparent_generation": false
+    },
+    {
+      "file": "assets/cards/background-trap.png",
+      "prompt": "Background art for the illustration window of a cute cat fantasy strategy game card: TRAP cards (red). Background only: a separate object image will be placed on top of it later, so the picture itself has no main object in the middle.\nScene: a quiet dungeon corridor: warm dark-red and brown flat angular stone walls with a few large stone blocks, one small torch bracket on each side with a flat orange flame, a flat stone floor of large slabs in front, flat and empty in the middle.\nMood and value: tense but not too dark: mid-value warm red-brown, so steel, gold, green, teal and wooden objects placed in front stand out clearly. Red is the accent color of trap cards.\n\nComposition: the horizon line sits at about 58-62% of the height. The center of the image, where the character will stand, is calm, open and low-contrast: no objects in the middle 40% of the width. The ground fills the bottom third and is flat and empty in the middle. Keep every important shape between 10% and 90% of the height, because the top and bottom edges may be cropped to 16:9.\n\nClean indie flat vector illustration matching the style reference exactly: angular faceted planes with straight hard edges, like folded paper or cut gems, two to four tones per material, single light source from the upper left. Large simple shapes only, smallest details at least 16 px wide. No gradients, no texture, no grain, no noise, no glow, no blur, no light rays, no black outlines. Crisp clean edges. The picture fills the whole canvas edge to edge (no border, no frame, no vignette, no transparency). No text, letters, numbers, emblem, signature or watermark. NO characters: no cats, animals, people or creatures anywhere.",
+      "requested_size": "1536x1024",
+      "references": [
+        "assets/concepts/style-reference-warrior.png",
+        "타이틀 층을 겹친 환경 참조 그림"
+      ],
+      "transparent_generation": false
+    },
+    {
+      "file": "assets/cards/magic-closegate.png",
+      "prompt": "Card illustration for a cute cat fantasy strategy game, ONE spell/trap object shown alone: a heavy castle gate: a cream stone arch with a dark iron portcullis slamming down, a big gold lock on the front. No characters, no cats, no people unless stated.\nCompact bold composition: the object fills most of the square canvas with a clear empty margin on all sides, nothing cut off, readable even when shrunk to 120 px. Fully transparent background, no ground patch, no cast shadow, no scene, no frame, no card border. No text, letters, numbers, runes that look like letters, signature or watermark.\nClean indie flat vector illustration matching the style reference exactly: angular faceted planes with straight hard edges, like folded paper or cut gems, two to four tones per material, single light source from the upper left. Bold simple silhouette. No gradients, no texture, no grain, no noise, no glow, no blur, no light rays, no black outlines. Effects such as fire, smoke or magic are drawn as solid flat angular shapes. Smallest details at least 12 px wide.",
+      "requested_size": "1024x1024",
+      "references": [
+        "assets/concepts/style-reference-warrior.png"
+      ],
+      "transparent_generation": true
+    },
+    {
+      "file": "assets/cards/magic-farsight.png",
+      "prompt": "Card illustration for a cute cat fantasy strategy game, ONE spell/trap object shown alone: a large eye-shaped teal crystal with a calm cat-like slit pupil in the center, floating above a small brass stand, three flat light rays as solid wedges. No characters, no cats, no people unless stated.\nCompact bold composition: the object fills most of the square canvas with a clear empty margin on all sides, nothing cut off, readable even when shrunk to 120 px. Fully transparent background, no ground patch, no cast shadow, no scene, no frame, no card border. No text, letters, numbers, runes that look like letters, signature or watermark.\nClean indie flat vector illustration matching the style reference exactly: angular faceted planes with straight hard edges, like folded paper or cut gems, two to four tones per material, single light source from the upper left. Bold simple silhouette. No gradients, no texture, no grain, no noise, no glow, no blur, no light rays, no black outlines. Effects such as fire, smoke or magic are drawn as solid flat angular shapes. Smallest details at least 12 px wide.",
+      "requested_size": "1024x1024",
+      "references": [
+        "assets/concepts/style-reference-warrior.png"
+      ],
+      "transparent_generation": true
+    },
+    {
+      "file": "assets/cards/magic-fireball.png",
+      "prompt": "Card illustration for a cute cat fantasy strategy game, ONE spell/trap object shown alone: a big blazing fireball made of faceted orange, yellow and red flat planes, flying diagonally toward the lower right with a short flame trail. No characters, no cats, no people unless stated.\nCompact bold composition: the object fills most of the square canvas with a clear empty margin on all sides, nothing cut off, readable even when shrunk to 120 px. Fully transparent background, no ground patch, no cast shadow, no scene, no frame, no card border. No text, letters, numbers, runes that look like letters, signature or watermark.\nClean indie flat vector illustration matching the style reference exactly: angular faceted planes with straight hard edges, like folded paper or cut gems, two to four tones per material, single light source from the upper left. Bold simple silhouette. No gradients, no texture, no grain, no noise, no glow, no blur, no light rays, no black outlines. Effects such as fire, smoke or magic are drawn as solid flat angular shapes. Smallest details at least 12 px wide.",
+      "requested_size": "1024x1024",
+      "references": [
+        "assets/concepts/style-reference-warrior.png"
+      ],
+      "transparent_generation": true
+    },
+    {
+      "file": "assets/cards/magic-harvest.png",
+      "prompt": "Card illustration for a cute cat fantasy strategy game, ONE spell/trap object shown alone: a woven wicker basket overflowing with resources: gold nuggets, purple crystals, short wooden logs and silver fish. No characters, no cats, no people unless stated.\nCompact bold composition: the object fills most of the square canvas with a clear empty margin on all sides, nothing cut off, readable even when shrunk to 120 px. Fully transparent background, no ground patch, no cast shadow, no scene, no frame, no card border. No text, letters, numbers, runes that look like letters, signature or watermark.\nClean indie flat vector illustration matching the style reference exactly: angular faceted planes with straight hard edges, like folded paper or cut gems, two to four tones per material, single light source from the upper left. Bold simple silhouette. No gradients, no texture, no grain, no noise, no glow, no blur, no light rays, no black outlines. Effects such as fire, smoke or magic are drawn as solid flat angular shapes. Smallest details at least 12 px wide.",
+      "requested_size": "1024x1024",
+      "references": [
+        "assets/concepts/style-reference-warrior.png"
+      ],
+      "transparent_generation": true
+    },
+    {
+      "file": "assets/cards/magic-ironwall.png",
+      "prompt": "Card illustration for a cute cat fantasy strategy game, ONE spell/trap object shown alone: a massive square steel tower shield with heavy gold rivets standing upright, slightly turned, with a few flat angular sparks bouncing off its face. No characters, no cats, no people unless stated.\nCompact bold composition: the object fills most of the square canvas with a clear empty margin on all sides, nothing cut off, readable even when shrunk to 120 px. Fully transparent background, no ground patch, no cast shadow, no scene, no frame, no card border. No text, letters, numbers, runes that look like letters, signature or watermark.\nClean indie flat vector illustration matching the style reference exactly: angular faceted planes with straight hard edges, like folded paper or cut gems, two to four tones per material, single light source from the upper left. Bold simple silhouette. No gradients, no texture, no grain, no noise, no glow, no blur, no light rays, no black outlines. Effects such as fire, smoke or magic are drawn as solid flat angular shapes. Smallest details at least 12 px wide.",
+      "requested_size": "1024x1024",
+      "references": [
+        "assets/concepts/style-reference-warrior.png"
+      ],
+      "transparent_generation": true
+    },
+    {
+      "file": "assets/cards/magic-market.png",
+      "prompt": "Card illustration for a cute cat fantasy strategy game, ONE spell/trap object shown alone: a small wooden market cart loaded with goods: a sack of gold coins, a purple crystal, a log and a fish, with a striped coral and cream awning. No characters, no cats, no people unless stated.\nCompact bold composition: the object fills most of the square canvas with a clear empty margin on all sides, nothing cut off, readable even when shrunk to 120 px. Fully transparent background, no ground patch, no cast shadow, no scene, no frame, no card border. No text, letters, numbers, runes that look like letters, signature or watermark.\nClean indie flat vector illustration matching the style reference exactly: angular faceted planes with straight hard edges, like folded paper or cut gems, two to four tones per material, single light source from the upper left. Bold simple silhouette. No gradients, no texture, no grain, no noise, no glow, no blur, no light rays, no black outlines. Effects such as fire, smoke or magic are drawn as solid flat angular shapes. Smallest details at least 12 px wide.",
+      "requested_size": "1024x1024",
+      "references": [
+        "assets/concepts/style-reference-warrior.png"
+      ],
+      "transparent_generation": true
+    },
+    {
+      "file": "assets/cards/magic-pickpocket.png",
+      "prompt": "Card illustration for a cute cat fantasy strategy game, ONE spell/trap object shown alone: a sneaky cat paw in a dark teal sleeve snatching a small brown coin pouch, a few gold coins popping out. Only the paw and sleeve, no full cat. No characters, no cats, no people unless stated.\nCompact bold composition: the object fills most of the square canvas with a clear empty margin on all sides, nothing cut off, readable even when shrunk to 120 px. Fully transparent background, no ground patch, no cast shadow, no scene, no frame, no card border. No text, letters, numbers, runes that look like letters, signature or watermark.\nClean indie flat vector illustration matching the style reference exactly: angular faceted planes with straight hard edges, like folded paper or cut gems, two to four tones per material, single light source from the upper left. Bold simple silhouette. No gradients, no texture, no grain, no noise, no glow, no blur, no light rays, no black outlines. Effects such as fire, smoke or magic are drawn as solid flat angular shapes. Smallest details at least 12 px wide.",
+      "requested_size": "1024x1024",
+      "references": [
+        "assets/concepts/style-reference-warrior.png"
+      ],
+      "transparent_generation": true
+    },
+    {
+      "file": "assets/cards/magic-repair.png",
+      "prompt": "Card illustration for a cute cat fantasy strategy game, ONE spell/trap object shown alone: a crossed wooden mallet and steel wrench over a few nailed wooden planks with a small gold gear. No characters, no cats, no people unless stated.\nCompact bold composition: the object fills most of the square canvas with a clear empty margin on all sides, nothing cut off, readable even when shrunk to 120 px. Fully transparent background, no ground patch, no cast shadow, no scene, no frame, no card border. No text, letters, numbers, runes that look like letters, signature or watermark.\nClean indie flat vector illustration matching the style reference exactly: angular faceted planes with straight hard edges, like folded paper or cut gems, two to four tones per material, single light source from the upper left. Bold simple silhouette. No gradients, no texture, no grain, no noise, no glow, no blur, no light rays, no black outlines. Effects such as fire, smoke or magic are drawn as solid flat angular shapes. Smallest details at least 12 px wide.",
+      "requested_size": "1024x1024",
+      "references": [
+        "assets/concepts/style-reference-warrior.png"
+      ],
+      "transparent_generation": true
+    },
+    {
+      "file": "assets/cards/magic-rewrite.png",
+      "prompt": "Card illustration for a cute cat fantasy strategy game, ONE spell/trap object shown alone: two white game dice (dots drawn as simple dark round pips) tumbling inside a looping teal arrow that circles around them. No characters, no cats, no people unless stated.\nCompact bold composition: the object fills most of the square canvas with a clear empty margin on all sides, nothing cut off, readable even when shrunk to 120 px. Fully transparent background, no ground patch, no cast shadow, no scene, no frame, no card border. No text, letters, numbers, runes that look like letters, signature or watermark.\nClean indie flat vector illustration matching the style reference exactly: angular faceted planes with straight hard edges, like folded paper or cut gems, two to four tones per material, single light source from the upper left. Bold simple silhouette. No gradients, no texture, no grain, no noise, no glow, no blur, no light rays, no black outlines. Effects such as fire, smoke or magic are drawn as solid flat angular shapes. Smallest details at least 12 px wide.",
+      "requested_size": "1024x1024",
+      "references": [
+        "assets/concepts/style-reference-warrior.png"
+      ],
+      "transparent_generation": true
+    },
+    {
+      "file": "assets/cards/magic-sprint.png",
+      "prompt": "Card illustration for a cute cat fantasy strategy game, ONE spell/trap object shown alone: a single brown leather boot with small white wings on the heel, dashing to the right with three flat speed streaks behind it. No characters, no cats, no people unless stated.\nCompact bold composition: the object fills most of the square canvas with a clear empty margin on all sides, nothing cut off, readable even when shrunk to 120 px. Fully transparent background, no ground patch, no cast shadow, no scene, no frame, no card border. No text, letters, numbers, runes that look like letters, signature or watermark.\nClean indie flat vector illustration matching the style reference exactly: angular faceted planes with straight hard edges, like folded paper or cut gems, two to four tones per material, single light source from the upper left. Bold simple silhouette. No gradients, no texture, no grain, no noise, no glow, no blur, no light rays, no black outlines. Effects such as fire, smoke or magic are drawn as solid flat angular shapes. Smallest details at least 12 px wide.",
+      "requested_size": "1024x1024",
+      "references": [
+        "assets/concepts/style-reference-warrior.png"
+      ],
+      "transparent_generation": true
+    },
+    {
+      "file": "assets/cards/magic-warcry.png",
+      "prompt": "Card illustration for a cute cat fantasy strategy game, ONE spell/trap object shown alone: a big curved war horn with a gold rim and a crimson banner tied on it, three bold flat angular sound-wave arcs bursting from its mouth to the right. No characters, no cats, no people unless stated.\nCompact bold composition: the object fills most of the square canvas with a clear empty margin on all sides, nothing cut off, readable even when shrunk to 120 px. Fully transparent background, no ground patch, no cast shadow, no scene, no frame, no card border. No text, letters, numbers, runes that look like letters, signature or watermark.\nClean indie flat vector illustration matching the style reference exactly: angular faceted planes with straight hard edges, like folded paper or cut gems, two to four tones per material, single light source from the upper left. Bold simple silhouette. No gradients, no texture, no grain, no noise, no glow, no blur, no light rays, no black outlines. Effects such as fire, smoke or magic are drawn as solid flat angular shapes. Smallest details at least 12 px wide.",
+      "requested_size": "1024x1024",
+      "references": [
+        "assets/concepts/style-reference-warrior.png"
+      ],
+      "transparent_generation": true
+    },
+    {
+      "file": "assets/cards/trap-counter.png",
+      "prompt": "Card illustration for a cute cat fantasy strategy game, ONE spell/trap object shown alone: a round crimson and steel buckler crossed with a short sword, a bold curved arrow bouncing back off the shield toward the upper left. No characters, no cats, no people unless stated.\nCompact bold composition: the object fills most of the square canvas with a clear empty margin on all sides, nothing cut off, readable even when shrunk to 120 px. Fully transparent background, no ground patch, no cast shadow, no scene, no frame, no card border. No text, letters, numbers, runes that look like letters, signature or watermark.\nClean indie flat vector illustration matching the style reference exactly: angular faceted planes with straight hard edges, like folded paper or cut gems, two to four tones per material, single light source from the upper left. Bold simple silhouette. No gradients, no texture, no grain, no noise, no glow, no blur, no light rays, no black outlines. Effects such as fire, smoke or magic are drawn as solid flat angular shapes. Smallest details at least 12 px wide.",
+      "requested_size": "1024x1024",
+      "references": [
+        "assets/concepts/style-reference-warrior.png"
+      ],
+      "transparent_generation": true
+    },
+    {
+      "file": "assets/cards/trap-faketreasure.png",
+      "prompt": "Card illustration for a cute cat fantasy strategy game, ONE spell/trap object shown alone: a mimic treasure chest: a gold and wood treasure chest with its lid half open showing a row of pointed white teeth and a long pink tongue, two sly eyes on the lid. No characters, no cats, no people unless stated.\nCompact bold composition: the object fills most of the square canvas with a clear empty margin on all sides, nothing cut off, readable even when shrunk to 120 px. Fully transparent background, no ground patch, no cast shadow, no scene, no frame, no card border. No text, letters, numbers, runes that look like letters, signature or watermark.\nClean indie flat vector illustration matching the style reference exactly: angular faceted planes with straight hard edges, like folded paper or cut gems, two to four tones per material, single light source from the upper left. Bold simple silhouette. No gradients, no texture, no grain, no noise, no glow, no blur, no light rays, no black outlines. Effects such as fire, smoke or magic are drawn as solid flat angular shapes. Smallest details at least 12 px wide.",
+      "requested_size": "1024x1024",
+      "references": [
+        "assets/concepts/style-reference-warrior.png"
+      ],
+      "transparent_generation": true
+    },
+    {
+      "file": "assets/cards/trap-firerune.png",
+      "prompt": "Card illustration for a cute cat fantasy strategy game, ONE spell/trap object shown alone: a flat round stone slab carved with a glowing orange circle and simple geometric triangle marks (not letters), small flat flame shapes rising from it. No characters, no cats, no people unless stated.\nCompact bold composition: the object fills most of the square canvas with a clear empty margin on all sides, nothing cut off, readable even when shrunk to 120 px. Fully transparent background, no ground patch, no cast shadow, no scene, no frame, no card border. No text, letters, numbers, runes that look like letters, signature or watermark.\nClean indie flat vector illustration matching the style reference exactly: angular faceted planes with straight hard edges, like folded paper or cut gems, two to four tones per material, single light source from the upper left. Bold simple silhouette. No gradients, no texture, no grain, no noise, no glow, no blur, no light rays, no black outlines. Effects such as fire, smoke or magic are drawn as solid flat angular shapes. Smallest details at least 12 px wide.",
+      "requested_size": "1024x1024",
+      "references": [
+        "assets/concepts/style-reference-warrior.png"
+      ],
+      "transparent_generation": true
+    },
+    {
+      "file": "assets/cards/trap-mirror.png",
+      "prompt": "Card illustration for a cute cat fantasy strategy game, ONE spell/trap object shown alone: a big hexagonal mirror barrier: a hexagon frame of gold with a pale silver-teal reflective face made of flat faceted planes, a small bolt shape bouncing off it. No characters, no cats, no people unless stated.\nCompact bold composition: the object fills most of the square canvas with a clear empty margin on all sides, nothing cut off, readable even when shrunk to 120 px. Fully transparent background, no ground patch, no cast shadow, no scene, no frame, no card border. No text, letters, numbers, runes that look like letters, signature or watermark.\nClean indie flat vector illustration matching the style reference exactly: angular faceted planes with straight hard edges, like folded paper or cut gems, two to four tones per material, single light source from the upper left. Bold simple silhouette. No gradients, no texture, no grain, no noise, no glow, no blur, no light rays, no black outlines. Effects such as fire, smoke or magic are drawn as solid flat angular shapes. Smallest details at least 12 px wide.",
+      "requested_size": "1024x1024",
+      "references": [
+        "assets/concepts/style-reference-warrior.png"
+      ],
+      "transparent_generation": true
+    },
+    {
+      "file": "assets/cards/trap-pit.png",
+      "prompt": "Card illustration for a cute cat fantasy strategy game, ONE spell/trap object shown alone: a pit trap: a round dark hole in brown earth with sharp wooden stakes pointing up inside, half covered by a few loose leaves and broken sticks. No characters, no cats, no people unless stated.\nCompact bold composition: the object fills most of the square canvas with a clear empty margin on all sides, nothing cut off, readable even when shrunk to 120 px. Fully transparent background, no ground patch, no cast shadow, no scene, no frame, no card border. No text, letters, numbers, runes that look like letters, signature or watermark.\nClean indie flat vector illustration matching the style reference exactly: angular faceted planes with straight hard edges, like folded paper or cut gems, two to four tones per material, single light source from the upper left. Bold simple silhouette. No gradients, no texture, no grain, no noise, no glow, no blur, no light rays, no black outlines. Effects such as fire, smoke or magic are drawn as solid flat angular shapes. Smallest details at least 12 px wide.",
+      "requested_size": "1024x1024",
+      "references": [
+        "assets/concepts/style-reference-warrior.png"
+      ],
+      "transparent_generation": true
+    },
+    {
+      "file": "assets/cards/trap-poisonneedle.png",
+      "prompt": "Card illustration for a cute cat fantasy strategy game, ONE spell/trap object shown alone: a cluster of three sharp steel needles sticking up from a small wooden board, their tips dripping flat bright green poison drops. No characters, no cats, no people unless stated.\nCompact bold composition: the object fills most of the square canvas with a clear empty margin on all sides, nothing cut off, readable even when shrunk to 120 px. Fully transparent background, no ground patch, no cast shadow, no scene, no frame, no card border. No text, letters, numbers, runes that look like letters, signature or watermark.\nClean indie flat vector illustration matching the style reference exactly: angular faceted planes with straight hard edges, like folded paper or cut gems, two to four tones per material, single light source from the upper left. Bold simple silhouette. No gradients, no texture, no grain, no noise, no glow, no blur, no light rays, no black outlines. Effects such as fire, smoke or magic are drawn as solid flat angular shapes. Smallest details at least 12 px wide.",
+      "requested_size": "1024x1024",
+      "references": [
+        "assets/concepts/style-reference-warrior.png"
+      ],
+      "transparent_generation": true
+    },
+    {
+      "file": "assets/cards/trap-snare.png",
+      "prompt": "Card illustration for a cute cat fantasy strategy game, ONE spell/trap object shown alone: a rope snare: a loop of coiled brown rope lying open on the ground, its free end tied to a bent springy wooden branch. No characters, no cats, no people unless stated.\nCompact bold composition: the object fills most of the square canvas with a clear empty margin on all sides, nothing cut off, readable even when shrunk to 120 px. Fully transparent background, no ground patch, no cast shadow, no scene, no frame, no card border. No text, letters, numbers, runes that look like letters, signature or watermark.\nClean indie flat vector illustration matching the style reference exactly: angular faceted planes with straight hard edges, like folded paper or cut gems, two to four tones per material, single light source from the upper left. Bold simple silhouette. No gradients, no texture, no grain, no noise, no glow, no blur, no light rays, no black outlines. Effects such as fire, smoke or magic are drawn as solid flat angular shapes. Smallest details at least 12 px wide.",
+      "requested_size": "1024x1024",
+      "references": [
+        "assets/concepts/style-reference-warrior.png"
+      ],
+      "transparent_generation": true
+    },
+    {
+      "file": "assets/cards/trap-spacewarp.png",
+      "prompt": "Card illustration for a cute cat fantasy strategy game, ONE spell/trap object shown alone: a swirling space-warp portal: a spiral of faceted purple and teal flat planes twisting into a dark center, small stars pulled into it. No characters, no cats, no people unless stated.\nCompact bold composition: the object fills most of the square canvas with a clear empty margin on all sides, nothing cut off, readable even when shrunk to 120 px. Fully transparent background, no ground patch, no cast shadow, no scene, no frame, no card border. No text, letters, numbers, runes that look like letters, signature or watermark.\nClean indie flat vector illustration matching the style reference exactly: angular faceted planes with straight hard edges, like folded paper or cut gems, two to four tones per material, single light source from the upper left. Bold simple silhouette. No gradients, no texture, no grain, no noise, no glow, no blur, no light rays, no black outlines. Effects such as fire, smoke or magic are drawn as solid flat angular shapes. Smallest details at least 12 px wide.",
+      "requested_size": "1024x1024",
+      "references": [
+        "assets/concepts/style-reference-warrior.png"
+      ],
+      "transparent_generation": true
+    },
+    {
+      "file": "assets/cards/trap-tripwire.png",
+      "prompt": "Card illustration for a cute cat fantasy strategy game, ONE spell/trap object shown alone: a tripwire trap: a taut rope stretched low between two short wooden stakes, with a small bell hanging from the rope. No characters, no cats, no people unless stated.\nCompact bold composition: the object fills most of the square canvas with a clear empty margin on all sides, nothing cut off, readable even when shrunk to 120 px. Fully transparent background, no ground patch, no cast shadow, no scene, no frame, no card border. No text, letters, numbers, runes that look like letters, signature or watermark.\nClean indie flat vector illustration matching the style reference exactly: angular faceted planes with straight hard edges, like folded paper or cut gems, two to four tones per material, single light source from the upper left. Bold simple silhouette. No gradients, no texture, no grain, no noise, no glow, no blur, no light rays, no black outlines. Effects such as fire, smoke or magic are drawn as solid flat angular shapes. Smallest details at least 12 px wide.",
+      "requested_size": "1024x1024",
+      "references": [
+        "assets/concepts/style-reference-warrior.png"
+      ],
+      "transparent_generation": true
+    },
+    {
+      "file": "assets/cards/trap-wallguard.png",
+      "prompt": "Card illustration for a cute cat fantasy strategy game, ONE spell/trap object shown alone: a section of cream stone castle wall with battlements and a big round crimson shield emblem with a gold paw print mounted on the front. No characters, no cats, no people unless stated.\nCompact bold composition: the object fills most of the square canvas with a clear empty margin on all sides, nothing cut off, readable even when shrunk to 120 px. Fully transparent background, no ground patch, no cast shadow, no scene, no frame, no card border. No text, letters, numbers, runes that look like letters, signature or watermark.\nClean indie flat vector illustration matching the style reference exactly: angular faceted planes with straight hard edges, like folded paper or cut gems, two to four tones per material, single light source from the upper left. Bold simple silhouette. No gradients, no texture, no grain, no noise, no glow, no blur, no light rays, no black outlines. Effects such as fire, smoke or magic are drawn as solid flat angular shapes. Smallest details at least 12 px wide.",
+      "requested_size": "1024x1024",
+      "references": [
+        "assets/concepts/style-reference-warrior.png"
+      ],
+      "transparent_generation": true
     }
   ],
   "icons": {
@@ -102,5 +456,6 @@
       "boot": "이동",
       "dice": "효과 건물의 주사위 합(옆에 숫자)"
     }
-  }
+  },
+  "focus": "assets/cards/focus.json(얼굴 위치·머리 높이, 카드와 토큰 크기 맞춤)"
 }

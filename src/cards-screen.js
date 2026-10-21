@@ -47,7 +47,8 @@ export function cardsScreen(root, onBack) {
     if (button.classList.contains('back')) onBack();
     else if (button.dataset.tab) show(button.dataset.tab);
     else if (button.dataset.id) {
-      dialog.innerHTML = cardHTML(cards.find(card => card.id === button.dataset.id), { big: true });
+      const card = cards.find(item => item.id === button.dataset.id);
+      dialog.innerHTML = cardHTML(card, { big: true }) + (card.flavor ? `<p class="card-flavor">${card.flavor}</p>` : '');
       dialog.showModal();
     }
   });
