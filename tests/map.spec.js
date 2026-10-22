@@ -144,13 +144,14 @@ const chatList = page => page.getByRole('list', { name: '말 고르기' });
 // 다른 플레이어(봇·온라인 상대)가 한 말. 앱도 같은 이벤트로 말풍선을 띄운다.
 const sayAs = (page, player, text) => page.locator('#map').evaluate((root, detail) => root.dispatchEvent(new CustomEvent('map:say', { detail })), { player, text });
 const within = (item, { width, height }) => item.x >= 0 && item.y >= 0 && item.x + item.width <= width && item.y + item.height <= height;
-// 게임: 첫 마을 자리(엔진이 고른 첫 후보)를 화면에서 누른다. 시점이 내 왕성으로 다 옮겨 간 뒤에 잰다.
+// 게임: 첫 마을 자리(엔진이 고른 첫 후보)를 화면에서 누르고 확정한다. 시점이 내 왕성으로 다 옮겨 간 뒤에 잰다.
 async function placeFirstVillage(page) {
   const map = page.locator('#map');
   await expect.poll(() => map.evaluate(root => root.game?.().g.state.pending[0]?.type ?? null)).toBe('village');
   await page.waitForTimeout(400);
   const { x, y } = await map.evaluate(root => root.mapDebug().screenOf(root.game().g.villageSpots(0)[0].vertex));
   await page.mouse.click(x, y);
+  await page.getByRole('button', { name: '확정' }).click(); // 흐리게 놓아 본 마을을 ✓로 확정
   await expect.poll(() => map.evaluate(root => root.game().g.state.players[0].village)).not.toBeNull();
 }
 function watchErrors(page) {
