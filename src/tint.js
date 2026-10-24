@@ -18,3 +18,10 @@ export function tint(base, team, color) {
   g.drawImage(base, 0, 0);
   return canvas;
 }
+
+// 그림 주소 둘(원래 그림, 회색 마스크)을 받아 플레이어 색으로 칠한 캔버스
+export async function tinted(baseSrc, teamSrc, color) {
+  const load = src => { const img = new Image(); img.src = src; return img.decode().then(() => img); };
+  const [base, team] = await Promise.all([load(baseSrc), load(teamSrc)]);
+  return tint(base, team, color);
+}

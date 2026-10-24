@@ -1,6 +1,7 @@
 // 한 판 진행: 나(0번)와 봇. 규칙은 엔진(src/game/rules.js), 판 그리기는 지도 화면(map-screen.js)이 맡는다.
 // 여기서는 누름을 명령으로 바꾸고, 명령의 결과(이벤트)를 차례로 보여 준다. 봇은 한 동작씩 보여 준다.
 // 내 턴은 순서가 정해져 있다(2026-10-22 사용자 결정): MY TURN → 주사위(나머지는 어둡게 잠금) → 자원 연출(조작 잠금) → 행동 1분.
+// 2026-10-24 사용자 피드백: 건물은 카드가 아니라 건설 탭, 버리기는 펼친 패에서, 턴 종료는 한 번 묻기, 봇 주사위는 프로필에 숫자로, 봇은 느리게·말없이.
 import './game.css';
 import { createBoard, createRng, MODES } from './board.js';
 import { createGame, RESOURCES, RESOURCE_NAMES, skillsOf } from './game/rules.js';
@@ -8,7 +9,8 @@ import { botStep } from './game/bot.js';
 import { parseHex } from './game/geometry.js';
 import { VISIBLE } from './vision.js';
 import cards from './generated/cards.json';
-import { cardHTML, image } from './card-view.js';
+import { cardHTML, image, kindText } from './card-view.js';
+import { tinted } from './tint.js';
 import { rollDice } from './dice.js';
 import { useReducedMotion } from './motion.js';
 
@@ -17,12 +19,13 @@ const RACES = ['warrior', 'mage', 'assassin'];
 const RACE_NAMES = { warrior: '냥전사', mage: '냥법사', assassin: '냥살자' };
 const TURN_TIME = 60; // 합의: 주사위 뒤 1분. 고르는 중에는 멈추되, 멈춘 시간은 한 턴에 합쳐 1분까지
 const SETUP_TIME = 15; // 임시: 첫 마을 자리 고르기
-const PACE = { normal: 450, fast: 120, auto: 60 }; // 봇 동작 사이(ms). auto: 내 자리도 봇이 두는 자동 대전
+const PACE = { normal: 950, fast: 250, auto: 60 }; // 봇 동작 사이(ms). auto: 내 자리도 봇이 두는 자동 대전. 임시: 보통 0.95초(2026-10-24 "너무 빠름")
+const BOT_DICE = { normal: 1300, fast: 350, auto: 0 }; // 봇 주사위 숫자를 프로필에 보인 뒤 자원으로 넘어가기까지(ms)
 const STEP = 170; // 유닛이 한 칸 가는 시간(ms)
 const GAIN_COLOR = { gold: '#ffd54a', crystal: '#d2b2ff', wood: '#9be07a', fish: '#8fd8ff' };
 const FALL = 320; // 쓰러지거나 부서지는 말이 붉게 번쩍인 뒤 사라지기까지(ms). 지도의 FLASH와 같다
 const LIFT = { tile: 70, vertex: 125, edge: 24 }; // 확정 단추(✓✕)를 대상 위로 띄우는 높이(월드 단위): 동전, 건물, 길 위
-const CONFIRM = new Set(['setup', 'village', 'road', 'card']); // 자리를 고르면 흐리게 놓아 보고 ✓로 확정하는 고르기
+const CONFIRM = new Set(['setup', 'village', 'build', 'road', 'card']); // 자리를 고르면 흐리게 놓아 보고 ✓로 확정하는 고르기
 const CHECK = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7"/></svg>';
 const CROSS = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>';
 const icon = name => `<img src="${image(`ui/icon-${name}`, 'ui')}" alt="">`;
@@ -40,18 +43,21 @@ export function gameScreen(map, root) {
       <p class="turn-banner"><span></span><button class="ui-button small blue pace" hidden aria-pressed="false">빠르게</button></p>
       <div class="pick-bar hud-panel" hidden><p></p><button class="ui-button small confirm" hidden>확인</button><button class="ui-button small blue cancel">취소</button></div>
       <div class="unit-panel hud-panel" hidden></div>
+      <div class="end-ask hud-panel" role="alertdialog" aria-label="턴 종료 확인" hidden><p>턴을 종료하시겠습니까?</p><button class="ui-button small ok">확인</button><button class="ui-button small blue no">취소</button></div>
     </div>
     <p class="toast" aria-hidden="true"></p>
     <div class="tools" hidden>
-      <button class="tool" data-tool="village">${icon('home')}<span>마을</span><small>${costHTML({ gold: 1, wood: 1, fish: 1 })}</small></button>
+      <button class="tool" data-tool="build" aria-expanded="false">${icon('home')}<span>건설</span></button>
       <button class="tool" data-tool="road"><i class="road-icon"></i><span>길</span><small>${costHTML({ wood: 1, fish: 1 })}</small></button>
       <button class="tool" data-tool="trade">${icon('trade')}<span>교환</span></button>
     </div>
+    <div class="build-panel hud-panel" role="group" aria-label="건설" hidden></div>
     <button class="game-hand" aria-label="내 카드 보기"><span class="backs"></span><b class="hand-count">0</b></button>`);
   mainButton.innerHTML = `${icon('turn')}턴 끝내기<b class="clock"></b>`; // 게임에서는 턴 끝내기만(주사위는 턴 시작 화면)
   root.insertAdjacentHTML('beforeend', `
     <div class="confirm-pin" hidden><button class="ok" aria-label="확정">${CHECK}</button><button class="no" aria-label="취소">${CROSS}</button></div>
     <div class="fan" hidden>
+      <p class="fan-note" hidden></p>
       <div class="fan-cards" role="group" aria-label="내 카드"></div>
       <div class="fan-focus" hidden><div class="focus-card"></div><p class="focus-note"></p><div class="focus-buttons"><button class="ui-button use">사용</button><button class="ui-button blue back">뒤로가기</button></div></div>
     </div>
@@ -64,12 +70,15 @@ export function gameScreen(map, root) {
   const unitPanel = strip.querySelector('.unit-panel');
   const toast = hud.querySelector('.toast');
   const tools = hud.querySelector('.tools');
+  const buildPanel = hud.querySelector('.build-panel');
+  const endAsk = strip.querySelector('.end-ask');
   const handButton = hud.querySelector('.game-hand');
   const dialog = root.querySelector('.game-dialog');
   const pin = root.querySelector('.confirm-pin');
   const fan = root.querySelector('.fan');
   const fanCards = fan.querySelector('.fan-cards');
   const focusView = fan.querySelector('.fan-focus');
+  const fanNote = fan.querySelector('.fan-note');
   const intro = root.querySelector('.turn-intro');
   const introRoll = intro.querySelector('.intro-roll');
 
@@ -88,6 +97,8 @@ export function gameScreen(map, root) {
   // 연출이 닿기 전 모습: 맞기 전 체력(유닛 id·꼭짓점 → 체력), 쓰러질 유닛, 부서질 건물, 파손될 건물
   const held = { hp: new Map(), units: new Map(), buildings: new Map(), whole: new Set() };
   let fanKey = '', fanFocus = null, drag = null; // 펼친 패: 다시 그릴지 볼 열쇠, 크게 보는 카드, 끄는 카드
+  let discard = null; // 패가 넘쳐 버리는 중: { count, chosen: [uid] }. 펼친 패에서 고른다
+  let buildArt = {}; // 건설 탭의 건물 그림(내 색으로 칠함): id → 주소
 
   const team = () => g.teamOf(ME);
   const myMain = () => s.phase === 'main' && s.current === ME && !s.pending.length;
@@ -140,7 +151,7 @@ export function gameScreen(map, root) {
     const c = pick?.chosen;
     if (!c || c.edge) return null;
     const def = pick.kind === 'card' ? g.card(pick.uid) : null;
-    if (c.vertex && (!def || def.type === 'building')) return { kind: 'building', id: def?.id ?? 'village', player: ME, hexes: g.geo.vertices.get(c.vertex).hexes, ghost: true };
+    if (c.vertex && !def) return { kind: 'building', id: pick.kind === 'build' ? pick.id : 'village', player: ME, hexes: g.geo.vertices.get(c.vertex).hexes, ghost: true };
     if (c.tile && def?.type === 'unit') return { kind: 'unit', id: def.id, player: ME, hexes: [parseHex(c.tile)], hp: def.stats.hp, maxHp: def.stats.hp, mana: def.stats.mana, maxMana: def.stats.mana, ghost: true };
     return null;
   }
@@ -154,7 +165,7 @@ export function gameScreen(map, root) {
       case 'setup': for (const spot of g.villageSpots(ME)) vertices.set(spot.vertex, 'place'); break;
       case 'warp': for (const tile of pick.tiles) if (!g.unitAt(tile)) tiles.set(tile, 'place'); break;
       case 'road': for (const edge of g.roadSpots(ME)) edges.set(edge, 'place'); break;
-      case 'village': for (const vertex of g.buildSpots(ME)) vertices.set(vertex, 'place'); break;
+      case 'village': case 'build': for (const vertex of g.buildSpots(ME)) vertices.set(vertex, 'place'); break;
       case 'gate': for (const tile of g.gateTiles(ME)) tiles.set(tile, 'place'); break;
       case 'unit': {
         if (!u) break;
@@ -182,7 +193,9 @@ export function gameScreen(map, root) {
 
   // 지도를 누르면: 표시한 꼭짓점·변·칸이면 고르고, 내 유닛이면 그 유닛을 고른다. 처리했으면 true(지도는 칸을 고르지 않음)
   function tap(hit) {
-    if (busy || s.phase === 'over') return true;
+    if (s.phase === 'over') return true;
+    if (!endAsk.hidden || !buildPanel.hidden) { closePops(); refresh(); return true; } // 열린 물음·건설 탭은 판을 누르면 닫는다
+    if (busy) { look(hit); return true; } // 봇이 두는 중에도 유닛 정보는 볼 수 있다
     if (marks) {
       if (marks.vertices.size && hit.vertexDist < hit.near && marks.vertices.has(hit.vertex)) return choose({ vertex: hit.vertex }), true;
       if (marks.edges.size && hit.edgeDist < hit.near && marks.edges.has(hit.edge)) return choose({ edge: hit.edge }), true;
@@ -194,14 +207,18 @@ export function gameScreen(map, root) {
     const tile = hit.coinTile ?? hit.tile;
     const u = tile ? g.unitAt(tile) : null;
     if (u && u.owner === ME && ready()) { selectUnit(u); return true; }
-    if (u && g.unitVisible(team(), u)) {
-      const def = g.defs.get(u.card);
-      map.status.textContent = `${name(u.owner)}의 ${def.name}: 체력 ${u.hp}/${u.maxHp}, 마나 ${u.mana}/${u.maxMana}`;
-      say(map.status.textContent);
-      return true;
-    }
+    if (look(hit)) return true;
     if (pick && ['unit', 'skill', 'gate'].includes(pick.kind)) { clearPick(); refresh(); }
     return false;
+  }
+  // 보이는 유닛을 누르면 이름·체력·마나를 알린다
+  function look(hit) {
+    const tile = hit.coinTile ?? hit.tile;
+    const u = tile ? g.unitAt(tile) : null;
+    if (!u || !g.unitVisible(team(), u)) return false;
+    map.status.textContent = `${u.owner === ME ? '내' : `${name(u.owner)}의`} ${g.defs.get(u.card).name}: 체력 ${u.hp}/${u.maxHp}, 마나 ${u.mana}/${u.maxMana}`;
+    say(map.status.textContent);
+    return true;
   }
 
   function choose(at) {
@@ -242,11 +259,11 @@ export function gameScreen(map, root) {
     switch (p.kind) {
       case 'setup': return act({ type: 'placeVillage', vertex });
       case 'village': return act({ type: 'village', vertex });
+      case 'build': return act({ type: 'build', card: p.id, vertex });
       case 'road': showPick(p.hint); return act({ type: 'road', edge }, { keep: true });
       case 'card': {
         const def = g.card(p.uid);
         if (def.type === 'unit') return act({ type: 'play', uid: p.uid, tile });
-        if (def.type === 'building') return act({ type: 'play', uid: p.uid, vertex });
         const o = p.options.find(x => (vertex ? x.vertex === vertex : x.tile === tile));
         return act({ type: 'play', uid: p.uid, target: o.unit !== undefined ? { unit: o.unit } : vertex ? { vertex } : { tile } });
       }
@@ -270,6 +287,7 @@ export function gameScreen(map, root) {
     const run = alive;
     busy = true;
     if (!keep) clearPick();
+    closePops();
     if (cmd.type === 'end' || cmd.type === 'placeVillage') stopClock();
     await present(result.events, ME);
     if (run !== alive) return true;
@@ -313,6 +331,7 @@ export function gameScreen(map, root) {
   function ask() {
     busy = false;
     const top = s.pending[0];
+    if (top?.type === 'discard') { openDiscard(top.count); return refresh(); }
     if (top || s.phase === 'roll') closeFan();
     if (top?.type === 'village') { if (pick?.kind !== 'setup') setPick({ kind: 'setup' }); startClock(SETUP_TIME, () => autoPick()); }
     else if (top?.type === 'warp') setPick({ kind: 'warp', tiles: top.tiles });
@@ -333,6 +352,7 @@ export function gameScreen(map, root) {
   async function timeUp() {
     closeDialog();
     closeFan();
+    closePops();
     clearPick();
     say('시간이 다 되어 턴을 넘겨요');
     await act({ type: 'end' });
@@ -416,10 +436,10 @@ export function gameScreen(map, root) {
         case 'trap': { const at = e.tile ?? e.vertex; if (at && (seen(at) || e.owner === ME)) map.float(hexesOf(at), g.defs.get(e.id).name, '#ff8a7a'); break; }
         case 'effect': if (seen(e.vertex)) map.float(hexesOf(e.vertex), g.defs.get(e.card).name, '#d2b2ff'); break;
         case 'meteor-fall': for (const tile of e.tiles) if (seen(tile)) map.float([parseHex(tile)], '쾅!', '#ffb35a'); break;
-        case 'skill': if (actor !== ME) say(`${name(actor)}: ${e.name}`); break;
+        // 봇의 행동은 글로 알리지 않는다(2026-10-24 사용자 결정). 판 위 연출로만 보인다
         case 'lose-card': if (e.player === ME) say('정보원 둥지에 카드 1장을 잃었어요'); break;
-        case 'trade': if (actor !== ME) say(`${name(actor)}이(가) 교환했어요`); break;
-        case 'log': say(e.text.replace(/^나이\(가\)/, '내가').replace(/^나의/, '내')); break;
+        case 'log': if (actor === ME) say(e.text.replace(/^나이\(가\)/, '내가').replace(/^나의/, '내')); break;
+        case 'turn': hud.querySelectorAll('.roll-badge').forEach(badge => badge.remove()); break;
         case 'over': overHow = e.goal !== undefined ? 'goal' : 'castle'; break;
         // 새로 놓인 건물·유닛은 톡 커지며 나타난다
         case 'build': if (seen(e.vertex) || e.player === ME) { if (actor !== ME) map.show(hexesOf(e.vertex)); map.pop(e.vertex); } break;
@@ -437,11 +457,16 @@ export function gameScreen(map, root) {
     map.float(hexesOf(at), text, color);
   }
 
+  // 내 주사위는 판 위에서 굴린다. 봇 주사위는 화면을 가리지 않게 그 봇의 프로필 옆에 주사위 아이콘과 합을 띄운다(턴 끝까지 남음)
   async function showDice(e, actor) {
     const label = `${actor === ME ? '내' : `${name(actor)}의`} 주사위 ${e.dice[0]} + ${e.dice[1]} = ${e.sum}`;
     map.status.textContent = label;
-    if (auto || (actor !== ME && pace === 'fast')) return say(label);
-    await rollDice(root, e.dice, { reducedMotion: useReducedMotion() }).finished;
+    if (actor === ME && !auto) return rollDice(root, e.dice, { reducedMotion: useReducedMotion() }).finished;
+    const row = hud.querySelector(`.player[data-player="${actor}"]`);
+    if (!row) return;
+    row.querySelector('.roll-badge')?.remove();
+    row.insertAdjacentHTML('beforeend', `<b class="roll-badge${useReducedMotion() ? ' calm' : ''}" aria-hidden="true">${icon('dice')}${e.sum}</b>`);
+    await wait(BOT_DICE[pace]);
   }
 
   // 받은 자원. 내 것은 나온 칸에서 아이콘이 떨어져 +n을 보인 뒤 오른쪽 위 재화 칸으로 쏙 들어가고, 재화 칸이 톡 튀며 숫자가 오른다.
@@ -507,10 +532,12 @@ export function gameScreen(map, root) {
     tickClock();
     tools.hidden = !go || Boolean(pick);
     if (!tools.hidden) {
-      tools.querySelector('[data-tool="village"]').disabled = busy || !g.has(p.resources, g.rules.cost.village) || !g.buildSpots(ME).length;
+      tools.querySelector('[data-tool="build"]').disabled = busy;
       tools.querySelector('[data-tool="road"]').disabled = busy || !g.has(p.resources, g.rules.cost.road) || !g.roadSpots(ME).length;
       tools.querySelector('[data-tool="trade"]').disabled = busy;
     }
+    if (tools.hidden || busy) closePops();
+    else if (!buildPanel.hidden) layoutBuild();
     // 띠: 고르는 중이면 고르기 안내, 아니면 누구 턴인지
     const top = s.pending[0];
     let text = '';
@@ -519,7 +546,7 @@ export function gameScreen(map, root) {
     else if (top && top.player !== ME) text = `${name(top.player)}이(가) 고르는 중…`;
     else if (s.current !== ME) text = `${name(s.current)} 턴 진행 중…`;
     banner.querySelector('span').textContent = text;
-    banner.hidden = !text || !pickBar.hidden || !unitPanel.hidden;
+    banner.hidden = !text || !pickBar.hidden || !unitPanel.hidden || !endAsk.hidden;
     paceButton.hidden = (top ? top.player : s.current) === ME || s.phase === 'over';
     if (!fan.hidden && fanFocus === null) layoutFan(false);
   }
@@ -551,7 +578,7 @@ export function gameScreen(map, root) {
       const now = performance.now(), dt = (now - clock.at) / 1000;
       clock.at = now;
       // 고르는 중(표시·창·펼친 패)에는 멈춘다. 멈춘 시간은 한 턴에 합쳐 1분까지
-      if ((pick || dialog.open || !fan.hidden) && clock.pause > 0) clock.pause -= dt; else clock.left -= dt;
+      if ((pick || dialog.open || !fan.hidden || !buildPanel.hidden) && clock.pause > 0) clock.pause -= dt; else clock.left -= dt;
       if (clock.left <= 0) { const { onEnd, run } = clock; stopClock(); if (run === alive) onEnd(); return; }
     }
     const left = Math.ceil(clock.left);
@@ -566,6 +593,7 @@ export function gameScreen(map, root) {
     const hint = {
       setup: '', warp: '공간 뒤틀림: 상대 유닛을 보낼 칸을 고르세요', road: '길을 놓을 곳(노란 선)을 고르세요',
       village: '마을을 지을 자리를 고르세요', gate: '왕성 곁 빈 칸을 고르세요',
+      build: next.id && `${g.defs.get(next.id)?.name}: 지을 자리를 고르세요`,
     }[next.kind] ?? next.hint;
     pick = { ...next, hint };
     if (hint) showPick(hint);
@@ -636,15 +664,90 @@ export function gameScreen(map, root) {
   tools.addEventListener('click', event => {
     const button = event.target.closest('[data-tool]');
     if (!button || busy || !ready()) return;
-    if (button.dataset.tool === 'trade') return showTrade();
+    if (button.dataset.tool === 'trade') { closePops(); return showTrade(); }
+    if (button.dataset.tool === 'build') return buildPanel.hidden ? openBuild() : (closePops(), refresh());
+    closePops();
     setPick({ kind: button.dataset.tool });
     refresh();
   });
 
+  // ── 건설 탭: 마을과 내 종족 건물. 고르면 놓을 곳을 표시한다(카드 없이 비용만) ──
+  const VILLAGE = { name: '마을', max: Infinity, text: ['유닛을 1기 더 둘 수 있다(최대 6기). 붙은 칸의 숫자가 나오면 자원을 얻는다.'] };
+  function openBuild() {
+    clearPick();
+    endAsk.hidden = true;
+    buildPanel.hidden = false;
+    tools.querySelector('[data-tool="build"]').setAttribute('aria-expanded', 'true');
+    layoutBuild(true);
+    refresh();
+    buildPanel.querySelector('button:not(:disabled)')?.focus({ preventScroll: true });
+  }
+  // 줄마다: 그림, 이름·개수, 비용, 효과. 못 지으면 흐리게 하고 이유를 보인다
+  function layoutBuild(force = false) {
+    const res = me().resources, spots = g.buildSpots(ME).length;
+    const rows = [{ id: 'village', def: { ...VILLAGE, costMap: g.rules.cost.village }, count: null }, ...g.buildable(ME).map(({ def, count }) => ({ id: def.id, def, count }))];
+    const why = ({ def, count }) => (count >= def.max ? `${def.max}개까지 지어요` : !g.has(res, def.costMap) ? '자원이 모자라요' : !spots ? '지을 자리가 없어요(길이 닿은 빈 자리)' : '');
+    const key = rows.map(row => `${row.count}${why(row)}${buildArt[row.id] ? 1 : 0}`).join('|');
+    if (!force && key === buildPanel.dataset.key) return;
+    buildPanel.dataset.key = key;
+    buildPanel.innerHTML = rows.map(row => {
+      const { id, def, count } = row, no = why(row);
+      return `<button class="build-item" data-build="${id}" ${no ? 'disabled' : ''}>
+        <span class="build-art">${buildArt[id] ? `<img src="${buildArt[id]}" alt="">` : ''}</span>
+        <span class="build-head"><b>${def.name}</b>${count === null ? '' : `<small>${count}/${def.max}</small>`}<span class="build-cost">${costHTML(def.costMap)}</span></span>
+        <span class="build-text">${def.type && def.kind !== '건물' ? `<i>${kindText(def).replace('건물 · ', '')}</i> ` : ''}${def.text.join(' ')}${no ? `<em>${no}</em>` : ''}</span>
+      </button>`;
+    }).join('');
+  }
+  buildPanel.addEventListener('click', event => {
+    const button = event.target.closest('[data-build]');
+    if (!button || button.disabled || busy || !ready()) return;
+    closePops();
+    const id = button.dataset.build;
+    setPick(id === 'village' ? { kind: 'village' } : { kind: 'build', id });
+    refresh();
+  });
+  // 건설 탭 그림: 판 위 말과 같은 그림을 내 색으로 칠해 작게 줄여 둔다(판마다 한 번)
+  async function prepareBuildArt(race) {
+    const color = hud.querySelector('.player[data-player="0"]')?.style.getPropertyValue('--player') || '#e0453a';
+    const ids = ['village', ...cards.filter(c => c.type === 'building' && c.look === race).map(c => c.id)];
+    const out = {};
+    await Promise.all(ids.map(async id => {
+      const big = await tinted(image(`pieces/${id}`, 'pieces'), image(`pieces/${id}-team`, 'pieces'), color);
+      const small = document.createElement('canvas');
+      small.width = 96;
+      small.height = Math.round(96 * big.height / big.width);
+      small.getContext('2d').drawImage(big, 0, 0, small.width, small.height);
+      out[id] = small.toDataURL();
+    })).catch(() => {}); // 그림을 못 받으면 글자만 보인다
+    return out;
+  }
+
+  // 열린 물음(턴 종료)·건설 탭을 닫는다
+  function closePops() {
+    endAsk.hidden = true;
+    if (buildPanel.hidden) return;
+    buildPanel.hidden = true;
+    tools.querySelector('[data-tool="build"]').setAttribute('aria-expanded', 'false');
+  }
+
+  // 턴 끝내기: 한 번 묻는다(확인·취소). 묻는 동안에도 턴 시간은 흐른다
   mainButton.addEventListener('click', () => {
     if (!g || busy || !ready()) return;
+    if (!endAsk.hidden) { closePops(); return refresh(); }
     clearPick();
-    act({ type: 'end' });
+    closePops();
+    endAsk.hidden = false;
+    refresh();
+    endAsk.querySelector('.ok').focus({ preventScroll: true });
+  });
+  endAsk.addEventListener('click', event => {
+    const button = event.target.closest('button');
+    if (!button || busy) return;
+    closePops();
+    if (button.classList.contains('ok') && ready()) return act({ type: 'end' });
+    refresh();
+    mainButton.focus({ preventScroll: true });
   });
   paceButton.addEventListener('click', () => {
     pace = pace === 'fast' ? 'normal' : 'fast';
@@ -674,35 +777,25 @@ export function gameScreen(map, root) {
       const options = g.summonTiles(ME).map(tile => ({ tile }));
       return options.length ? { options, look: 'place', text: `${def.name}: 소환할 칸을 고르세요` } : { why: '소환할 빈 칸이 없어요' };
     }
-    if (def.type === 'building') {
-      if (!g.has(res, def.costMap)) return { why: '자원이 모자라요' };
-      const options = g.buildSpots(ME).map(vertex => ({ vertex }));
-      return options.length ? { options, look: 'place', text: `${def.name}: 지을 자리를 고르세요` } : { why: '지을 자리가 없어요(내 길이 닿은 빈 자리)' };
-    }
     const options = def.type === 'trap' ? g.trapTargets(ME, def.id) : g.magicTargets(ME, def.id);
     if (!options.length) return { why: '쓸 대상이 없어요' };
     if (options.length === 1 && !Object.keys(options[0]).length) return { now: {} };
     if (options[0].resource) return { ask: options };
-    const look = options[0].unit !== undefined ? 'ally' : 'place';
-    return { options, look, text: `${def.name}: ${def.type === 'trap' ? '놓을 곳' : '대상'}을 고르세요` };
+    // 내 건물·유닛을 고르는 카드는 고를 수 있는 것을 깜빡여 보인다(2026-10-24 사용자 결정)
+    if (options[0].vertex) return { options, look: 'target', text: `${def.name}: 깜빡이는 건물을 고르세요` };
+    if (options[0].unit !== undefined) return { options, look: 'ally', text: `${def.name}: 깜빡이는 아군을 고르세요` };
+    return { options, look: 'place', text: `${def.name}: ${def.type === 'trap' ? '놓을 곳' : '대상'}을 고르세요` };
   }
 
-  // 카드 고르기 창(대기 중인 고르기): 위는 작은 카드 줄, 아래는 고른 카드를 크게 보인다.
-  // mode: discard(count장 골라 버리기), take(한 장 가져가기: 시장·점성대)
+  // 카드 고르기 창(시장·점성대에서 한 장 가져가기): 위는 작은 카드 줄, 아래는 고른 카드를 크게 보인다.
   let picker = null;
   function showCards(next) {
     picker = next;
-    const { mode, uids, focus, chosen = [], count = 1, title } = picker;
-    let note = '', buttons = '';
-    if (mode === 'discard') {
-      note = `버릴 카드 ${chosen.length}/${count}장`;
-      buttons = `<button class="ui-button blue mark">${chosen.includes(focus) ? '버리지 않기' : '이 카드 버리기'}</button><button class="ui-button do-discard" ${chosen.length === count ? '' : 'disabled'}>${count}장 버리기</button>`;
-    } else buttons = '<button class="ui-button take">이 카드 가져가기</button>';
+    const { uids, focus, title } = picker;
     openDialog(`<h2>${title}</h2>
-      <div class="hand-row">${uids.map(uid => `<button class="hand-card${uid === focus ? ' on' : ''}${chosen.includes(uid) ? ' marked' : ''}" data-uid="${uid}" aria-pressed="${uid === focus}" aria-label="${g.card(uid).name}">${cardHTML(g.card(uid))}</button>`).join('')}</div>
+      <div class="hand-row">${uids.map(uid => `<button class="hand-card${uid === focus ? ' on' : ''}" data-uid="${uid}" aria-pressed="${uid === focus}" aria-label="${g.card(uid).name}">${cardHTML(g.card(uid))}</button>`).join('')}</div>
       <div class="hand-focus">${cardHTML(g.card(focus), { big: true })}</div>
-      <p class="hand-note">${note}</p>
-      <div class="dialog-buttons">${buttons}</div>`, 'hand-dialog');
+      <div class="dialog-buttons"><button class="ui-button take">이 카드 가져가기</button></div>`, 'hand-dialog');
     dialog.querySelector('.hand-card.on')?.scrollIntoView({ inline: 'center', block: 'nearest' });
   }
 
@@ -723,14 +816,33 @@ export function gameScreen(map, root) {
     fanFocus = drag = null;
     lockHud();
   }
+  // 패가 넘치면 펼친 패에서 버린다(2026-10-24 사용자 결정: 따로 창을 띄우지 않음). 다 고를 때까지 접히지 않는다
+  function openDiscard(count) {
+    if (discard?.count !== count) discard = { count, chosen: [] };
+    if (fan.hidden) openFan(); else layoutFan(true);
+  }
+  // 버릴 카드로 고르거나 되돌린다. 다 고르면 바로 버린다
+  function toggleDiscard(uid) {
+    const { chosen, count } = discard;
+    discard.chosen = chosen.includes(uid) ? chosen.filter(x => x !== uid) : [...chosen, uid];
+    if (discard.chosen.length < count) return layoutFan(false);
+    const uids = discard.chosen;
+    discard = null;
+    closeFan();
+    act({ type: 'resolve', uids });
+  }
   // 패나 쓸 수 있는 카드가 바뀌었을 때만 다시 그린다(force: 처음 펼칠 때)
   function layoutFan(force) {
     const hand = me().hand;
-    const usable = hand.map(uid => !cardUse(uid).why);
-    const key = `${hand}|${usable}`;
+    const usable = hand.map(uid => !discard && !cardUse(uid).why);
+    const marked = hand.map(uid => Boolean(discard?.chosen.includes(uid)));
+    const key = `${hand}|${usable}|${marked}`;
     if (!force && key === fanKey) return;
     fanKey = key;
     if (!hand.length) return closeFan();
+    fan.classList.toggle('discarding', Boolean(discard));
+    fanNote.hidden = !discard;
+    if (discard) fanNote.textContent = `카드는 ${g.rules.hand.max}장까지예요. ${discard.count}장을 버려요${discard.count > 1 ? ` (${discard.chosen.length}/${discard.count})` : ''} · 위로 끌거나 눌러서 버리기`;
     const n = hand.length, width = root.clientWidth;
     const w = clamp(width * 0.25, 84, 130); // 카드 폭: 휴대폰 약 98px, iPad 130px
     const step = n > 1 ? Math.min(w * 0.95, (width - 32 - w) / (n - 1)) : 0;
@@ -739,7 +851,7 @@ export function gameScreen(map, root) {
     fanCards.innerHTML = hand.map((uid, i) => {
       const def = g.card(uid), j = i - (n - 1) / 2;
       const place = `translate(${(i - n + 1) * step}px, ${(j * j - edge) * 3}px) rotate(${j * 2.5}deg)`; // 오른쪽 아래 묶음 자리에서 왼쪽으로, 가운데가 살짝 높은 부채꼴
-      return `<button class="fan-card${usable[i] ? ' usable' : ''}" data-uid="${uid}" data-place="${place}" style="transform: ${place}" aria-label="${def.name}${usable[i] ? ', 쓸 수 있음' : ''}">${cardHTML(def)}</button>`;
+      return `<button class="fan-card${usable[i] ? ' usable' : ''}${marked[i] ? ' marked' : ''}" data-uid="${uid}" data-place="${place}" style="transform: ${place}" aria-label="${def.name}${usable[i] ? ', 쓸 수 있음' : marked[i] ? ', 버릴 카드' : ''}">${cardHTML(def)}</button>`;
     }).join('');
     if (!force || useReducedMotion()) return;
     // 묶음에 가까운 카드부터 차례로 미끄러져 나온다
@@ -749,12 +861,13 @@ export function gameScreen(map, root) {
     ));
   }
   handButton.addEventListener('click', () => { if (g) openFan(); });
-  // 바깥(어두운 곳)을 누르면 접는다
-  fan.addEventListener('click', event => { if (event.target === fan || event.target === fanCards) closeFan(); });
+  // 바깥(어두운 곳)을 누르면 접는다(버리는 중에는 그대로)
+  fan.addEventListener('click', event => { if (!discard && (event.target === fan || event.target === fanCards)) closeFan(); });
   fan.addEventListener('keydown', event => {
     if (event.key !== 'Escape') return;
     event.preventDefault();
     if (fanFocus !== null) return unfocusCard();
+    if (discard) return;
     closeFan();
     handButton.focus({ preventScroll: true });
   });
@@ -786,6 +899,8 @@ export function gameScreen(map, root) {
     if (!moved) { if (event.type === 'pointerup') focusCard(uid); return; }
     const up = y - event.clientY;
     if (event.type === 'pointerup' && (up > 110 || (up > 40 && vy < -0.5))) {
+      card.style.transform = card.dataset.place;
+      if (discard) return toggleDiscard(uid);
       const use = cardUse(uid);
       if (!use.why) { closeFan(); return useCard(uid); }
       say(use.why);
@@ -805,10 +920,11 @@ export function gameScreen(map, root) {
     const small = fanCards.querySelector(`[data-uid="${uid}"]`);
     if (!small) return;
     fanFocus = uid;
-    const use = cardUse(uid);
+    const use = discard ? {} : cardUse(uid);
     focusView.querySelector('.focus-card').innerHTML = cardHTML(g.card(uid), { big: true });
     focusView.querySelector('.focus-note').textContent = use.why ?? '';
     const useButton = focusView.querySelector('.use');
+    useButton.textContent = !discard ? '사용' : discard.chosen.includes(uid) ? '되돌리기' : '버리기';
     useButton.disabled = Boolean(use.why);
     focusView.hidden = false;
     small.style.visibility = 'hidden';
@@ -833,6 +949,12 @@ export function gameScreen(map, root) {
   focusView.addEventListener('click', event => {
     if (fanFocus === null) return;
     const button = event.target.closest('button');
+    if (button?.classList.contains('use') && discard) {
+      const uid = fanFocus;
+      fanFocus = null;
+      focusView.hidden = true;
+      return toggleDiscard(uid);
+    }
     if (button?.classList.contains('use')) { const uid = fanFocus; closeFan(); return useCard(uid); }
     if (event.target === focusView || button?.classList.contains('back')) unfocusCard();
   });
@@ -867,11 +989,8 @@ export function gameScreen(map, root) {
   // 대기 중인 고르기(창). 닫을 수 없다(고를 때까지)
   function showChoice(top) {
     dialog.dataset.locked = '1';
-    const hand = me().hand;
-    if (top.type === 'discard') {
-      showCards({ mode: 'discard', uids: hand, focus: hand[0], chosen: [], count: top.count, title: `카드가 6장을 넘어요. ${top.count}장을 버려요` });
-    } else if (top.type === 'market' || (top.type === 'stargaze' && top.deck)) {
-      showCards({ mode: 'take', uids: top.cards, focus: top.cards[0], title: top.type === 'market' ? '시장: 한 장을 가져가세요' : '점성대: 손에 넣을 카드를 고르세요' });
+    if (top.type === 'market' || (top.type === 'stargaze' && top.deck)) {
+      showCards({ uids: top.cards, focus: top.cards[0], title: top.type === 'market' ? '시장: 한 장을 가져가세요' : '점성대: 손에 넣을 카드를 고르세요' });
     } else if (top.type === 'stargaze') {
       openDialog(`<h2>점성대</h2><p>어느 덱의 위 2장을 볼까요?</p><div class="choice-list"><button class="ui-button choice" data-deck="race">종족 덱</button><button class="ui-button choice" data-deck="field">필드 덱</button></div>`, 'choice-dialog');
     } else if (top.type === 'fate') {
@@ -885,11 +1004,6 @@ export function gameScreen(map, root) {
     const top = s.pending[0];
     if (button.classList.contains('close')) return closeDialog();
     if (button.classList.contains('hand-card')) return showCards({ ...picker, focus: Number(button.dataset.uid) });
-    if (button.classList.contains('mark')) {
-      const { chosen, focus } = picker;
-      return showCards({ ...picker, chosen: chosen.includes(focus) ? chosen.filter(x => x !== focus) : [...chosen, focus] });
-    }
-    if (button.classList.contains('do-discard')) return resolveChoice({ uids: picker.chosen });
     if (button.classList.contains('take')) return resolveChoice({ uid: picker.focus });
     if (button.dataset.deck) return resolveChoice({ deck: button.dataset.deck });
     if (button.dataset.index !== undefined && top?.type === 'fate') return resolveChoice({ index: Number(button.dataset.index) });
@@ -916,7 +1030,9 @@ export function gameScreen(map, root) {
   function gameOver() {
     stopClock();
     clearPick();
+    discard = null;
     closeFan();
+    closePops();
     hideIntro();
     const winner = s.winner === team();
     const goal = overHow === 'goal';
@@ -931,7 +1047,9 @@ export function gameScreen(map, root) {
     alive++;
     stopClock();
     clearPick();
+    discard = null;
     closeFan();
+    closePops();
     hideIntro();
     delete dialog.dataset.locked;
     closeDialog();
@@ -958,6 +1076,9 @@ export function gameScreen(map, root) {
     for (const list of Object.values(held)) list.clear();
     map.open(mode, { board, players: roster, scene: scene() });
     root.dataset.game = 'on';
+    buildArt = {};
+    const run = alive;
+    prepareBuildArt(race).then(art => { if (run === alive) { buildArt = art; if (!buildPanel.hidden) layoutBuild(); } });
     map.focus(g.geo.vertices.get(s.players[ME].castle).hexes);
     say(`${RACE_NAMES[race]}로 시작해요. 내 왕성 가까이 첫 마을을 놓으세요`);
     next();

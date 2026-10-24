@@ -1,19 +1,14 @@
 import cards from './generated/cards.json';
 import art from './generated/art.json';
 import { cardHTML, image } from './card-view.js';
-import { tint } from './tint.js';
+import { tinted as paint } from './tint.js';
 
-// 카드·말 보기(#cards): 카드 51종과 판 위 말을 iPad에서 직접 넘겨 보며 확인하는 화면. 게임 진행과는 따로다.
+// 카드·말 보기(#cards): 카드 36종, 건설 탭 건물 15종(카드 모양으로 보임), 판 위 말을 iPad에서 직접 넘겨 보며 확인하는 화면. 게임 진행과는 따로다.
 const TABS = [['warrior', '냥전사'], ['mage', '냥법사'], ['assassin', '냥살자'], ['magic', '마법'], ['trap', '함정'], ['pieces', '판 위 말']];
 const PLAYER = ['#e0453a', '#1f9e5a', '#3a7fe0', '#f2c230'];
 
 // 판 위와 같은 방식으로 플레이어 색을 칠한 말
-async function tinted(path, color) {
-  const load = src => { const img = new Image(); img.src = src; return img.decode().then(() => img); };
-  const group = path.split('/')[0];
-  const [base, team] = await Promise.all([load(image(path, group)), load(image(`${path}-team`, group))]);
-  return tint(base, team, color);
-}
+const tinted = (path, color) => { const group = path.split('/')[0]; return paint(image(path, group), image(`${path}-team`, group), color); };
 
 export function cardsScreen(root, onBack) {
   root.innerHTML = `

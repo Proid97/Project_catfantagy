@@ -138,12 +138,11 @@ for (const name of pieceNames) {
 // 유닛 동전 토큰: 판에서 동전 지름은 칸 폭의 약 절반. 최대 확대 기준 폭 288px.
 const focusData = JSON.parse(await readFile(new URL('../assets/cards/focus.json', import.meta.url), 'utf8'));
 const units = Object.entries(focusData).filter(([id]) => id.startsWith('unit-'));
-const badgeIcons = { heart: asset('icons/heart.png'), mana: asset('icons/mana.png') };
 for (const [id, look] of units) {
   const race = id.split('-')[1];
-  const files = [asset(look.file), asset(`cards/background-${race}.png`), badgeIcons.heart, badgeIcons.mana, new URL('../assets/cards/focus.json', import.meta.url)];
+  const files = [asset(look.file), asset(`cards/background-${race}.png`), new URL('../assets/cards/focus.json', import.meta.url)];
   let result;
-  const make = async () => (result ??= await bake.bakeToken(asset(look.file), look, asset(`cards/background-${race}.png`), badgeIcons, 288));
+  const make = async () => (result ??= await bake.bakeToken(asset(look.file), look, asset(`cards/background-${race}.png`), 288));
   await baked(`tokens/${id}`, files, async () => (await make()).art, art.tokens);
   await baked(`tokens/${id}-team`, files, async () => (await make()).team, art.tokens);
 }

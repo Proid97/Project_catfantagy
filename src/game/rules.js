@@ -60,7 +60,7 @@ export function createGame({ board, races, cards, seed = board.seed, rules: base
     mode: board.mode, seed, phase: 'setup', turnCount: 0, round: 0, current: null, order: [], winner: null, log: [],
     players: board.starts.map(({ player, team, hexes }, i) => ({
       id: player, team, race: races[i], alive: true, turns: 0, resources: { ...rules.startResources }, hand: [],
-      raceDeck: deal(cards.filter(c => c.look === races[i] && (c.type === 'unit' || c.type === 'building')).map(c => c.id)), raceDiscard: [],
+      raceDeck: deal(cards.filter(c => c.look === races[i] && c.type === 'unit').map(c => c.id)), raceDiscard: [], // 건물은 카드가 아니라 건설 탭(2026-10-24)
       castle: null, castleHp: rules.castle.hp, castleHexes: hexes.map(hexKey), village: null,
       warcry: false, gateClosed: false, fateNext: false, stealTurn: -99, gateUsed: false, sights: [], meteors: [],
     })),
@@ -72,7 +72,7 @@ export function createGame({ board, races, cards, seed = board.seed, rules: base
   state.known = teams.map(() => startKnown(board));
   state.players.forEach((p, i) => {
     p.castle = geo.vertices.has(vertexOf(board.starts[i].hexes)) ? vertexOf(board.starts[i].hexes) : null;
-    state.buildings.set(p.castle, { vertex: p.castle, owner: i, kind: 'castle', card: null, uid: null, hp: rules.castle.hp, damaged: false, trap: null });
+    state.buildings.set(p.castle, { vertex: p.castle, owner: i, kind: 'castle', card: null, hp: rules.castle.hp, damaged: false, trap: null });
   });
   function vertexOf(hexes) { return hexes.map(hexKey).sort().join('|'); }
 
@@ -263,7 +263,6 @@ export function createGame({ board, races, cards, seed = board.seed, rules: base
   }
   function destroy(b) {
     state.buildings.delete(b.vertex);
-    if (b.uid) P(b.owner).raceDiscard.push(b.uid);
     if (b.trap) discardCard(b.owner, b.trap.uid);
     emit({ type: 'destroyed', vertex: b.vertex, owner: b.owner, card: b.card, kind: b.kind });
     log(`${name(b.owner)}의 ${b.kind === 'village' ? '마을' : defs.get(b.card).name}이(가) 부서졌다`);
@@ -426,7 +425,7 @@ export function createGame({ board, races, cards, seed = board.seed, rules: base
     const spot = villageSpots(player).find(s => s.vertex === vertex);
     if (!spot) return '그 자리에는 마을을 놓을 수 없어요';
     for (const e of spot.path) state.roads.set(e, player);
-    state.buildings.set(vertex, { vertex, owner: player, kind: 'village', card: null, uid: null, damaged: false, trap: null });
+    state.buildings.set(vertex, { vertex, owner: player, kind: 'village', card: null, damaged: false, trap: null });
     P(player).village = vertex;
     emit({ type: 'build', player, vertex, kind: 'village' });
     for (const e of spot.path) emit({ type: 'road', player, edge: e });
@@ -627,6 +626,9 @@ export function createGame({ board, races, cards, seed = board.seed, rules: base
       });
     }).map(e => e.key));
   }
+  // 건설 탭의 종족 건물: 카드 없이 비용만 내면 짓는다. 종류마다 max개까지(임시: 예전 카드 장수)
+  const buildable = player => cards.filter(c => c.type === 'building' && c.look === P(player).race)
+    .map(c => ({ def: defs.get(c.id), count: buildingsOf(player).filter(b => b.card === c.id).length }));
   // 마을·건물: 놓을 수 있는 꼭짓점 중 내 길이 닿은 곳
   function buildSpots(player) {
     return memo(`build${player}`, () => [...geo.vertices.keys()].filter(v => canPlace(v) && (geo.vertexEdges.get(v) ?? []).some(e => state.roads.get(e) === player) && reached(player).has(v)));
@@ -773,8 +775,18 @@ export function createGame({ board, races, cards, seed = board.seed, rules: base
         if (!buildSpots(player).includes(cmd.vertex)) return '마을을 지을 수 없는 자리예요';
         if (!has(p.resources, rules.cost.village)) return '자원이 모자라요';
         pay(p, rules.cost.village);
-        state.buildings.set(cmd.vertex, { vertex: cmd.vertex, owner: player, kind: 'village', card: null, uid: null, damaged: false, trap: null });
+        state.buildings.set(cmd.vertex, { vertex: cmd.vertex, owner: player, kind: 'village', card: null, damaged: false, trap: null });
         emit({ type: 'build', player, vertex: cmd.vertex, kind: 'village' }); log(`${name(player)}이(가) 마을을 지었다`); touch(); return null;
+      }
+      case 'build': {
+        const def = defs.get(cmd.card);
+        if (def?.type !== 'building' || def.look !== p.race) return '지을 수 없는 건물이에요';
+        if (buildingsOf(player).filter(b => b.card === def.id).length >= def.max) return `${def.name}은(는) ${def.max}개까지 지어요`;
+        if (!has(p.resources, def.costMap)) return '자원이 모자라요';
+        if (!buildSpots(player).includes(cmd.vertex)) return '지을 수 없는 자리예요';
+        pay(p, def.costMap);
+        state.buildings.set(cmd.vertex, { vertex: cmd.vertex, owner: player, kind: 'building', card: def.id, hp: def.stats?.hp ?? null, damaged: false, trap: null, revealed: false });
+        emit({ type: 'build', player, vertex: cmd.vertex, kind: 'building', card: def.id }); log(`${name(player)}이(가) ${def.name}을(를) 지었다`); touch(); return null;
       }
       case 'trade': {
         const rate = tradeRate(player, cmd.give, cmd.get);
@@ -820,13 +832,6 @@ export function createGame({ board, races, cards, seed = board.seed, rules: base
         moved: false, attacked: false, skilled: false, fresh: true, reduce: [], barrier: null, mirror: null, poison: 0, rooted: 0, taunt: null, camo: false, revealed: false, hideoutBlock: 0, sprint: false, undying: false, warped: false };
       state.units.set(id2, u);
       emit({ type: 'summon', player, unit: id2, card: id, tile: cmd.tile }); log(`${name(player)}이(가) ${def.name}을(를) 소환했다`); touch(); return null;
-    }
-    if (def.type === 'building') {
-      if (!has(p.resources, def.costMap)) return '자원이 모자라요';
-      if (!buildSpots(player).includes(cmd.vertex)) return '지을 수 없는 자리예요';
-      pay(p, def.costMap); takeFromHand(player, cmd.uid);
-      state.buildings.set(cmd.vertex, { vertex: cmd.vertex, owner: player, kind: 'building', card: id, uid: cmd.uid, hp: def.stats?.hp ?? null, damaged: false, trap: null, revealed: false });
-      emit({ type: 'build', player, vertex: cmd.vertex, kind: 'building', card: id }); log(`${name(player)}이(가) ${def.name}을(를) 지었다`); touch(); return null;
     }
     if (def.type === 'trap') {
       const t = cmd.target ?? {};
@@ -1043,7 +1048,7 @@ export function createGame({ board, races, cards, seed = board.seed, rules: base
     state, geo, defs, board, rules, cardOf, apply, teams,
     card: uid => defs.get(cardOf.get(uid)),
     // 질의(화면·봇)
-    villageSpots, roadSpots, buildSpots, summonTiles, attackTargets, skillTargets, trapTargets, magicTargets, tradeRates, tradeRate,
+    villageSpots, roadSpots, buildSpots, buildable, summonTiles, attackTargets, skillTargets, trapTargets, magicTargets, tradeRates, tradeRate,
     reach: u => reach(u, defs.get(u.card).stats.move + (u.sprint ? 2 : 0), { rough: !u.sprint }),
     unitCap, unitsOf, buildingsOf, goalCount, working, isActive, teamOf, enemies, unitAt, has, passable,
     sight, sees, unitVisible, buildingVisible, hiddenFrom, detection, reached,

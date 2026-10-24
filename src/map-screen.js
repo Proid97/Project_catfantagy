@@ -51,14 +51,16 @@ const TOKEN_FAR = 26; // 멀리 볼 때도 동전이 화면에서 이 CSS px보�
 const TOKEN_UP = 22; // 동전을 칸 가운데보다 위로 올려 아래쪽 숫자 패를 덜 가린다(숫자 패는 말 위에 그린다)
 const STATS = Object.fromEntries(cards.filter(card => card.type === 'unit').map(card => [card.id, card.stats]));
 // 가독성(2026-10-22): 동전이 화면에서 COIN_DETAIL CSS px보다 작으면(멀리 볼 때) 그림 대신 플레이어 색 점으로 그린다.
-// 그 이상이면 동전 아래 체력 막대와, 상대 동전 오른쪽 위에 칼 표시(색으로 구분이 어려운 사람용)를 그린다.
+// 그 이상이면 동전 위 체력·마나 막대와, 상대 동전 오른쪽 위에 칼 표시(색으로 구분이 어려운 사람용)를 그린다.
 const COIN_DETAIL = 36;
 const DOT = 9; // 멀리 볼 때 유닛 점의 반지름(CSS px)
 // 유닛이 선 칸의 숫자 패는 오른쪽 아래 구석으로 작게 비켜 동전에 가리지 않게 한다(동전과 겹치지 않는 가장 큰 자리)
 const DISC_MOVED = { x: 0.46 * TILE, y: 0.34 * TILE, r: 0.21 * TILE };
 const ROAD = 15; // 길 굵기(월드 단위). 짙은 테두리를 더 굵게 깐다
 // 고를 수 있는 곳 표시 색. range: 고른 유닛의 공격 범위(하늘색 칸), picked: 확정을 기다리는 대상
-const MARK = { move: '#ffda63', place: '#ffda63', attack: '#ff5a4a', ally: '#7ee08a', range: '#5cc8ff', picked: '#fff6e6' };
+const MARK = { move: '#ffda63', place: '#ffda63', attack: '#ff5a4a', ally: '#7ee08a', range: '#5cc8ff', picked: '#fff6e6', target: '#ffe680' };
+const LOOK_AROUND = 4000; // ms
+const PULSE = 0.006; // 깜빡이는 표시(카드로 고를 건물·아군)의 빠르기: 약 1초에 한 번
 const GHOST = 0.7; // 확정 전에 미리 놓아 보는 말·길의 불투명도
 const FLASH = 320; // 맞은 말이 붉게 번쩍이며 흔들리는 시간(ms)
 const POP = 300; // 새로 놓인 말이 톡 커지며 나타나는 시간(ms)
@@ -348,6 +350,7 @@ export function mapScreen(root, onModes) {
   const bumps = new Map(); // 유닛 id → 부딪히는 연출
   const effects = new Map(); // 말(유닛 id, 건물·왕성은 꼭짓점 key) → 맞음(hit)·나타남(pop) 연출
   let glow = null; // 나온 숫자의 칸 반짝임
+  let touched = -Infinity; // 마지막으로 판을 만진 때. 그 뒤 LOOK_AROUND 동안은 봇 행동을 따라 시점을 옮기지 않는다
   let frame = 0;
   let renders = 0;
   let fogBuilds = 0;
@@ -469,7 +472,8 @@ export function mapScreen(root, onModes) {
       const [x, y] = [t.x - 0.46 * TILE, t.y + 0.34 * TILE];
       traps.moveTo(x, y - 16); traps.lineTo(x + 15, y + 11); traps.lineTo(x - 15, y + 11); traps.closePath();
     }
-    return { roads: [...roads.values()], marks: Object.values(marks), traps };
+    const list = Object.values(marks);
+    return { roads: [...roads.values()], marks: list, traps, pulse: list.some(m => m.kind === 'target' || m.kind === 'ally') };
   }
 
   // 게임 장면을 받는다. 시야가 바뀌었을 때만 안개를 다시 만든다.
@@ -676,7 +680,7 @@ export function mapScreen(root, onModes) {
     }
     if (above) drawCastles(size, k);
     if (floats.length) drawFloats(start);
-    if (floats.length || motions.size || bumps.size || effects.size || glow) requestRender();
+    if (floats.length || motions.size || bumps.size || effects.size || glow || sceneDraw?.pulse) requestRender();
     if (scene?.pin) placePin(scene.pin);
     placeView(miniView, mini);
     // 시험용 수: 그린 타일·오브젝트·숫자·성·교환소 표지, 안개 그림을 만든 횟수
@@ -765,13 +769,13 @@ export function mapScreen(root, onModes) {
         ctx.arc(cx, cy, r + 6, 0, Math.PI * 2);
         ctx.stroke();
       }
-      // 체력 막대: 동전 아래. 많으면 초록, 반 이하 노랑, 1/4 이하 빨강
-      const max = item.maxHp ?? STATS[item.id].hp, ratio = Math.max(0, item.hp) / max;
-      const bw = coin * 0.72, bh = coin * 0.1, bx = cx - bw / 2, by = cy + r + coin * 0.02;
-      ctx.fillStyle = '#1f1712';
-      ctx.fillRect(bx - 2, by - 2, bw + 4, bh + 4);
-      ctx.fillStyle = ratio > 0.5 ? '#5bd36a' : ratio > 0.25 ? '#ffd54a' : '#ff5a4a';
-      ctx.fillRect(bx, by, bw * ratio, bh);
+      // 체력·마나 막대(2026-10-24 사용자 결정): 동전 위에 최대치만큼 칸을 나눠, 남은 만큼 칸이 찬다.
+      // 체력은 많으면 초록, 반 이하 노랑, 1/4 이하 빨강. 마나는 파랑
+      const max = item.maxHp ?? STATS[item.id].hp, hp = Math.max(0, item.hp), ratio = hp / max;
+      const bw = coin * 0.9, hh = coin * 0.16, mh = coin * 0.12, manaTop = cy - r - coin * 0.04 - mh;
+      segments(cx, manaTop - hh - coin * 0.04, bw, hh, max, hp, ratio > 0.5 ? '#5bd36a' : ratio > 0.25 ? '#ffd54a' : '#ff5a4a');
+      const maxMana = item.maxMana ?? STATS[item.id].mana;
+      if (maxMana) segments(cx, manaTop, bw, mh, maxMana, item.mana, '#4fb2ff');
       // 상대: 오른쪽 위 칼 표시
       if (item.enemy) {
         const sr = coin * 0.17, sx = cx + r * 0.74, sy = cy - r * 0.74;
@@ -787,16 +791,19 @@ export function mapScreen(root, onModes) {
         ctx.fill(SWORD);
         ctx.restore();
       }
-      // 체력·마나 숫자: 동전이 화면에서 44 CSS px 이상일 때만(작으면 읽히지 않고 그리기만 늘어난다)
-      if (coin * zoom < 44) return;
-      for (const [[x, y, rr], value] of [[TK.hp, item.hp], [TK.mana, item.mana]]) {
-        const px = left + tw * x / 1024, py = top + tw * y / 1024, fs = tw * rr / 1024;
-        ctx.font = `700 ${fs}px "Catfantagy UI", sans-serif`;
-        ctx.lineWidth = fs * 0.22;
-        ctx.strokeStyle = '#1f1712';
-        ctx.strokeText(value, px, py + fs * 0.06);
-        ctx.fillStyle = '#fff';
-        ctx.fillText(value, px, py + fs * 0.06);
+    }
+
+    // 칸 나눈 막대: 짙은 바탕 위에 n칸, 앞에서부터 filled칸을 칠한다(빈 칸은 어둡게)
+    function segments(cx, top, width, height, n, filled, color) {
+      const pad = height * 0.2, gap = Math.min(height * 0.25, width * 0.04), left = cx - width / 2;
+      const cell = (width - pad * 2 - gap * (n - 1)) / n;
+      ctx.fillStyle = '#1f1712';
+      ctx.beginPath();
+      ctx.roundRect(left, top, width, height, height * 0.35);
+      ctx.fill();
+      for (let i = 0; i < n; i++) {
+        ctx.fillStyle = i < filled ? color : '#3a4352';
+        ctx.fillRect(left + pad + i * (cell + gap), top + pad, cell, height - pad * 2);
       }
     }
   }
@@ -887,6 +894,7 @@ export function mapScreen(root, onModes) {
     }
     ctx.globalAlpha = 1;
     const edge = Math.max(5, 2.5 / zoom);
+    const pulse = 0.5 + 0.5 * Math.sin(performance.now() * PULSE);
     for (const { kind, shape, path, points } of sceneDraw.marks) {
       ctx.strokeStyle = MARK[kind];
       ctx.fillStyle = MARK[kind];
@@ -896,7 +904,7 @@ export function mapScreen(root, onModes) {
         ctx.fill(path);
         ctx.globalAlpha = 1;
       } else if (shape === 'tile') {
-        ctx.globalAlpha = kind === 'picked' ? 0.5 : 0.28;
+        ctx.globalAlpha = kind === 'picked' ? 0.5 : kind === 'ally' ? 0.2 + 0.35 * pulse : 0.28;
         ctx.fill(path);
         ctx.globalAlpha = 1;
         ctx.lineWidth = edge;
@@ -908,6 +916,20 @@ export function mapScreen(root, onModes) {
         ctx.lineWidth = road + 2;
         ctx.strokeStyle = MARK[kind];
         ctx.stroke(path);
+      } else if (kind === 'target') {
+        // 카드로 고를 건물: 밑동에 깜빡이는 큰 고리. 건물 그림이 위를 덮어 땅에 그린 표시처럼 보인다
+        const rings = new Path2D();
+        for (const { x, y } of points) { rings.moveTo(x + 100, y + 8); rings.ellipse(x, y + 8, 100, 58, 0, 0, Math.PI * 2); }
+        ctx.globalAlpha = 0.15 + 0.3 * pulse;
+        ctx.fill(rings);
+        ctx.globalAlpha = 0.55 + 0.45 * pulse;
+        ctx.lineWidth = Math.max(14, 5 / zoom) + outline;
+        ctx.strokeStyle = PALETTE.outline;
+        ctx.stroke(rings);
+        ctx.lineWidth = Math.max(14, 5 / zoom);
+        ctx.strokeStyle = MARK.target;
+        ctx.stroke(rings);
+        ctx.globalAlpha = 1;
       } else {
         // 꼭짓점: 화면에서 지름 22px 이상인 동그라미
         const r = Math.max(22, 11 / zoom), dots = new Path2D();
@@ -1118,6 +1140,7 @@ export function mapScreen(root, onModes) {
   const point = event => ({ x: event.clientX - view.left, y: event.clientY - view.top });
   canvas.addEventListener('pointerdown', event => {
     glide = null;
+    touched = performance.now();
     if (event.button !== 0) return;
     canvas.setPointerCapture(event.pointerId);
     const at = point(event);
@@ -1128,6 +1151,7 @@ export function mapScreen(root, onModes) {
   canvas.addEventListener('pointermove', event => {
     const last = pointers.get(event.pointerId);
     if (!last) return;
+    touched = performance.now();
     const now = point(event);
     if (tap && Math.hypot(now.x - tap.x, now.y - tap.y) >= 8) tap = null;
     const [a, b] = pointers.values();
@@ -1149,6 +1173,7 @@ export function mapScreen(root, onModes) {
   canvas.addEventListener('pointerup', release);
   canvas.addEventListener('pointercancel', release);
   canvas.addEventListener('wheel', event => {
+    touched = performance.now();
     event.preventDefault();
     const { x, y } = point(event);
     moveCamera(x, y, x, y, Math.exp(-event.deltaY * (event.deltaMode === 1 ? 16 : 1) * 0.002));
@@ -1291,6 +1316,7 @@ export function mapScreen(root, onModes) {
 
   // 월드 점이 화면 가장자리(여백 margin CSS px) 밖이면 부드럽게 그쪽으로 시점을 옮긴다(봇의 행동을 따라 볼 때)
   function show(hexes, margin = 90) {
+    if (performance.now() - touched < LOOK_AROUND) return; // 판을 둘러보는 중이면 시점을 뺏지 않는다
     const { x, y } = hexes.length === 1 ? hexToPixel(hexes[0].q, hexes[0].r, TILE) : vertexAt(hexes);
     const sx = (x - camera.x) * camera.zoom + view.w / 2, sy = (y - camera.y) * camera.zoom + view.h / 2;
     if (sx > margin && sx < view.w - margin && sy > margin * 1.6 && sy < view.h - margin * 1.6) return;

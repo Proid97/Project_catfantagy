@@ -45,7 +45,7 @@ export function parseCards(md) {
       const tower = cells[3].match(/공격타워, 체력 (\d+), 피해 (\d+)/);
       const dice = cells[3].match(/숫자 (\d+)/);
       const range = cells[4].match(/주변 (\d+)칸/);
-      cards.push({ id, name: cells[0], look: race, type: 'building', copies: Number(cells[1]), kind: tower ? '공격타워' : dice ? '효과' : '건물', cost: cost(cells[2]),
+      cards.push({ id, name: cells[0], look: race, type: 'building', max: Number(cells[1]), kind: tower ? '공격타워' : dice ? '효과' : '건물', cost: cost(cells[2]),
         ...(tower ? { stats: { hp: Number(tower[1]), atk: Number(tower[2]), rng: range ? Number(range[1]) : 1 } } : {}), ...(dice ? { dice: Number(dice[1]) } : {}), ...text(cells[4]) });
     } else if (table.startsWith('마법')) {
       cards.push({ id, name: cells[0], look: 'magic', type: 'magic', copies: Number(cells[1]), ...text(cells[2]) });

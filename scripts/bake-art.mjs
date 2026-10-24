@@ -80,9 +80,9 @@ export async function focus(input) {
 // 동전 토큰(2026-10-21 사용자 결정: 코드로 그린 동전). 1024 캔버스, 동전 가운데 (TOKEN.cx, TOKEN.cy).
 // 바깥 테두리와 두께는 회색(팀 색 마스크, 코드가 플레이어 색으로 칠함), 안쪽 크림색 고리, 그 안에 종족 배경과 캐릭터.
 // 캐릭터는 원판 밖으로 나가지 않게 자르고, 머리가 원판 지름의 절반이 되게 키워 얼굴이 크게 보이게 한다(잘려도 됨).
-// 왼쪽 위에 체력(하트)·마나(물방울) 아이콘을 굽고, 숫자는 실행 중 코드가 TOKEN.hp·TOKEN.mana 자리([가운데 x, y, 반지름])에 쓴다.
-export const TOKEN = { cx: 548, cy: 528, rim: 400, ring: 350, disc: 326, depth: 46, head: 0.5, hp: [184, 186, 146], mana: [130, 468, 116] };
-export async function bakeToken(artFile, look, bgFile, icons, width) {
+// 체력·마나는 그림에 굽지 않고 실행 중 코드가 동전 위에 칸 막대로 그린다(2026-10-24).
+export const TOKEN = { cx: 548, cy: 528, rim: 400, ring: 350, disc: 326, depth: 46, head: 0.5 };
+export async function bakeToken(artFile, look, bgFile, width) {
   const { cx, cy, rim, ring, disc, depth } = TOKEN;
   const g = v => `rgb(${v},${v},${v})`;
   const studs = [0, 45, 90, 135, 180, 225, 270, 315].map(a => {
@@ -110,14 +110,10 @@ export async function bakeToken(artFile, look, bgFile, icons, width) {
   const padded = await sharp(big).extend({ top: D, bottom: D, left: D, right: D, background: '#0000' }).png().toBuffer();
   const cut = await sharp(padded).extract({ left: D - left, top: D - top, width: D, height: D }).png().toBuffer();
   const portrait = await sharp(cut).composite([{ input: circle, blend: 'dest-in' }]).png().toBuffer();
-  // 아이콘: 지름 2r 안에 7px 여백을 두고 넣은 뒤 외곽선(여백 안에 그려져 잘리지 않음)
-  const badge = async ([x, y, r], file) => ({ input: await outline(await sharp(file).resize(r * 2 - 14, r * 2 - 14, { fit: 'contain', background: '#0000' }).extend({ top: 7, bottom: 7, left: 7, right: 7, background: '#0000' }).png().toBuffer(), 6), left: x - r, top: y - r });
-  const layers = [{ input: bg, left: cx - disc, top: cy - disc }, { input: portrait, left: cx - disc, top: cy - disc },
-    await badge(TOKEN.hp, icons.heart), await badge(TOKEN.mana, icons.mana)];
-  const art = await sharp(frame).composite(layers).png().toBuffer();
+  const art = await sharp(frame).composite([{ input: bg, left: cx - disc, top: cy - disc }, { input: portrait, left: cx - disc, top: cy - disc }]).png().toBuffer();
   const out = async (b, line) => { const s = await sharp(b).resize(width).png().toBuffer(); return line ? outline(s, width / 120) : s; };
-  // 마스크: 테두리·두께만(안쪽 원판과 아이콘 자리는 지움)
-  const teamCut = await sharp(team).composite([{ input: Buffer.from(`<svg width="${S}" height="${S}"><circle cx="${cx}" cy="${cy}" r="${ring}" fill="#000"/></svg>`), blend: 'dest-out' }, ...layers.slice(2).map(l => ({ ...l, blend: 'dest-out' }))]).png().toBuffer();
+  // 마스크: 테두리·두께만(안쪽 원판은 지움)
+  const teamCut = await sharp(team).composite([{ input: Buffer.from(`<svg width="${S}" height="${S}"><circle cx="${cx}" cy="${cy}" r="${ring}" fill="#000"/></svg>`), blend: 'dest-out' }]).png().toBuffer();
   return { art: await out(art, true), team: await out(teamCut, false) };
 }
 
