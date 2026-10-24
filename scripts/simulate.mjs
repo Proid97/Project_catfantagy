@@ -59,6 +59,7 @@ function invariants(g) {
     for (const [r, v] of Object.entries(p.resources)) if (v < 0) out.push(`자원 음수: ${r} ${v}`);
     if (g.unitsOf(p.id).length > 6) out.push(`유닛 6기 초과: ${g.unitsOf(p.id).length}`);
     if (p.alive && !s.buildings.has(p.castle)) out.push('살아 있는데 왕성이 없음');
+    for (const { def, count } of g.buildable(p.id)) if (count > def.max) out.push(`${def.name} ${count}개(최대 ${def.max})`);
   }
   for (const b of s.buildings.values()) for (const n of g.geo.vertexNeighbors(b.vertex)) if (s.buildings.has(n)) out.push(`이웃 꼭짓점에 건물 둘: ${b.vertex}`);
   return out;

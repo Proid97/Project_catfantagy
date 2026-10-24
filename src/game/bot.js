@@ -11,7 +11,6 @@ function cardValue(g, player, uid) {
   const def = g.card(uid);
   const res = g.state.players[player].resources;
   if (def.type === 'unit') return 10 + TIER[def.tier] * 2 - (g.has(res, def.costMap) ? 0 : 1);
-  if (def.type === 'building') return 8 + (def.stats ? 2 : 0);
   if (def.type === 'magic') return ['magic-fireball', 'magic-market', 'magic-rewrite', 'magic-harvest'].includes(def.id) ? 7 : 5;
   return 4;
 }
@@ -267,15 +266,13 @@ export function botStep(g, player, memo = new Set()) {
   const grow = mine.length >= 1 && villages < 4;
   for (const step of grow ? [village, summon] : [summon, village]) { const cmd = step(); if (cmd) return cmd; }
 
-  // 4. 건물 카드
-  for (const uid of p.hand) {
-    const def = g.card(uid);
-    if (def.type !== 'building' || !g.has(res, def.costMap)) continue;
-    const spots = g.buildSpots(player);
-    if (!spots.length) break;
-    const vertex = ranked(spots)[0];
-    if (!vertex) break;
-    const cmd = fresh({ type: 'play', player, uid, vertex }); if (cmd) return cmd;
+  // 4. 종족 건물(건설 탭): 유닛 상한이 찼으면 막사를 먼저, 나머지는 목록 순서
+  const vertex = ranked(g.buildSpots(player))[0];
+  if (vertex) {
+    const full = mine.length >= g.unitCap(player);
+    const list = g.buildable(player).filter(({ def, count }) => count < def.max && g.has(res, def.costMap))
+      .sort((a, b) => (full && b.def.id === 'building-warrior-barracks') - (full && a.def.id === 'building-warrior-barracks'));
+    for (const { def } of list) { const cmd = fresh({ type: 'build', player, card: def.id, vertex }); if (cmd) return cmd; }
   }
 
   // 5. 마법·함정

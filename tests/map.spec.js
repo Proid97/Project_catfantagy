@@ -369,7 +369,7 @@ test('임시 주사위: 연출 중 화면을 누르면 결과로 건너뛰고 �
 
 test('타이틀에서 고른 "움직임 줄임"이면 주사위가 구르지 않고 결과 면으로 나타났다 사라짐', async ({ page }) => {
   const errors = watchErrors(page);
-  await page.goto('/?seed=7'); // 시드 7: 내가 먼저 둔다
+  await page.goto('/?seed=5'); // 시드 5: 내가 먼저 둔다
   await page.getByRole('button', { name: '연출 건너뛰기' }).click();
   await page.getByRole('button', { name: '움직임: 전체', exact: true }).click();
   await expect(page.locator('.stage')).toHaveAttribute('data-motion', 'reduced');
